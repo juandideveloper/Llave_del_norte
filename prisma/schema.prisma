@@ -1,0 +1,148 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Rol {
+  NORMAL
+  ESPECIAL
+}
+
+enum EstadoAprobacion {
+  PENDIENTE
+  APROBADO
+  RECHAZADO
+}
+
+enum EstadoPago {
+  PENDIENTE
+  PAGADO
+  FALLIDO
+}
+
+enum MetodoPago {
+  BOLD
+  PSE
+}
+
+enum EstadoImportacion {
+  CONFIRMADO
+  PRODUCCION
+  TRANSITO
+  ADUANA
+  BODEGA
+  ENTREGADO
+}
+
+model Cliente {
+  id              Int              @id @default(autoincrement())
+  nombre          String
+  email           String           @unique
+  password        String
+  telefono        String?
+  rol             Rol              @default(NORMAL)
+  estado          EstadoAprobacion @default(APROBADO)
+  empresa         String?
+  nit             String?
+  tipoCliente     String?
+  volumenEstimado String?
+  direccion       String?
+  ciudad          String?
+  barrio          String?
+  alegraContactId String?
+  fechaRegistro   DateTime         @default(now())
+  pedidos         Pedido[]
+  notificaciones  Notificacion[]
+  resenas         Resena[]
+}
+
+model Producto {
+  id              Int              @id @default(autoincrement())
+  alegraProductId String?
+  nombre          String
+  descripcion     String?
+  categoria       String
+  precioNormal    Float
+  precioMayorista Float
+  stock           Int              @default(0)
+  activo          Boolean          @default(true)
+  fechaCreacion   DateTime         @default(now())
+  pedidoProductos PedidoProducto[]
+  resenas         Resena[]
+}
+
+model Pedido {
+  id                  Int              @id @default(autoincrement())
+  clienteId           Int
+  importacionId       Int?
+  alegraInvoiceId     String?
+  estadoPago          EstadoPago       @default(PENDIENTE)
+  metodoPago          MetodoPago?
+  total               Float
+  direccionEntrega    String?
+  ciudadEntrega       String?
+  guiaInterrapidisimo String?
+  fechaPedido         DateTime         @default(now())
+  cliente             Cliente          @relation(fields: [clienteId], references: [id])
+  importacion         Importacion?     @relation(fields: [importacionId], references: [id])
+  productos           PedidoProducto[]
+  notificaciones      Notificacion[]
+}
+
+model PedidoProducto {
+  id             Int      @id @default(autoincrement())
+  pedidoId       Int
+  productoId     Int
+  cantidad       Int
+  precioUnitario Float
+  pedido         Pedido   @relation(fields: [pedidoId], references: [id])
+  producto       Producto @relation(fields: [productoId], references: [id])
+}
+
+model Importacion {
+  id               Int               @id @default(autoincrement())
+  nombre           String
+  proveedor        String
+  paisOrigen       String?
+  puertoDestino    String?
+  numeroContenedor String?
+  estado           EstadoImportacion @default(CONFIRMADO)
+  fechaEstimada    DateTime?
+  notas            String?
+  fechaCreacion    DateTime          @default(now())
+  pedidos          Pedido[]
+}
+
+model Notificacion {
+  id        Int      @id @default(autoincrement())
+  clienteId Int
+  pedidoId  Int?
+  titulo    String
+  mensaje   String
+  leida     Boolean  @default(false)
+  fecha     DateTime @default(now())
+  cliente   Cliente  @relation(fields: [clienteId], references: [id])
+  pedido    Pedido?  @relation(fields: [pedidoId], references: [id])
+}
+
+model Resena {
+  id           Int      @id @default(autoincrement())
+  clienteId    Int
+  productoId   Int
+  calificacion Int
+  comentario   String?
+  fecha        DateTime @default(now())
+  cliente      Cliente  @relation(fields: [clienteId], references: [id])
+  producto     Producto @relation(fields: [productoId], references: [id])
+}
+
+model Suscriptor {
+  id               Int      @id @default(autoincrement())
+  email            String   @unique
+  activo           Boolean  @default(true)
+  fechaSuscripcion DateTime @default(now())
+}
