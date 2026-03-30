@@ -14,7 +14,7 @@ export default function RecuperarContrasenaPage() {
     setCargando(true);
     setError("");
 
-    const res = await fetch("/app/api/auth/recuperar", {
+    const res = await fetch("api/auth/recuperar", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email }),

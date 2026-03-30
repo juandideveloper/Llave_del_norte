@@ -4,7 +4,6 @@ import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
-// Este componente va PRIMERO antes de usarlo
 function NuevaPasswordForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -21,39 +20,44 @@ function NuevaPasswordForm() {
     setError("");
 
     if (password !== confirmar) {
-      setError("Las contraseñas no coinciden");
+      setError("Las contrasenas no coinciden");
       return;
     }
 
     if (password.length < 8) {
-      setError("La contraseña debe tener mínimo 8 caracteres");
+      setError("La contrasena debe tener minimo 8 caracteres");
       return;
     }
 
     setCargando(true);
 
-    const res = await fetch("/api/auth/nueva-password", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token, password }),
-    });
+    try {
+      const res = await fetch("/api/auth/nueva-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, password }),
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (!res.ok) {
-      setError(data.error);
+      if (!res.ok) {
+        setError(data.error || "El enlace no es valido o ya expiro");
+        setCargando(false);
+        return;
+      }
+
+      setExitoso(true);
+      setTimeout(() => router.push("/login"), 3000);
+    } catch (error) {
+      setError("Error de conexion, intenta de nuevo");
       setCargando(false);
-      return;
     }
-
-    setExitoso(true);
-    setTimeout(() => router.push("/login"), 3000);
   }
 
   if (!token) {
     return (
       <div className="text-center">
-        <p className="text-red-500 text-sm">Enlace no válido</p>
+        <p className="text-red-500 text-sm">Enlace no valido</p>
         <Link href="/login" className="text-amarillo text-sm mt-2 block">
           Volver al login
         </Link>
@@ -123,16 +127,21 @@ function NuevaPasswordForm() {
         <button
           type="submit"
           disabled={cargando}
-          className="w-full py-2.5 rounded-md text-sm font-medium bg-verde text-amarillo hover:opacity-90 transition-opacity"
+          className="w-full py-2.5 rounded-md text-sm font-medium bg-verde text-amarillo hover:opacity-90 transition-opacity disabled:opacity-50"
         >
           {cargando ? "Actualizando..." : "Actualizar contrasena"}
         </button>
       </form>
+
+      <div className="text-center mt-4">
+        <Link href="/login" className="text-xs text-amarillo">
+          Volver al login
+        </Link>
+      </div>
     </>
   );
 }
 
-// Este componente va DESPUÉS usando NuevaPasswordForm
 export default function NuevaPasswordPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-hueso">
