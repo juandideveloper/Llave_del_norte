@@ -58,6 +58,8 @@ model Cliente {
   pedidos         Pedido[]
   notificaciones  Notificacion[]
   resenas         Resena[]
+  resetToken          String?
+  resetTokenExpira    DateTime?
 }
 
 model Producto {

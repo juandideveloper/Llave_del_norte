@@ -1,0 +1,150 @@
+"use client";
+
+import { useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
+
+// Este componente va PRIMERO antes de usarlo
+function NuevaPasswordForm() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token");
+
+  const [password, setPassword] = useState("");
+  const [confirmar, setConfirmar] = useState("");
+  const [error, setError] = useState("");
+  const [cargando, setCargando] = useState(false);
+  const [exitoso, setExitoso] = useState(false);
+
+  async function handleNuevaPassword(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+
+    if (password !== confirmar) {
+      setError("Las contraseñas no coinciden");
+      return;
+    }
+
+    if (password.length < 8) {
+      setError("La contraseña debe tener mínimo 8 caracteres");
+      return;
+    }
+
+    setCargando(true);
+
+    const res = await fetch("/api/auth/nueva-password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token, password }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      setError(data.error);
+      setCargando(false);
+      return;
+    }
+
+    setExitoso(true);
+    setTimeout(() => router.push("/login"), 3000);
+  }
+
+  if (!token) {
+    return (
+      <div className="text-center">
+        <p className="text-red-500 text-sm">Enlace no válido</p>
+        <Link href="/login" className="text-amarillo text-sm mt-2 block">
+          Volver al login
+        </Link>
+      </div>
+    );
+  }
+
+  if (exitoso) {
+    return (
+      <div className="text-center py-4">
+        <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-amarillo/10 border border-amarillo">
+          <span className="text-2xl text-verde">✓</span>
+        </div>
+        <h2 className="text-lg font-medium text-verde mb-2">
+          Contrasena actualizada
+        </h2>
+        <p className="text-sm text-gray-400">
+          Te redirigimos al login en unos segundos...
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <div className="text-center mb-6">
+        <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3 bg-verde">
+          <span className="text-xl font-medium text-amarillo">L</span>
+        </div>
+        <h1 className="text-xl font-medium text-verde">Nueva contrasena</h1>
+        <p className="text-sm text-gray-400 mt-1">
+          Escribe tu nueva contrasena
+        </p>
+      </div>
+
+      <form onSubmit={handleNuevaPassword} className="space-y-4">
+        <div>
+          <label className="text-xs text-gray-500 mb-1 block">
+            Nueva contrasena
+          </label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Minimo 8 caracteres"
+            required
+            className="w-full px-3 py-2 rounded-md text-sm outline-none border border-gray-200 focus:border-amarillo bg-hueso text-verde"
+          />
+        </div>
+
+        <div>
+          <label className="text-xs text-gray-500 mb-1 block">
+            Confirmar contrasena
+          </label>
+          <input
+            type="password"
+            value={confirmar}
+            onChange={(e) => setConfirmar(e.target.value)}
+            placeholder="Repite la nueva contrasena"
+            required
+            className="w-full px-3 py-2 rounded-md text-sm outline-none border border-gray-200 focus:border-amarillo bg-hueso text-verde"
+          />
+        </div>
+
+        {error && <p className="text-red-500 text-xs">{error}</p>}
+
+        <button
+          type="submit"
+          disabled={cargando}
+          className="w-full py-2.5 rounded-md text-sm font-medium bg-verde text-amarillo hover:opacity-90 transition-opacity"
+        >
+          {cargando ? "Actualizando..." : "Actualizar contrasena"}
+        </button>
+      </form>
+    </>
+  );
+}
+
+// Este componente va DESPUÉS usando NuevaPasswordForm
+export default function NuevaPasswordPage() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-hueso">
+      <div className="bg-white rounded-xl p-8 w-full max-w-md border border-gray-100 shadow-sm">
+        <Suspense
+          fallback={
+            <p className="text-center text-sm text-gray-400">Cargando...</p>
+          }
+        >
+          <NuevaPasswordForm />
+        </Suspense>
+      </div>
+    </div>
+  );
+}
