@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function RecuperarContrasenaPage() {
   const [email, setEmail] = useState("");
@@ -63,8 +64,19 @@ export default function RecuperarContrasenaPage() {
                   className="w-full px-3 py-2 rounded-md text-sm ountline-none border border-gray-200 focus:border-amarillo bg-hueso text-verde"
                 />
               </div>
-              {error && <p className="text-red-500 text-xs">{error}</p>}
-
+              <AnimatePresence>
+                {error && (
+                  <motion.p
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.9 }}
+                    className="text-red-500 text-xs"
+                  >
+                    {error}
+                  </motion.p>
+                )}
+              </AnimatePresence>
               <button
                 type="submit"
                 disabled={cargando}

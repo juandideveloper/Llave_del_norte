@@ -4,6 +4,7 @@ import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import InputPassword from "@/components/ui/InputPassword";
+import { motion, AnimatePresence } from "framer-motion";
 
 function NuevaPasswordForm() {
   const router = useRouter();
@@ -21,12 +22,12 @@ function NuevaPasswordForm() {
     setError("");
 
     if (password !== confirmar) {
-      setError("Las contrasenas no coinciden");
+      setError("Las contraseñas no coinciden");
       return;
     }
 
     if (password.length < 8) {
-      setError("La contrasena debe tener minimo 8 caracteres");
+      setError("La contraseña debe tener minimo 8 caracteres");
       return;
     }
 
@@ -73,7 +74,7 @@ function NuevaPasswordForm() {
           <span className="text-2xl text-verde">✓</span>
         </div>
         <h2 className="text-lg font-medium text-verde mb-2">
-          Contrasena actualizada
+          Contraseña actualizada
         </h2>
         <p className="text-sm text-gray-400">
           Te redirigimos al login en unos segundos...
@@ -90,14 +91,14 @@ function NuevaPasswordForm() {
         </div>
         <h1 className="text-xl font-medium text-verde">Nueva contrasena</h1>
         <p className="text-sm text-gray-400 mt-1">
-          Escribe tu nueva contrasena
+          Escribe tu nueva contraseña
         </p>
       </div>
 
       <form onSubmit={handleNuevaPassword} className="space-y-4">
         <div>
           <label className="text-xs text-gray-500 mb-1 block">
-            Nueva contrasena
+            Nueva contraseña
           </label>
           <InputPassword
             value={password}
@@ -119,14 +120,26 @@ function NuevaPasswordForm() {
           />
         </div>
 
-        {error && <p className="text-red-500 text-xs">{error}</p>}
+        <AnimatePresence>
+          {error && (
+            <motion.p
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className=" bg-red-100 border border-red-300 rounded-md p-2"
+            >
+              <p className="text-red-600 text-sm font-medium text-center items-center">{error}</p>
+            </motion.p>
+          )}
+        </AnimatePresence>
 
         <button
           type="submit"
           disabled={cargando}
           className="w-full py-2.5 rounded-md text-sm font-medium bg-verde text-amarillo hover:opacity-90 transition-opacity disabled:opacity-50"
         >
-          {cargando ? "Actualizando..." : "Actualizar contrasena"}
+          {cargando ? "Actualizando..." : "Actualizar contraseña"}
         </button>
       </form>
 

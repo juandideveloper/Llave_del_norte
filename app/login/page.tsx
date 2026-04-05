@@ -4,6 +4,7 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import InputPassword from "@/components/ui/InputPassword";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -44,7 +45,6 @@ export default function LoginPage() {
                 height="24.00000pt"
                 viewBox="0 0 325.000000 321.000000"
                 preserveAspectRatio="xMidYMid meet"
-
               >
                 <g
                   transform="translate(0.000000,321.000000) scale(0.100000,-0.100000)"
@@ -119,7 +119,19 @@ export default function LoginPage() {
               ¿Olvidaste tu contraseña?
             </Link>
           </div>
-          {error && <p className="text-red-500 text-xs">{error}</p>}
+          <AnimatePresence>
+            {error && (
+              <motion.p
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="text-red-500 text-xs"
+              >
+                {error}
+              </motion.p>
+            )}
+          </AnimatePresence>{" "}
           <button
             type="submit"
             disabled={cargando}

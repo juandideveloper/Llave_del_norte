@@ -1,12 +1,13 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import Link from "next/link"
-import InputPassword from "@/components/ui/InputPassword"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import InputPassword from "@/components/ui/InputPassword";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function RegistroEspecialPage() {
-  const router = useRouter()
+  const router = useRouter();
 
   const [form, setForm] = useState({
     nombre: "",
@@ -17,32 +18,32 @@ export default function RegistroEspecialPage() {
     empresa: "",
     nit: "",
     tipoCliente: "",
-    volumenEstimado: ""
-  })
-  const [error, setError] = useState("")
-  const [cargando, setCargando] = useState(false)
+    volumenEstimado: "",
+  });
+  const [error, setError] = useState("");
+  const [cargando, setCargando] = useState(false);
 
   function handleChange(
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) {
-    setForm({ ...form, [e.target.name]: e.target.value })
+    setForm({ ...form, [e.target.name]: e.target.value });
   }
 
   async function handleRegistro(e: React.FormEvent) {
-    e.preventDefault()
-    setError("")
+    e.preventDefault();
+    setError("");
 
     if (form.password !== form.confirmar) {
-      setError("Las contraseñas no coinciden")
-      return
+      setError("Las contraseñas no coinciden");
+      return;
     }
 
     if (form.password.length < 8) {
-      setError("La contraseña debe tener mínimo 8 caracteres")
-      return
+      setError("La contraseña debe tener mínimo 8 caracteres");
+      return;
     }
 
-    setCargando(true)
+    setCargando(true);
 
     try {
       const res = await fetch("/api/auth/registro-especial", {
@@ -56,31 +57,29 @@ export default function RegistroEspecialPage() {
           empresa: form.empresa,
           nit: form.nit,
           tipoCliente: form.tipoCliente,
-          volumenEstimado: form.volumenEstimado
-        })
-      })
+          volumenEstimado: form.volumenEstimado,
+        }),
+      });
 
-      const data = await res.json()
+      const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error)
-        setCargando(false)
-        return
+        setError(data.error);
+        setCargando(false);
+        return;
       }
 
       // Redirigimos a una página de espera de aprobación
-      router.push("/pendiente-aprobacion")
-
+      router.push("/pendiente-aprobacion");
     } catch (error) {
-      setError("Error de conexión, intenta de nuevo")
-      setCargando(false)
+      setError("Error de conexión, intenta de nuevo");
+      setCargando(false);
     }
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center py-8 bg-hueso">
       <div className="bg-white rounded-xl p-8 w-full max-w-lg border border-gray-100 shadow-sm">
-
         <div className="text-center mb-6">
           <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3 bg-verde">
             <span className="text-xl font-medium text-amarillo">L</span>
@@ -94,7 +93,6 @@ export default function RegistroEspecialPage() {
         </div>
 
         <form onSubmit={handleRegistro} className="space-y-4">
-
           {/* Datos personales */}
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -195,7 +193,8 @@ export default function RegistroEspecialPage() {
 
           <div>
             <label className="text-xs text-gray-500 mb-1 block">
-              Volumen estimado de compra mensual <span className="text-red-500">*</span>
+              Volumen estimado de compra mensual{" "}
+              <span className="text-red-500">*</span>
             </label>
             <select
               name="volumenEstimado"
@@ -231,7 +230,9 @@ export default function RegistroEspecialPage() {
               </label>
               <InputPassword
                 value={form.confirmar}
-                onChange={(e) => setForm({ ...form, confirmar: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, confirmar: e.target.value })
+                }
                 placeholder="Repite tu contraseña"
                 required
               />
@@ -247,7 +248,19 @@ export default function RegistroEspecialPage() {
             </p>
           </div>
 
-          {error && <p className="text-red-500 text-xs">{error}</p>}
+          <AnimatePresence>
+            {error && (
+              <motion.p
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="text-red-500 text-xs"
+              >
+                {error}
+              </motion.p>
+            )}
+          </AnimatePresence>
 
           <button
             type="submit"
@@ -274,5 +287,5 @@ export default function RegistroEspecialPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }
