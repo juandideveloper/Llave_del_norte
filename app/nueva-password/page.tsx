@@ -3,6 +3,7 @@
 import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import InputPassword from "@/components/ui/InputPassword";
 
 function NuevaPasswordForm() {
   const router = useRouter();
@@ -98,13 +99,11 @@ function NuevaPasswordForm() {
           <label className="text-xs text-gray-500 mb-1 block">
             Nueva contrasena
           </label>
-          <input
-            type="password"
+          <InputPassword
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="Minimo 8 caracteres"
+            placeholder="••••••••"
             required
-            className="w-full px-3 py-2 rounded-md text-sm outline-none border border-gray-200 focus:border-amarillo bg-hueso text-verde"
           />
         </div>
 
@@ -112,13 +111,11 @@ function NuevaPasswordForm() {
           <label className="text-xs text-gray-500 mb-1 block">
             Confirmar contrasena
           </label>
-          <input
-            type="password"
+          <InputPassword
             value={confirmar}
             onChange={(e) => setConfirmar(e.target.value)}
-            placeholder="Repite la nueva contrasena"
+            placeholder="••••••••"
             required
-            className="w-full px-3 py-2 rounded-md text-sm outline-none border border-gray-200 focus:border-amarillo bg-hueso text-verde"
           />
         </div>
 

@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client/extension";
+import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
-
-const prisma = new PrismaClient();
 
 // Esta función registra clientes importadores
 // La diferencia es que quedan PENDIENTE hasta que el admin los apruebe
@@ -56,15 +54,14 @@ export async function POST(request: Request) {
       },
     });
 
-    return (
-      NextResponse.json({
-        id: nuevoCliente.id,
-        nombre: nuevoCliente.nombre,
-        email: nuevoCliente.email,
-        estado: nuevoCliente.estado,
-      })
-    );
+    return NextResponse.json({
+      id: nuevoCliente.id,
+      nombre: nuevoCliente.nombre,
+      email: nuevoCliente.email,
+      estado: nuevoCliente.estado,
+    });
   } catch (error) {
+    console.log("Error registro especial:", error);
     return NextResponse.json(
       { error: "Error al registrar el cliente importador" },
 

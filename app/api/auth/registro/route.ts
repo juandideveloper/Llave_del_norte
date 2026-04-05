@@ -1,8 +1,6 @@
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
-
-const prisma = new PrismaClient();
 
 // Esta función se ejecuta cuando alguien envía el formulario de registro
 export async function POST(request: Request) {
