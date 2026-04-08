@@ -1,11 +1,18 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&display=swap');
 @import "tailwindcss";
 
+
 @theme {
-  --color-verde: #112221;
+  --color-verde: #112221; 
+  --color-verde-claro: #1a3330;
+  --color-verde-medio: #162c2a;
   --color-amarillo: #e1b86b;
+  --color-amarillo-oscuro: #98742D;
   --color-amarillo-claro: rgba(225,184,107,0.12);
   --color-hueso: #fffaec;
   --color-hueso-oscuro: #F4DEB3;
-  --color-verde-claro: #1a3330;
-  --color-verde-medio: #162c2a;
+}
+.navbar{
+  font-family: "Jost", sans-serif;
 }
