@@ -11,7 +11,7 @@ export default function Navbar() {
   const [menuMovil, setMenuMovil] = useState(false);
 
   return (
-    <nav className="navbar bg-verde px-6 py-4 sticky top-0 z-50 border-b border-gray-100">
+    <nav className="navbar bg-verde px-6 py-4 sticky top-0 z-50 border-b border-amarillo">
       <div className="flex items-center gap-8">
         {/* Logo */}
         <a href="#inicio">
@@ -411,7 +411,7 @@ c3 1893 8 2770 15 2777 7 7 148 12 400 13 l390 3 3 33 c2 20 -2 34 -10 37 -14
           {status === "unauthenticated" && (
             <Link
               href="/login"
-              className="hidden lg:flex items-center gap-2 text-sm font-medium px-4 py-1.5 text-white hover:text-amarillo transition-colors"
+              className="hidden lg:flex lg:flex-col lg:items-center items-center gap-2 text-sm font-medium px-4 py-1.5 text-white hover:text-amarillo transition-colors"
             >
               <svg
                 viewBox="0 0 640 640"
