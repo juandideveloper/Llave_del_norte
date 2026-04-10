@@ -11,7 +11,7 @@ export default function Navbar() {
   const [menuMovil, setMenuMovil] = useState(false);
 
   return (
-    <nav className="navbar bg-verde px-6 py-4 sticky top-0 z-50 border-b border-amarillo">
+    <nav className="navbar bg-verde px-6 py-4 sticky top-0 z-50 ">
       <div className="flex items-center gap-8">
         {/* Logo */}
         <a href="#inicio">
