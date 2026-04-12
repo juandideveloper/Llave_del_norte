@@ -548,7 +548,7 @@ c3 1893 8 2770 15 2777 7 7 148 12 400 13 l390 3 3 33 c2 20 -2 34 -10 37 -14
           >
             <div className="pt-4 pb-2 space-y-1 border-t border-white/10 mt-4">
               {[
-                { href: "#catalogo", label: "Catálogo" },
+                { href: "#catalogo", label: "Catalogo" },
                 { href: "#destacados", label: "Atención al cliente" },
                 { href: "#clientes", label: "Rastrea tu pedido" },
               ].map((link) => (

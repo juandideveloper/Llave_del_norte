@@ -5,7 +5,11 @@ import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 
-export default function Navbar() {
+interface NavbarProps {
+  breadcrumb?: { label: string; href?: string }[];
+}
+
+export default function Navbar({ breadcrumb }: NavbarProps) {
   const { data: session, status } = useSession();
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [menuMovil, setMenuMovil] = useState(false);
@@ -14,7 +18,7 @@ export default function Navbar() {
     <nav className="navbar bg-verde px-6 py-4 sticky top-0 z-50 ">
       <div className="flex items-center gap-8">
         {/* Logo */}
-        <a href="#inicio">
+        <Link href="/"> 
           <svg
             version="1.0"
             width="70.000000pt"
@@ -278,16 +282,15 @@ c3 1893 8 2770 15 2777 7 7 148 12 400 13 l390 3 3 33 c2 20 -2 34 -10 37 -14
               />
             </g>
           </svg>
-        </a>
+        </Link>
 
         {/* Links pegados al logo */}
         <div className="hidden lg:flex items-center gap-6">
-          <a
-            href="#catalogo"
+          <Link href="catalogo"
             className="text-sm text-white hover:text-amarillo transition-colors uppercase tracking-wider"
           >
             Catálogo
-          </a>
+          </Link>
           <a
             href="#destacados"
             className="text-sm text-white hover:text-amarillo transition-colors uppercase tracking-wider"
@@ -536,7 +539,7 @@ c3 1893 8 2770 15 2777 7 7 148 12 400 13 l390 3 3 33 c2 20 -2 34 -10 37 -14
           >
             <div className="pt-4 pb-2 space-y-1 border-t border-white/10 mt-4">
               {[
-                { href: "#catalogo", label: "Catálogo" },
+                { href: "#catalogo", label: "Catalogo" },
                 { href: "#destacados", label: "Atención al cliente" },
                 { href: "#clientes", label: "Rastrea tu pedido" },
               ].map((link) => (
@@ -636,6 +639,26 @@ c3 1893 8 2770 15 2777 7 7 148 12 400 13 l390 3 3 33 c2 20 -2 34 -10 37 -14
           </motion.div>
         )}
       </AnimatePresence>
+      {/* Breadcrumb — solo si se pasa como prop */}
+      {breadcrumb && (
+        <div className="px-6 py-2 border-t border-white/10 text-xs text-white/40">
+          {breadcrumb.map((item, i) => (
+            <span key={i}>
+              {i > 0 && " / "}
+              {item.href ? (
+                <Link
+                  href={item.href}
+                  className="hover:text-amarillo transition-colors"
+                >
+                  {item.label}
+                </Link>
+              ) : (
+                <span className="text-amarillo">{item.label}</span>
+              )}
+            </span>
+          ))}
+        </div>
+      )}
     </nav>
   );
 }

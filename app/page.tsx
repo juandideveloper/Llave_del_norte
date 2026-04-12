@@ -4,10 +4,8 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import NavbarHome from "@/components/ui/NavbarHome";
 import { motion } from "framer-motion";
-
- "public/images/CatalogoAccesorios.png";
 import "./globals.css";
-import { image } from "framer-motion/client";
+
 
 const productosDestacados = [
   {
@@ -286,7 +284,7 @@ export default function HomePage() {
             href="/catalogo"
             className="text-sm text-hueso/80 hover:text-amarillo transition-colors underline underline-offset-8"
           >
-            VER TODO EL CATALOGO
+            VER TODO EL CATÁLOGO
           </Link>
         </div>
 
