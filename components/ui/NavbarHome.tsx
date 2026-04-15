@@ -537,6 +537,7 @@ c3 1893 8 2770 15 2777 7 7 148 12 400 13 l390 3 3 33 c2 20 -2 34 -10 37 -14
       </div>
 
       {/* Menú móvil */}
+      {/* Menú móvil */}
       <AnimatePresence>
         {menuMovil && (
           <motion.div
@@ -546,24 +547,39 @@ c3 1893 8 2770 15 2777 7 7 148 12 400 13 l390 3 3 33 c2 20 -2 34 -10 37 -14
             transition={{ duration: 0.3 }}
             className="lg:hidden overflow-hidden"
           >
-            <div className="pt-4 pb-2 space-y-1 border-t border-white/10 mt-4">
-              {[
-                { href: "#catalogo", label: "Catalogo" },
-                { href: "#destacados", label: "Atención al cliente" },
-                { href: "#clientes", label: "Rastrea tu pedido" },
-              ].map((link) => (
+            <div className="pt-4 pb-2 space-y-1 border-t border-verde/20 mt-4">
+              {(
+                [
+                  { href: "#catalogo", label: "Catálogo" },
+                  { href: "#destacados", label: "Productos destacados" },
+                  { href: "#clientes", label: "Nuestros clientes" },
+                  { href: "#filosofia", label: "Nuestra filosofía" },
+                  { href: "#contacto", label: "Contacto" },
+                ] as { href: string; label: string }[]
+              ).map((link) => (
                 <a
                   key={link.href}
                   href={link.href}
-                  onClick={() => setMenuMovil(false)}
-                  className="block px-2 py-2.5 text-sm text-verde/74 hover:text-amarillo-oscuro transition-colors"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setMenuMovil(false);
+                    setTimeout(() => {
+                      const elemento = document.querySelector<HTMLElement>(
+                        link.href,
+                      );
+                      if (elemento) {
+                        elemento.scrollIntoView({ behavior: "smooth" });
+                      }
+                    }, 300);
+                  }}
+                  className="block px-2 py-2.5 text-sm text-verde hover:text-amarillo transition-colors"
                 >
                   {link.label}
                 </a>
               ))}
 
               {/* Search móvil */}
-              <div className="flex items-center gap-2 bg-amarillo/30 rounded-full px-3 py-2  mt-2">
+              <div className="flex items-center gap-2 bg-amarillo/30 rounded-full px-3 py-2 mt-2">
                 <svg
                   width="16"
                   height="16"
@@ -583,12 +599,12 @@ c3 1893 8 2770 15 2777 7 7 148 12 400 13 l390 3 3 33 c2 20 -2 34 -10 37 -14
               </div>
 
               {/* Redes móvil */}
-              <div className="flex items-center gap-4 px-2 py-3 border-t border-white/10 mt-2">
+              <div className="flex items-center gap-4 px-2 py-3 border-t border-verde/20 mt-2">
                 <a
                   href="https://www.instagram.com/lallavedelnorte/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-verde hover:text-amarillo-oscuro transition-colors"
+                  className="text-verde hover:text-amarillo transition-colors"
                 >
                   <svg
                     width="18"
@@ -607,7 +623,7 @@ c3 1893 8 2770 15 2777 7 7 148 12 400 13 l390 3 3 33 c2 20 -2 34 -10 37 -14
                   href="https://www.tiktok.com/@lallavedelnorte1"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-verde hover:text-amarillo-oscuro transition-colors"
+                  className="text-verde hover:text-amarillo transition-colors"
                 >
                   <svg
                     width="18"
@@ -622,7 +638,7 @@ c3 1893 8 2770 15 2777 7 7 148 12 400 13 l390 3 3 33 c2 20 -2 34 -10 37 -14
                   href="https://wa.me/573134866451"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-verde hover:text-amarillo-oscuro transition-colors"
+                  className="text-verde hover:text-amarillo transition-colors"
                 >
                   <svg
                     width="18"
@@ -639,7 +655,7 @@ c3 1893 8 2770 15 2777 7 7 148 12 400 13 l390 3 3 33 c2 20 -2 34 -10 37 -14
                 <Link
                   href="/login"
                   onClick={() => setMenuMovil(false)}
-                  className="flex items-center gap-2 mx-2 mt-2 px-2 py-2.5 text-sm  font-medium rounded-full text-verde  hover:text-amarillo transition-colors"
+                  className="flex items-center gap-2 mx-2 mt-2 px-2 py-2.5 text-sm font-medium text-verde hover:text-amarillo transition-colors"
                 >
                   Iniciar sesión
                 </Link>

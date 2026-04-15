@@ -5,6 +5,7 @@ import Link from "next/link";
 import Navbar from "@/components/ui/Navbar";
 import { useSession } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
+import Footer from "@/components/ui/Footer";
 
 const productos = [
   {
@@ -208,7 +209,7 @@ function Estrellas({ cantidad }: { cantidad: number }) {
 
 function BadgePrecioEspecial() {
   return (
-    <div className="bg-amarillo-oscuro px-3 py-1.5 flex items-center gap-1.5 w-44 mt-2 rounded-r-md">
+    <div className="bg-amarillo-oscuro px-3 py-1.5 flex items-center gap-1.5 w-44 mt-3 rounded-r-md">
       <svg
         width="16"
         height="16"
@@ -406,8 +407,10 @@ export default function CatalogoPage() {
     )
       return false;
     if (soloEnStock && !p.stock) return false;
-    if (materialesActivos.length > 0 && !materialesActivos.includes(p.material)) return false;
-    const precio = esEspecial ? p.precioEspecial : p.precioNormal;    if (precio > precioMax) return false;
+    if (materialesActivos.length > 0 && !materialesActivos.includes(p.material))
+      return false;
+    const precio = esEspecial ? p.precioEspecial : p.precioNormal;
+    if (precio > precioMax) return false;
     if (precioMin > 0 && precio < precioMin) return false;
     if (precioMax < 1000000 && precio > precioMax) return false;
     return true;
@@ -450,11 +453,9 @@ export default function CatalogoPage() {
 
   return (
     <div className="min-h-screen bg-white ">
-      <Navbar breadcrumb={[
-        { label: "Inicio", href:"/" },
-        { label: "Catalogo"}
-      ]} />
-      
+      <Navbar
+        breadcrumb={[{ label: "Inicio", href: "/" }, { label: "Catalogo" }]}
+      />
 
       {/* Botón filtros móvil */}
       <div className="md:hidden px-4 py-3 bg-white border-b border-gray-100">
@@ -508,7 +509,7 @@ export default function CatalogoPage() {
         {/* Contenido principal */}
         <div className="flex-1 space-y-6 min-w-0">
           {/* Slider Recomendados */}
-          <div className="bg-verde rounded-xl p-4 md:p-6">
+          <div className="bg-[linear-gradient(to_bottom,#112221,#005752,#80A8A6,#E4E4E4)] rounded-xl p-4 md:p-6">
             <h2 className="text-center text-xs font-medium text-hueso/60 uppercase tracking-widest mb-4">
               Recomendados
             </h2>
@@ -565,9 +566,9 @@ export default function CatalogoPage() {
                       : sliderActual - 1,
                   )
                 }
-                className="absolute left-0 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white flex items-center justify-center shadow-md z-10 cursor-pointer"
+                className="absolute left-0 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-md z-10 cursor-pointer"
               >
-                <svg width="12" height="12" viewBox="0 0 69 69" fill="none">
+                <svg width="14" height="14" viewBox="0 0 69 69" fill="none">
                   <path
                     d="M28.75 63.25L0 34.5L28.75 5.75002L33.8531 10.8531L10.2063 34.5L33.8531 58.1469L28.75 63.25Z"
                     fill="#112221"
@@ -583,9 +584,9 @@ export default function CatalogoPage() {
                       : sliderActual + 1,
                   )
                 }
-                className="absolute right-0 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white flex items-center justify-center shadow-md z-10 cursor-pointer"
+                className="absolute right-0 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-md z-10 cursor-pointer"
               >
-                <svg width="12" height="12" viewBox="0 0 69 69" fill="none">
+                <svg width="14" height="14" viewBox="0 0 69 69" fill="none">
                   <path
                     d="M40.25 5.75L69 34.5L40.25 63.25L35.1469 58.1469L58.7938 34.5L35.1469 10.8531L40.25 5.75Z"
                     fill="#112221"
@@ -597,7 +598,7 @@ export default function CatalogoPage() {
 
           {/* Productos */}
           <div>
-            <h2 className="text-sm font-medium text-verde/60 uppercase tracking-widest text-center mb-4">
+            <h2 className="text-xl font-semibold text-verde/46 uppercase tracking-widest text-center mb-4">
               {categoriaActiva}
             </h2>
 
@@ -616,11 +617,10 @@ export default function CatalogoPage() {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.3 }}
-                      className="bg-white rounded-xl overflow-hidden border-2 border-amarillo"
+                      className="bg-white rounded-xl overflow-hidden border-1 border-amarillo"
                     >
-                      {esEspecial && <BadgePrecioEspecial />}
-
-                      <div className="h-36 md:h-44 bg-gray-50 flex items-center justify-center">
+                      {/* Imagen con badge encima */}
+                      <div className="relative h-36 md:h-44 bg-gray-50 flex items-center justify-center">
                         <svg
                           width="40"
                           height="40"
@@ -633,6 +633,12 @@ export default function CatalogoPage() {
                           <rect x="3" y="3" width="18" height="18" rx="2" />
                           <path d="M3 9h18M9 21V9" />
                         </svg>
+
+                        {esEspecial && (
+                          <div className="absolute top-0 left-0">
+                            <BadgePrecioEspecial />
+                          </div>
+                        )}
                       </div>
 
                       <div className="p-3">
@@ -670,7 +676,7 @@ export default function CatalogoPage() {
 
                         <Link
                           href={`/catalogo/${producto.id}`}
-                          className="block w-full mt-3 py-2.5 bg-verde text-amarillo text-xs font-bold text-center rounded-lg hover:opacity-90 transition-opacity uppercase tracking-wider"
+                          className="block w-full mt-3 py-2.5 bg-verde text-hueso text-xs font-bold text-center rounded-lg hover:opacity-90 transition-opacity uppercase tracking-wider"
                         >
                           Detalles
                         </Link>
@@ -717,7 +723,7 @@ export default function CatalogoPage() {
                           <button
                             key={pagina}
                             onClick={() => setPaginaActual(pagina)}
-                            className={`w-9 h-9 rounded-xl border text-sm font-medium transition-colors ${
+                            className={`w-9 h-9 rounded-xl border text-sm font-medium transition-colors cursor-pointer ${
                               paginaActual === pagina
                                 ? "bg-verde text-amarillo border-verde"
                                 : "border-gray-200 text-gray-600 hover:border-verde hover:text-verde"
@@ -734,7 +740,7 @@ export default function CatalogoPage() {
                         setPaginaActual((p) => Math.min(totalPaginas, p + 1))
                       }
                       disabled={paginaActual === totalPaginas}
-                      className="w-9 h-9 rounded-xl border border-gray-200 flex items-center justify-center text-sm text-gray-500 hover:border-verde hover:text-verde transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                      className="w-9 h-9 rounded-xl border border-gray-200 flex items-center justify-center text-sm text-gray-500 hover:border-verde hover:text-verde transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
                     >
                       ›
                     </button>
@@ -745,6 +751,8 @@ export default function CatalogoPage() {
           </div>
         </div>
       </div>
+      {/* ── FOOTER ── */}
+      <Footer />
     </div>
   );
 }

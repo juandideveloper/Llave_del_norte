@@ -1,54 +1,87 @@
 "use client";
 
 import { useState } from "react";
-import { signIn } from "next-auth/react";
+import { signIn, getSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import InputPassword from "@/components/ui/InputPassword";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function LoginPage() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [cargando, setCargando] = useState(false);
 
-  async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setCargando(true);
-    setError("");
+async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
+  e.preventDefault();
+  setCargando(true);
+  setError("");
 
-    const resultado = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    });
+  // Primero hacer login
+  const resultado = await signIn("credentials", {
+    email,
+    password,
+    redirect: false,
+  });
 
-    if (resultado?.error) {
-      setError("Email o contraseña incorrectos");
-      setCargando(false);
-      return;
-    }
-
-    window.location.href = "/";
+  if (resultado?.error) {
+    setError("Email o contraseña incorrectos");
+    setCargando(false);
+    return;
   }
 
+  // Luego obtener la sesión actualizada
+  const session = await getSession();
+
+  if (session?.user?.estado === "PENDIENTE") {
+    router.push("/pendiente-aprobacion");
+  } else if (session?.user?.estado === "RECHAZADO") {
+    const yaVioRechazo = localStorage.getItem(
+      `rechazo_visto_${session.user.email}`
+    );
+    if (!yaVioRechazo) {
+      router.push("/cuenta-rechazada");
+    } else {
+      router.push("/");
+    }
+  } else if (
+    session?.user?.estado === "APROBADO" &&
+    session?.user?.role === "ESPECIAL"
+  ) {
+    const yaVioAprobado = localStorage.getItem(
+      `aprobado_visto_${session.user.email}`
+    );
+    if (!yaVioAprobado) {
+      router.push("/cuenta-aprobada");
+    } else {
+      router.push("/");
+    }
+  } else {
+    router.push("/");
+  }
+
+  router.refresh();
+}
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-hueso">
-      <div className="bg-white rounded-xl p-8 w-full max-w-md border-gray-100 shadow-sm">
+    <div className="login-container min-h-screen flex items-center justify-center ">
+      <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-8 w-full max-w-md shadow-sm">
         <div className="text-center mb-6">
-          <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3 bg-verde">
-            <span>
+          <div className="w-28 h-28  rounded-full flex items-center justify-center mx-auto mb-3 bg-hueso">
+            <Link href="/">
               <svg
                 version="1.0"
                 xmlns="http://www.w3.org/2000/svg"
-                width="24.00000pt"
-                height="24.00000pt"
+                width="70.00000pt"
+                height="70.00000pt"
                 viewBox="0 0 325.000000 321.000000"
                 preserveAspectRatio="xMidYMid meet"
               >
                 <g
                   transform="translate(0.000000,321.000000) scale(0.100000,-0.100000)"
-                  fill="#C59C4D"
+                  fill="#112221"
                   stroke="none"
                 >
                   <path
@@ -81,16 +114,18 @@ export default function LoginPage() {
                   />
                 </g>
               </svg>
-            </span>
+            </Link>
           </div>
-          <h1 className="text-xl font-medium text-verde">Bienvenido</h1>
-          <p className="text-sm text-gray-400 mt-1">
+          <h1 className="text-2xl font-semibold text-hueso">
+            Bienvenido de nuevo
+          </h1>
+          <p className="text-base text-amarillo mt-1">
             Inicia sesión en tu cuenta
           </p>
         </div>
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
-            <label className="text-xs text-gray-500 mb-1 block">
+            <label className="text-sm text-amarillo mb-1 block">
               Correo electrónico
             </label>
             <input
@@ -99,11 +134,11 @@ export default function LoginPage() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="correo@email.com"
               required
-              className="w-full px-3 py-2 rounded-md text-sm outline-none border border-gray-200 focus:border-amarillo bg-hueso text-verde"
+              className="w-full px-3 py-2 rounded-md text-sm outline-none border border-white focus:border-amarillo  text-white"
             />
           </div>
           <div>
-            <label className="text-xs text-gray-500 mb-1 block">
+            <label className="text-sm text-amarillo mb-1 block">
               Contraseña
             </label>
 
@@ -135,21 +170,27 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={cargando}
-            className="w-full py-2.5 rounded-b-md text-sm font-medium bg-verde text-amarillo hover:opacity-90 transition-opacity"
+            className="w-full py-2.5 rounded-b-md text-sm font-medium bg-hueso/60 text-verde hover:bg-hueso transition-opacity cursor-pointer "
           >
             {cargando ? "Iniciando sesión..." : "Iniciar sesión"}
           </button>
         </form>
         <div className="text-center mt-4 space-y-2">
-          <p className="text-xs text-gray-400">
+          <p className="text-xs text-gray-200">
             ¿No tienes una cuenta?{" "}
-            <Link href="/registro" className="text-amarillo">
+            <Link
+              href="/registro"
+              className="text-amarillo hover:text-amarillo"
+            >
               Crear cuenta
             </Link>
           </p>
-          <p className="text-xs text-gray-400">
+          <p className="text-xs text-gray-200">
             ¿Quieres precios mayoritas?{""}
-            <Link href="/registro-especial" className="text-amarillo">
+            <Link
+              href="/registro-especial"
+              className="text-amarillo hover:text-amarillo"
+            >
               Regístrate como importador
             </Link>
           </p>

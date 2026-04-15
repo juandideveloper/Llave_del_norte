@@ -70,15 +70,14 @@ export default function RegistroPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-8 bg-hueso">
-      <div className="bg-white rounded-xl p-8 w-full max-w-md border border-gray-100 shadow-sm">
+    <div className="registro-container min-h-screen flex items-center justify-center py-8 ">
+      <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-8 w-full max-w-md shadow-sm">
         <div className="text-center mb-6">
-          <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3 bg-verde">
-            <span className="text-xl font-medium text-amarillo">L</span>
-          </div>
-          <h1 className="text-xl font-medium text-verde">Crear cuenta</h1>
-          <p className="text-sm text-gray-400 mt-1">
-            Compra a precio de vitrina
+          <h1 className="text-2xl font-semibold text-hueso">
+            Crear cuenta
+          </h1>
+          <p className="text-base text-amarillo mt-1">
+            Compra productos al precio de vitrina
           </p>
         </div>
 
@@ -100,7 +99,7 @@ export default function RegistroPage() {
 
         <form onSubmit={handleRegistro} className="space-y-4">
           <div>
-            <label className="text-xs text-gray-500 mb-1 block">
+            <label className="text-xs text-hueso mb-1 block">
               Nombre completo <span className="text-red-500">*</span>
             </label>
             <input
@@ -110,12 +109,12 @@ export default function RegistroPage() {
               onChange={handleChange}
               placeholder="Juan Pérez"
               required
-              className="w-full px-3 py-2 rounded-md text-sm outline-none border border-gray-200 focus:border-amarillo bg-hueso text-verde"
+              className="w-full px-3 py-2 rounded-md text-sm outline-none border border-white focus:border-amarillo  text-white"
             />
           </div>
 
           <div>
-            <label className="text-xs text-gray-500 mb-1 block">
+            <label className="text-xs text-hueso mb-1 block">
               Correo electrónico <span className="text-red-500">*</span>
             </label>
             <input
@@ -125,24 +124,26 @@ export default function RegistroPage() {
               onChange={handleChange}
               placeholder="correo@email.com"
               required
-              className="w-full px-3 py-2 rounded-md text-sm outline-none border border-gray-200 focus:border-amarillo bg-hueso text-verde"
+              className="w-full px-3 py-2 rounded-md text-sm outline-none border border-white focus:border-amarillo  text-white"
             />
           </div>
 
           <div>
-            <label className="text-xs text-gray-500 mb-1 block">Teléfono</label>
+            <label className="text-xs text-hueso mb-1 block">
+              Teléfono <span className="text-red-500">*</span>
+            </label>
             <input
               name="telefono"
               type="text"
               value={form.telefono}
               onChange={handleChange}
               placeholder="300 000 0000"
-              className="w-full px-3 py-2 rounded-md text-sm outline-none border border-gray-200 focus:border-amarillo bg-hueso text-verde"
+              className="w-full px-3 py-2 rounded-md text-sm outline-none border border-white focus:border-amarillo  text-white"
             />
           </div>
 
           <div>
-            <label className="text-xs text-gray-500 mb-1 block">
+            <label className="text-xs text-hueso mb-1 block">
               Contraseña <span className="text-red-500">*</span>
             </label>
             <InputPassword
@@ -154,7 +155,7 @@ export default function RegistroPage() {
           </div>
 
           <div>
-            <label className="text-xs text-gray-500 mb-1 block">
+            <label className="text-xs text-hueso mb-1 block">
               Confirmar contraseña <span className="text-red-500">*</span>
             </label>
             <InputPassword
@@ -182,22 +183,22 @@ export default function RegistroPage() {
           <button
             type="submit"
             disabled={cargando || exitoso}
-            className="w-full py-2.5 rounded-md text-sm font-medium bg-verde text-amarillo hover:opacity-90 transition-opacity disabled:opacity-50"
+            className="w-full py-2.5 rounded-b-md text-sm font-medium bg-hueso/60 text-verde hover:bg-hueso transition-opacity cursor-pointer "
           >
             {cargando ? "Creando cuenta..." : "Crear cuenta"}
           </button>
         </form>
 
         <div className="text-center mt-4 space-y-2">
-          <p className="text-xs text-gray-400">
+          <p className="text-xs text-gray-200">
             ¿Ya tienes cuenta?{" "}
-            <Link href="/login" className="text-amarillo">
+            <Link href="/login" className="text-amarillo hover:text-amarillo">
               Inicia sesión
             </Link>
           </p>
-          <p className="text-xs text-gray-400">
+          <p className="text-xs text-gray-200">
             ¿Quieres precios mayoristas?{" "}
-            <Link href="/registro-especial" className="text-amarillo">
+            <Link href="/registro-especial" className="text-amarillo hover:text-amarillo">
               Regístrate como importador
             </Link>
           </p>

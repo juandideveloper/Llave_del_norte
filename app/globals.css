@@ -1,9 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&display=swap");
 @import "tailwindcss";
 
-
-*{
+* {
   font-family: "Jost", sans-serif;
 }
 
@@ -13,21 +12,69 @@ html {
 }
 
 @theme {
-  --color-verde: #112221; 
+  --color-verde: #112221;
   --color-verde-claro: #1a3330;
-  --color-verde-medio: #1A3533;
-  --color-amarillo: #C5973D;
-  --color-amarillo-oscuro: #98742D;
-  --color-amarillo-claro: rgba(225,184,107,0.12);
-  --color-hueso: #FFFAEC;
-  --color-hueso-oscuro: #F4DEB3;
+  --color-verde-medio: #1a3533;
+  /* --color-amarillo: #c5973d; */
+  --color-amarillo-oscuro: #98742d;
+  --color-amarillo: #ffcc6dea;
+  --color-amarillo-claro: rgba(225, 184, 107, 0.12);
+  --color-hueso: #fffaec;
+  --color-hueso-oscuro: #f4deb3;
 }
-.font
-{
+.font {
   font-family: "Cormorant Garamond", serif;
 }
 
-.textoCategoria{
-    font-family: "Cormorant Garamond", serif;
+.textoCategoria {
+  font-family: "Cormorant Garamond", serif;
+}
+
+.login-container,
+.registro-container,
+.registro-especial-container,
+.recuperar-container,
+.password-container,
+.pendiente-container,
+.aprobacion-container,
+.rechazada-container{
+  background-image: url("/images/Fondo.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+}
+
+.login-container::before,
+.registro-container::before,
+.registro-especial-container::before,
+.recuperar-container::before,
+.password-container::before,
+.pendiente-container::before,
+.aprobacion-container::before,
+.rechazada-container::before{
+  content: "";
+  position: absolute;
+  inset: 0;
+  /* background-color: #ff0000; */
+  background-color: rgba(
+    0,
+    0,
+    0,
+    0.692
+  ); /* 0.5 = 50% oscuro, ajusta a tu gusto */
+  z-index: 0;
+}
+
+.login-container > *,
+.registro-container > *,
+.registro-especial-container > *,
+.recuperar-container > *,
+.password-container > *,
+.pendiente-container > *,
+.aprobacion-container > *,
+.rechazada-container > *{
+  position: relative;
+  z-index: 1;
 }
 

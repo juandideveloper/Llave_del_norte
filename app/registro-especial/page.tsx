@@ -78,16 +78,12 @@ export default function RegistroEspecialPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-8 bg-hueso">
-      <div className="bg-white rounded-xl p-8 w-full max-w-lg border border-gray-100 shadow-sm">
-        <div className="text-center mb-6">
-          <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3 bg-verde">
-            <span className="text-xl font-medium text-amarillo">L</span>
-          </div>
-          <h1 className="text-xl font-medium text-verde">
+    <div className="registro-especial-container min-h-screen flex items-center justify-center py-8">
+        <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-8 w-full max-w-md shadow-sm">        <div className="text-center mb-6">
+          <h1 className="text-2xl font-semibold text-hueso">
             Registro como importador
           </h1>
-          <p className="text-sm text-gray-400 mt-1">
+          <p className="text-sm text-amarillo mt-1">
             Accede a precios mayoristas exclusivos tras verificación
           </p>
         </div>
@@ -96,7 +92,7 @@ export default function RegistroEspecialPage() {
           {/* Datos personales */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-xs text-gray-500 mb-1 block">
+              <label className="text-xs text-hueso mb-1 block">
                 Nombre completo <span className="text-red-500">*</span>
               </label>
               <input
@@ -106,11 +102,11 @@ export default function RegistroEspecialPage() {
                 onChange={handleChange}
                 placeholder="Juan Pérez"
                 required
-                className="w-full px-3 py-2 rounded-md text-sm outline-none border border-gray-200 focus:border-amarillo bg-hueso text-verde"
+                className="w-full px-3 py-2 rounded-md text-sm outline-none border border-white focus:border-amarillo  text-white"
               />
             </div>
             <div>
-              <label className="text-xs text-gray-500 mb-1 block">
+              <label className="text-xs text-hueso mb-1 block">
                 Teléfono <span className="text-red-500">*</span>
               </label>
               <input
@@ -120,13 +116,13 @@ export default function RegistroEspecialPage() {
                 onChange={handleChange}
                 placeholder="300 000 0000"
                 required
-                className="w-full px-3 py-2 rounded-md text-sm outline-none border border-gray-200 focus:border-amarillo bg-hueso text-verde"
+                className="w-full px-3 py-2 rounded-md text-sm outline-none border border-white focus:border-amarillo  text-white"
               />
             </div>
           </div>
 
           <div>
-            <label className="text-xs text-gray-500 mb-1 block">
+            <label className="text-xs text-hueso mb-1 block">
               Correo electrónico <span className="text-red-500">*</span>
             </label>
             <input
@@ -136,14 +132,14 @@ export default function RegistroEspecialPage() {
               onChange={handleChange}
               placeholder="correo@empresa.com"
               required
-              className="w-full px-3 py-2 rounded-md text-sm outline-none border border-gray-200 focus:border-amarillo bg-hueso text-verde"
+              className="w-full px-3 py-2 rounded-md text-sm outline-none border border-white focus:border-amarillo  text-white"
             />
           </div>
 
           {/* Datos empresariales */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-xs text-gray-500 mb-1 block">
+              <label className="text-xs text-hueso mb-1 block">
                 Empresa / Razón social <span className="text-red-500">*</span>
               </label>
               <input
@@ -153,11 +149,11 @@ export default function RegistroEspecialPage() {
                 onChange={handleChange}
                 placeholder="Constructora XYZ S.A.S"
                 required
-                className="w-full px-3 py-2 rounded-md text-sm outline-none border border-gray-200 focus:border-amarillo bg-hueso text-verde"
+                className="w-full px-3 py-2 rounded-md text-sm outline-none border border-white focus:border-amarillo  text-white"
               />
             </div>
             <div>
-              <label className="text-xs text-gray-500 mb-1 block">
+              <label className="text-xs text-hueso mb-1 block">
                 NIT <span className="text-red-500">*</span>
               </label>
               <input
@@ -167,13 +163,13 @@ export default function RegistroEspecialPage() {
                 onChange={handleChange}
                 placeholder="900.123.456-7"
                 required
-                className="w-full px-3 py-2 rounded-md text-sm outline-none border border-gray-200 focus:border-amarillo bg-hueso text-verde"
+                className="w-full px-3 py-2 rounded-md text-sm outline-none border border-white focus:border-amarillo  text-white"
               />
             </div>
           </div>
 
           <div>
-            <label className="text-xs text-gray-500 mb-1 block">
+            <label className="text-xs text-hueso mb-1 block">
               Tipo de cliente <span className="text-red-500">*</span>
             </label>
             <select
@@ -181,18 +177,18 @@ export default function RegistroEspecialPage() {
               value={form.tipoCliente}
               onChange={handleChange}
               required
-              className="w-full px-3 py-2 rounded-md text-sm outline-none border border-gray-200 focus:border-amarillo bg-hueso text-verde"
+              className="w-full px-3 py-2 rounded-md text-sm outline-none border border-white focus:border-amarillo  text-white cursor-pointer"
             >
-              <option value="">Selecciona una opción...</option>
-              <option value="arquitecto">Arquitecto</option>
-              <option value="constructora">Empresa constructora</option>
-              <option value="distribuidor">Distribuidor</option>
-              <option value="mayorista">Particular mayorista</option>
+              <option value="" className="bg-verde cursor-pointer">Selecciona una opción...</option>
+              <option value="arquitecto" className="bg-verde cursor-pointer">Arquitecto</option>
+              <option value="constructora" className="bg-verde cursor-pointer">Empresa constructora</option>
+              <option value="distribuidor" className="bg-verde cursor-pointer">Distribuidor</option>
+              <option value="mayorista" className="bg-verde cursor-pointer">Particular mayorista</option>
             </select>
           </div>
 
           <div>
-            <label className="text-xs text-gray-500 mb-1 block">
+            <label className="text-xs text-hueso mb-1 block">
               Volumen estimado de compra mensual{" "}
               <span className="text-red-500">*</span>
             </label>
@@ -201,20 +197,20 @@ export default function RegistroEspecialPage() {
               value={form.volumenEstimado}
               onChange={handleChange}
               required
-              className="w-full px-3 py-2 rounded-md text-sm outline-none border border-gray-200 focus:border-amarillo bg-hueso text-verde"
+              className="w-full px-3 py-2 rounded-md text-sm outline-none border border-white focus:border-amarillo  text-white cursor-pointer"
             >
-              <option value="">Selecciona un rango...</option>
-              <option value="menos1m">Menos de $1.000.000</option>
-              <option value="1m-5m">$1.000.000 — $5.000.000</option>
-              <option value="5m-20m">$5.000.000 — $20.000.000</option>
-              <option value="mas20m">Más de $20.000.000</option>
+              <option value="" className="bg-verde cursor-pointer">Selecciona un rango...</option>
+              <option value="menos1m" className="bg-verde cursor-pointer">Menos de $1.000.000</option>
+              <option value="1m-5m" className="bg-verde cursor-pointer">$1.000.000 — $5.000.000</option>
+              <option value="5m-20m" className="bg-verde cursor-pointer">$5.000.000 — $20.000.000</option>
+              <option value="mas20m" className="bg-verde cursor-pointer">Más de $20.000.000</option>
             </select>
           </div>
 
           {/* Contraseñas */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-xs text-gray-500 mb-1 block">
+              <label className="text-xs text-hueso mb-1 block">
                 Contraseña <span className="text-red-500">*</span>
               </label>
               <InputPassword
@@ -225,7 +221,7 @@ export default function RegistroEspecialPage() {
               />
             </div>
             <div>
-              <label className="text-xs text-gray-500 mb-1 block">
+              <label className="text-xs text-hueso mb-1 block">
                 Confirmar contraseña <span className="text-red-500">*</span>
               </label>
               <InputPassword
@@ -241,7 +237,7 @@ export default function RegistroEspecialPage() {
 
           {/* Info de aprobación */}
           <div className="bg-hueso rounded-md p-3 border border-gray-100">
-            <p className="text-xs text-gray-500 leading-relaxed">
+            <p className="text-xs text-gray-800 leading-relaxed">
               Tu solicitud será revisada por nuestro equipo en{" "}
               <strong className="text-verde">máximo 48 horas hábiles</strong>.
               Recibirás un correo con la respuesta.
@@ -265,27 +261,27 @@ export default function RegistroEspecialPage() {
           <button
             type="submit"
             disabled={cargando}
-            className="w-full py-2.5 rounded-md text-sm font-medium bg-verde text-amarillo hover:opacity-90 transition-opacity disabled:opacity-50"
+            className="w-full py-2.5 rounded-b-md text-sm font-medium bg-hueso/60 text-verde hover:bg-hueso transition-opacity cursor-pointer"
           >
             {cargando ? "Enviando solicitud..." : "Enviar solicitud"}
           </button>
         </form>
 
         <div className="text-center mt-4 space-y-2">
-          <p className="text-xs text-gray-400">
+          <p className="text-xs text-gray-200">
             ¿Ya tienes cuenta?{" "}
-            <Link href="/login" className="text-amarillo">
+            <Link href="/login" className="text-amarillo hover:text-amarillo">
               Inicia sesión
             </Link>
           </p>
-          <p className="text-xs text-gray-400">
+          <p className="text-xs text-gray-200">
             ¿Solo quieres comprar unidades?{" "}
-            <Link href="/registro" className="text-amarillo">
+            <Link href="/registro" className="text-amarillo hover:text-amarillo">
               Registro normal
             </Link>
           </p>
         </div>
-      </div>
+      </div> 
     </div>
   );
 }
