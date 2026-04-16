@@ -15,9 +15,8 @@ html {
   --color-verde: #112221;
   --color-verde-claro: #1a3330;
   --color-verde-medio: #1a3533;
-  /* --color-amarillo: #c5973d; */
   --color-amarillo-oscuro: #98742d;
-  --color-amarillo: #ffcc6dea;
+  --color-amarillo: #c58e28ea;
   --color-amarillo-claro: rgba(225, 184, 107, 0.12);
   --color-hueso: #fffaec;
   --color-hueso-oscuro: #f4deb3;
@@ -37,12 +36,30 @@ html {
 .password-container,
 .pendiente-container,
 .aprobacion-container,
-.rechazada-container{
+.rechazada-container {
   background-image: url("/images/Fondo.png");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   position: relative;
+}
+
+.fondo_Banner {
+  background-image: url("/images/FondoBanner.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+
+}
+
+.miniatura {
+    background-color: rgba(0, 0, 0, 0);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+  border-color: rgba(12, 12, 12, 0);
 }
 
 .login-container::before,
@@ -52,7 +69,8 @@ html {
 .password-container::before,
 .pendiente-container::before,
 .aprobacion-container::before,
-.rechazada-container::before{
+.rechazada-container::before,
+.fondo_Banner::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -66,6 +84,15 @@ html {
   z-index: 0;
 }
 
+.miniatura::before{
+  content: "";
+  position: absolute;
+  inset: 0;
+  /* background-color: #ff0000; */
+  background-color: rgba(0, 0, 0, 0.308); /* 0.5 = 50% oscuro, ajusta a tu gusto */
+  z-index: 0;
+}
+
 .login-container > *,
 .registro-container > *,
 .registro-especial-container > *,
@@ -73,8 +100,8 @@ html {
 .password-container > *,
 .pendiente-container > *,
 .aprobacion-container > *,
-.rechazada-container > *{
+.rechazada-container > *,
+.fondo_Banner > * {
   position: relative;
   z-index: 1;
 }
-

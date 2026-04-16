@@ -171,7 +171,7 @@ export default function HomePage() {
       {/* ── HERO ── */}
       <section
         id="inicio"
-        className="px-6 md:px-12 py-8 md:py-12 grid grid-cols-1 md:grid-cols-2 gap-8 items-center"
+        className="fondo_Banner px-6 md:px-12 py-8 md:py-12 grid grid-cols-1 md:grid-cols-2 gap-8 items-center"
       >
         <motion.div
           initial={{ opacity: 0, x: -30 }}
@@ -181,62 +181,62 @@ export default function HomePage() {
           <p className="text-xs text-amarillo tracking-widest uppercase mb-4">
             Nueva Colección 2025
           </p>
-          <h1 className="font text-4xl md:text-5xl text-verde leading-tight mb-6">
+          <h1 className="font text-4xl md:text-5xl text-hueso leading-tight mb-6">
             Grifería <br />
             <span className="font text-amarillo">de diseño</span> <br />
             para espacios <br />
             únicos
           </h1>
           <div className="space-y-2 mb-6">
-            <div className="flex items-center gap-2 text-sm md:text-base text-verde/80">
+            <div className="flex items-center gap-2 text-sm md:text-base text-hueso/75">
               <svg
                 width="22"
                 height="22"
                 viewBox="0 0 22 22"
-                fill="#C5973D"
+                fill="#fffaec"
                 xmlns="http://www.w3.org/2000/svg"
               >
                 <path
                   d="M7.0354 19.399C6.01179 18.8872 5.49998 18.2264 5.49998 17.4167C5.49998 17.05 5.61074 16.7101 5.83227 16.3969C6.0538 16.0837 6.36317 15.8125 6.7604 15.5833L8.20415 16.9354C8.06665 16.9965 7.91769 17.0653 7.75727 17.1417C7.59685 17.2181 7.47081 17.3097 7.37915 17.4167C7.57776 17.6611 8.03609 17.875 8.75415 18.0583C9.4722 18.2417 10.2208 18.3333 11 18.3333C11.7791 18.3333 12.5316 18.2417 13.2573 18.0583C13.983 17.875 14.4451 17.6611 14.6437 17.4167C14.5368 17.2944 14.3993 17.1951 14.2312 17.1187C14.0632 17.0424 13.9028 16.9736 13.75 16.9125L15.1708 15.5375C15.5986 15.7819 15.9271 16.0608 16.1562 16.374C16.3854 16.6872 16.5 17.0347 16.5 17.4167C16.5 18.2264 15.9882 18.8872 14.9646 19.399C13.941 19.9108 12.6194 20.1667 11 20.1667C9.38054 20.1667 8.05901 19.9108 7.0354 19.399ZM11.0229 15.125C12.5354 14.0097 13.6736 12.8906 14.4375 11.7677C15.2014 10.6448 15.5833 9.51805 15.5833 8.3875C15.5833 6.82917 15.0868 5.65278 14.0937 4.85833C13.1007 4.06389 12.0694 3.66667 11 3.66667C9.93054 3.66667 8.89929 4.06389 7.90623 4.85833C6.91317 5.65278 6.41665 6.82917 6.41665 8.3875C6.41665 9.41111 6.79095 10.4767 7.53956 11.5844C8.28817 12.692 9.44929 13.8722 11.0229 15.125ZM11 17.4167C8.84581 15.8278 7.23783 14.2847 6.17602 12.7875C5.11422 11.2903 4.58331 9.82361 4.58331 8.3875C4.58331 7.30278 4.7781 6.35173 5.16769 5.53437C5.55727 4.71701 6.05762 4.03333 6.66873 3.48333C7.27984 2.93333 7.96734 2.52083 8.73123 2.24583C9.49512 1.97083 10.2514 1.83333 11 1.83333C11.7486 1.83333 12.5048 1.97083 13.2687 2.24583C14.0326 2.52083 14.7201 2.93333 15.3312 3.48333C15.9423 4.03333 16.4427 4.71701 16.8323 5.53437C17.2219 6.35173 17.4166 7.30278 17.4166 8.3875C17.4166 9.82361 16.8857 11.2903 15.8239 12.7875C14.7621 14.2847 13.1541 15.8278 11 17.4167ZM11 10.0833C11.5041 10.0833 11.9357 9.90382 12.2948 9.54479C12.6538 9.18576 12.8333 8.75417 12.8333 8.25C12.8333 7.74583 12.6538 7.31423 12.2948 6.95521C11.9357 6.59618 11.5041 6.41667 11 6.41667C10.4958 6.41667 10.0642 6.59618 9.70519 6.95521C9.34616 7.31423 9.16665 7.74583 9.16665 8.25C9.16665 8.75417 9.34616 9.18576 9.70519 9.54479C10.0642 9.90382 10.4958 10.0833 11 10.0833Z"
-                  fill="#C5973D"
+                  fill="#fffaec"
                 />
               </svg>
               CALLE 65 #14-24, Bogotá, Colombia
             </div>
             <div className="flex flex-wrap items-center gap-4 md:gap-6">
-              <div className="flex items-center gap-2 text-sm md:text-base text-verde/80">
+              <div className="flex items-center gap-2 text-sm md:text-base text-hueso/75">
                 <svg
                   width="22"
                   height="22"
                   viewBox="0 0 18 18"
-                  fill="#C5973D"
+                  fill="#fffaec"
                   xmlns="http://www.w3.org/2000/svg"
                 >
                   <path
                     d="M8.25001 12.75H9.75001V10.5H12V9H9.75001V6.75H8.25001V9H6.00001V10.5H8.25001V12.75ZM6.36564 15.9656C5.54689 15.6094 4.83439 15.1281 4.22814 14.5219C3.62189 13.9156 3.14064 13.2031 2.78439 12.3844C2.42814 11.5656 2.25001 10.6875 2.25001 9.75C2.25001 8.8125 2.42814 7.93438 2.78439 7.11563C3.14064 6.29688 3.62189 5.58438 4.22814 4.97813C4.83439 4.37188 5.54689 3.89063 6.36564 3.53438C7.18439 3.17813 8.06251 3 9.00001 3C9.93751 3 10.8156 3.17813 11.6344 3.53438C12.4531 3.89063 13.1656 4.37188 13.7719 4.97813C14.3781 5.58438 14.8594 6.29688 15.2156 7.11563C15.5719 7.93438 15.75 8.8125 15.75 9.75C15.75 10.6875 15.5719 11.5656 15.2156 12.3844C14.8594 13.2031 14.3781 13.9156 13.7719 14.5219C13.1656 15.1281 12.4531 15.6094 11.6344 15.9656C10.8156 16.3219 9.93751 16.5 9.00001 16.5C8.06251 16.5 7.18439 16.3219 6.36564 15.9656ZM4.20001 1.7625L5.25001 2.8125L2.06251 6L1.01251 4.95L4.20001 1.7625ZM13.8 1.7625L16.9875 4.95L15.9375 6L12.75 2.8125L13.8 1.7625ZM9.00001 15C10.4625 15 11.7031 14.4906 12.7219 13.4719C13.7406 12.4531 14.25 11.2125 14.25 9.75C14.25 8.2875 13.7406 7.04688 12.7219 6.02813C11.7031 5.00938 10.4625 4.5 9.00001 4.5C7.53751 4.5 6.29689 5.00938 5.27814 6.02813C4.25939 7.04688 3.75001 8.2875 3.75001 9.75C3.75001 11.2125 4.25939 12.4531 5.27814 13.4719C6.29689 14.4906 7.53751 15 9.00001 15Z"
-                    fill="#C5973D"
+                    fill="#fffaec"
                   />
                 </svg>
                 LUN - SAB 8:00AM - 6:00PM
               </div>
-              <div className="flex items-center gap-2 text-sm md:text-base text-verde/80">
+              <div className="flex items-center gap-2 text-sm md:text-base text-hueso/75">
                 <svg
                   width="22"
                   height="22"
                   viewBox="0 0 24 24"
-                  fill="#C5973D"
+                  fill="#fffaec"
                   xmlns="http://www.w3.org/2000/svg"
                 >
                   <path
                     d="M3 4.05C3 3.75 3.1 3.5 3.3 3.3C3.5 3.1 3.75 3 4.05 3H8.1C8.31667 3 8.5125 3.075 8.6875 3.225C8.8625 3.375 8.98333 3.56667 9.05 3.8L9.75 7.25C9.78333 7.48333 9.7625 7.72083 9.6875 7.9625C9.6125 8.20417 9.5 8.4 9.35 8.55L7 10.9C7.36667 11.5333 7.77083 12.1333 8.2125 12.7C8.65417 13.2667 9.13333 13.8083 9.65 14.325C10.1833 14.875 10.7375 15.3792 11.3125 15.8375C11.8875 16.2958 12.4833 16.6917 13.1 17.025L15.55 14.6C15.6833 14.4667 15.8417 14.375 16.025 14.325C16.2083 14.275 16.4333 14.2667 16.7 14.3L20.2 14.95C20.4167 14.9833 20.6042 15.0917 20.7625 15.275C20.9208 15.4583 21 15.6667 21 15.9V19.95C21 20.25 20.9 20.5 20.7 20.7C20.5 20.9 20.25 21 19.95 21C17.8667 21 15.8083 20.5458 13.775 19.6375C11.7417 18.7292 9.89167 17.4417 8.225 15.775C6.55833 14.1083 5.27083 12.2583 4.3625 10.225C3.45417 8.19167 3 6.13333 3 4.05ZM15 17.95C15.65 18.2333 16.3083 18.45 16.975 18.6C17.6417 18.75 18.3167 18.8667 19 18.95V16.75L16.65 16.3L15 17.95ZM6.1 9L7.75 7.35L7.25 5H5.05C5.1 5.68333 5.21667 6.35833 5.4 7.025C5.58333 7.69167 5.81667 8.35 6.1 9Z"
-                    fill="#C5973D"
+                    fill="#fffaec"
                   />
                 </svg>
                 3134866451
               </div>
             </div>
           </div>
-          <p className="text-sm md:text-base text-verde/80 max-w-xs leading-relaxed mt-3">
+          <p className="text-sm md:text-lg text-hueso/75 max-w-xl leading-relaxed mt-3">
             Cada grifo es una obra de ingeniería y estética. Fabricados con
             materiales premium para baños y cocinas que merecen lo mejor.
           </p>
@@ -249,7 +249,7 @@ export default function HomePage() {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="flex items-center justify-center"
         >
-          <LogoSVG fill="#112221" width="345.000000pt" height="345.000000pt" />
+          <LogoSVG fill="#fffaec" width="345.000000pt" height="345.000000pt" />
         </motion.div>
       </section>
 
@@ -260,11 +260,7 @@ export default function HomePage() {
             key={chip.nombre}
             href={chip.href}
             onClick={() => setChipActivo(chip.nombre)}
-            className={`text-sm px-5 py-2 rounded-full border whitespace-nowrap transition-all cursor-pointer ${
-              chipActivo === chip.nombre
-                ? "bg-amarillo text-verde border-amarillo font-medium"
-                : "border-white text-white hover:text-amarillo hover:border-amarillo"
-            }`}
+            className={`text-sm px-5 py-2 rounded-full border whitespace-nowrap transition-all cursor-pointer border-white text-white hover:text-amarillo hover:border-amarillo"`}
           >
             {chip.nombre}
           </Link>
@@ -275,7 +271,7 @@ export default function HomePage() {
       <section id="catalogo" className="px-4 md:px-8 py-10 md:py-14 bg-verde">
         <div className="flex justify-between items-start mb-8">
           <div>
-            <p className="text-xs text-amarillo tracking-widest uppercase mb-5">
+            <p className="text-xs text-amarillo-oscuro tracking-widest uppercase mb-5">
               Explora por espacios
             </p>
             <h2 className="font text-3xl md:text-4xl font-medium text-hueso">
@@ -333,7 +329,7 @@ export default function HomePage() {
 
       {/* ── PRODUCTOS DESTACADOS (SLIDER) ── */}
       <section id="destacados" className="px-4 md:px-8 py-10 md:py-14 bg-hueso">
-        <p className="text-xs text-amarillo tracking-widest uppercase mb-2">
+        <p className="text-xs text-amarillo-oscuro tracking-widest uppercase mb-2">
           Lo más vendido
         </p>
         <h2 className="font text-3xl md:text-4xl font-medium text-verde mb-8">
@@ -455,7 +451,7 @@ export default function HomePage() {
         id="clientes"
         className="px-4 md:px-8 py-10 md:py-14 bg-verde border-t border-white/10"
       >
-        <p className="text-xs text-amarillo tracking-widest uppercase mb-2">
+        <p className="text-xs text-amarillo-oscuro tracking-widest uppercase mb-2">
           Lo que dicen
         </p>
         <h2 className="font text-3xl md:text-4xl font-medium text-hueso mb-8">
@@ -472,7 +468,7 @@ export default function HomePage() {
               viewport={{ once: true }}
               className="bg-white rounded-xl p-6 border border-gray-100"
             >
-              <span className="text-amarillo text-7xl font-extralight">
+              <span className="text-amarillo-oscuro text-7xl font-extralight">
                 <svg
                   width="16"
                   height="16"
@@ -482,14 +478,14 @@ export default function HomePage() {
                 >
                   <path
                     d="M6.79493e-06 3.16808C6.79493e-06 2.59208 0.512007 2.01608 1.53601 1.44008C2.62401 0.864077 3.74401 0.480076 4.89601 0.288074C6.04801 0.096077 6.59201 0.160078 6.52801 0.480078L1.72801 26.4961C1.66401 26.6241 1.47201 26.7201 1.15201 26.7841C0.896007 26.8481 0.768007 26.7841 0.768007 26.5921L6.79493e-06 3.16808ZM13.44 3.16808C13.44 2.59208 13.952 2.01608 14.976 1.44008C16.064 0.864077 17.184 0.480076 18.336 0.288074C19.488 0.096077 20.032 0.160078 19.968 0.480078L15.168 26.4961C15.104 26.6241 14.912 26.7201 14.592 26.7841C14.336 26.8481 14.208 26.7841 14.208 26.5921L13.44 3.16808Z"
-                    fill="#CE9B3A"
+                    fill="#98742d"
                   />
                 </svg>
               </span>
               <p className="text-sm text-verde/70 leading-relaxed mt-2 mb-4">
                 {resena.texto}
               </p>
-              <div className="text-amarillo text-sm mb-3">★★★★★</div>
+              <div className="text-amarillo-oscuro text-sm mb-3">★★★★★</div>
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full bg-verde flex items-center justify-center">
                   <span className="text-amarillo text-sm font-medium">
@@ -517,7 +513,7 @@ export default function HomePage() {
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
           <div>
-            <h2 className="font text-3xl md:text-4xl font-medium text-amarillo mb-6">
+            <h2 className="font text-3xl md:text-4xl font-medium text-amarillo-oscuro mb-6">
               Nuestra filosofía
             </h2>
             <p className="text-base md:text-lg text-verde/90 leading-relaxed mb-8">
@@ -529,20 +525,20 @@ export default function HomePage() {
             </p>
             <div className="flex gap-6 md:gap-8 mb-8">
               <div>
-                <p className="text-2xl font-medium text-amarillo">20+</p>
-                <p className="text-xs text-amarillo uppercase tracking-wider mt-1">
+                <p className="text-2xl font-medium text-amarillo-oscuro">20+</p>
+                <p className="text-xs text-amarillo-oscuro uppercase tracking-wider mt-1">
                   Años de experiencia
                 </p>
               </div>
               <div>
-                <p className="text-2xl font-medium text-amarillo">185+</p>
-                <p className="text-xs text-amarillo uppercase tracking-wider mt-1">
+                <p className="text-2xl font-medium text-amarillo-oscuro">185+</p>
+                <p className="text-xs text-amarillo-oscuro uppercase tracking-wider mt-1">
                   Productos en catálogo
                 </p>
               </div>
               <div>
-                <p className="text-2xl font-medium text-amarillo">100%</p>
-                <p className="text-xs text-amarillo uppercase tracking-wider mt-1">
+                <p className="text-2xl font-medium text-amarillo-oscuro">100%</p>
+                <p className="text-xs text-amarillo-oscuro uppercase tracking-wider mt-1">
                   Clientes satisfechos
                 </p>
               </div>

@@ -283,32 +283,32 @@ c3 1893 8 2770 15 2777 7 7 148 12 400 13 l390 3 3 33 c2 20 -2 34 -10 37 -14
         {/* Links pegados al logo */}
         <div className="hidden lg:grid grid-cols-3 gap-4  gap-y-3">
           <a
-            href="#catalogo"
-            className="text-sm text-verde hover:text-amarillo transition-colors uppercase tracking-wider"
+            href="/catalogo"
+            className="text-sm text-verde hover:text-amarillo-oscuro transition-colors uppercase tracking-wider"
           >
             Catálogo
           </a>
           <a
             href="#destacados"
-            className="text-sm text-verde hover:text-amarillo transition-colors uppercase tracking-wider"
+            className="text-sm text-verde hover:text-amarillo-oscuro transition-colors uppercase tracking-wider"
           >
             Productos destacados
           </a>
           <a
             href="#clientes"
-            className="text-sm text-verde hover:text-amarillo transition-colors uppercase tracking-wider"
+            className="text-sm text-verde hover:text-amarillo-oscuro transition-colors uppercase tracking-wider"
           >
             Nuestros clientes
           </a>
           <a
             href="#filosofia"
-            className="text-sm text-verde hover:text-amarillo transition-colors uppercase tracking-wider"
+            className="text-sm text-verde hover:text-amarillo-oscuro transition-colors uppercase tracking-wider"
           >
             Nuestra filosofía
           </a>
           <a
             href="#contacto"
-            className="text-sm text-verde hover:text-amarillo transition-colors uppercase tracking-wider"
+            className="text-sm text-verde hover:text-amarillo-oscuro transition-colors uppercase tracking-wider"
           >
             Contacto
           </a>
