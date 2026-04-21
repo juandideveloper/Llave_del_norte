@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-
+import { useCarrito } from "@/context/CarritoContext";
 interface NavbarProps {
   breadcrumb?: { label: string; href?: string }[];
 }
@@ -13,6 +13,7 @@ export default function Navbar({ breadcrumb }: NavbarProps) {
   const { data: session, status } = useSession();
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [menuMovil, setMenuMovil] = useState(false);
+  const { totalItems } = useCarrito();
 
   return (
     <nav className="navbar bg-verde px-6 py-4 sticky top-0 z-50 ">
@@ -68,7 +69,7 @@ c61 -30 171 -89 245 -132 152 -87 272 -148 343 -175 26 -10 44 -22 40 -26 -4
         {/* Links pegados al logo */}
         <div className="hidden lg:flex items-center gap-6">
           <Link
-            href="catalogo"
+            href="/catalogo"
             className="text-sm text-white hover:text-amarillo transition-colors uppercase tracking-wider"
           >
             Catálogo
@@ -82,7 +83,7 @@ c61 -30 171 -89 245 -132 152 -87 272 -148 343 -175 26 -10 44 -22 40 -26 -4
           </Link>
 
           <Link
-            href="rastrea-pedido"
+            href="/rastrea-pedido"
             className="text-sm text-white hover:text-amarillo transition-colors uppercase tracking-wider"
           >
             Rastrea tu pedido
@@ -186,7 +187,7 @@ c61 -30 171 -89 245 -132 152 -87 272 -148 343 -175 26 -10 44 -22 40 -26 -4
               </g>
             </svg>
             <span className="absolute -top-2 -right-3 bg-yellow-100 text-verde text-sm w-6 h-6 rounded-full flex items-center justify-center font-medium">
-              0
+              {totalItems}
             </span>
           </Link>
 

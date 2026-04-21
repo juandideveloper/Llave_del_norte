@@ -1,9 +1,22 @@
-"use client";
-import { SessionProvider } from "next-auth/react";
+"use client"
 
-// Este componente envuelve toda la app para que cualquier
-// página pueda saber si el usuario está logueado o no
+import { SessionProvider } from "next-auth/react"
+import { CarritoProvider } from "@/context/CarritoContext"
+import { usePathname } from "next/navigation"
+import { AnimatePresence } from "framer-motion"
 
 export default function Providers({ children }: { children: React.ReactNode }) {
-  return <SessionProvider>{children}</SessionProvider>;
+  const pathname = usePathname()
+
+  return (
+    <SessionProvider>
+      <CarritoProvider>
+        <AnimatePresence mode="wait" initial={false}>
+          <div key={pathname}>
+            {children}
+          </div>
+        </AnimatePresence>
+      </CarritoProvider>
+    </SessionProvider>
+  )
 }

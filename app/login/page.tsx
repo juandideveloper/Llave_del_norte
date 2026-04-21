@@ -35,7 +35,9 @@ async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
   // Luego obtener la sesión actualizada
   const session = await getSession();
 
-  if (session?.user?.estado === "PENDIENTE") {
+  if (session?.user?.role === "ADMIN") {
+  router.push("/admin");
+}else if (session?.user?.estado === "PENDIENTE") {
     router.push("/pendiente-aprobacion");
   } else if (session?.user?.estado === "RECHAZADO") {
     const yaVioRechazo = localStorage.getItem(
@@ -66,7 +68,7 @@ async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
 }
 
   return (
-    <div className="fondo_Banner min-h-screen flex items-center justify-center ">
+    <div className="login-container min-h-screen flex items-center justify-center ">
       <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-8 w-full max-w-md shadow-sm">
         <div className="text-center mb-6">
           <div className="w-28 h-28  rounded-full flex items-center justify-center mx-auto mb-3 bg-hueso">

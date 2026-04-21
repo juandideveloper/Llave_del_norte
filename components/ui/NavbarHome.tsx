@@ -4,11 +4,13 @@ import { useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
+import { useCarrito } from "@/context/CarritoContext";
 
 export default function Navbar() {
   const { data: session, status } = useSession();
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [menuMovil, setMenuMovil] = useState(false);
+  const { totalItems } = useCarrito();
 
   return (
     <nav className="navbar bg-hueso px-6 py-4 sticky top-0 z-50 border-b border-gray-400">
@@ -282,12 +284,12 @@ c3 1893 8 2770 15 2777 7 7 148 12 400 13 l390 3 3 33 c2 20 -2 34 -10 37 -14
 
         {/* Links pegados al logo */}
         <div className="hidden lg:grid grid-cols-3 gap-4  gap-y-3">
-          <a
+          <Link
             href="/catalogo"
             className="text-sm text-verde hover:text-amarillo-oscuro transition-colors uppercase tracking-wider"
           >
             Catálogo
-          </a>
+          </Link>
           <a
             href="#destacados"
             className="text-sm text-verde hover:text-amarillo-oscuro transition-colors uppercase tracking-wider"
@@ -411,7 +413,7 @@ c3 1893 8 2770 15 2777 7 7 148 12 400 13 l390 3 3 33 c2 20 -2 34 -10 37 -14
               </g>
             </svg>
             <span className="absolute -top-2 -right-3 bg-verde text-amarillo text-sm w-6 h-6 rounded-full flex items-center justify-center font-medium">
-              0
+              {totalItems}
             </span>
           </Link>
 
