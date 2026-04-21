@@ -1,146 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Navbar from "@/components/ui/Navbar";
 import { useSession } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 import Footer from "@/components/ui/Footer";
 
-const productos = [
-  {
-    id: 1,
-    nombre: "Lavaplatos Inteligente",
-    categoria: "Lavaplatos",
-    precioNormal: 599999,
-    precioEspecial: 499999,
-    stock: true,
-    material: "Acero inoxidable",
-    estrellas: 5,
-    resenas: 12,
-  },
-  {
-    id: 2,
-    nombre: "Grifería Milano Negra",
-    categoria: "Grifería",
-    precioNormal: 399999,
-    precioEspecial: 299999,
-    stock: true,
-    material: "Latón",
-    estrellas: 4,
-    resenas: 8,
-  },
-  {
-    id: 3,
-    nombre: "Ducha Corona Pro",
-    categoria: "Duchas",
-    precioNormal: 299999,
-    precioEspecial: 199999,
-    stock: true,
-    material: "Acero inoxidable",
-    estrellas: 5,
-    resenas: 20,
-  },
-  {
-    id: 4,
-    nombre: "Válvula Premium",
-    categoria: "Válvulas",
-    precioNormal: 199999,
-    precioEspecial: 149999,
-    stock: false,
-    material: "Bronce",
-    estrellas: 3,
-    resenas: 5,
-  },
-  {
-    id: 5,
-    nombre: "Lavaplatos Doble",
-    categoria: "Lavaplatos",
-    precioNormal: 799999,
-    precioEspecial: 649999,
-    stock: true,
-    material: "Acero inoxidable",
-    estrellas: 5,
-    resenas: 15,
-  },
-  {
-    id: 6,
-    nombre: "Grifería Extensible",
-    categoria: "Grifería",
-    precioNormal: 349999,
-    precioEspecial: 279999,
-    stock: true,
-    material: "Latón",
-    estrellas: 4,
-    resenas: 9,
-  },
-  {
-    id: 7,
-    nombre: "Tornillería Set Pro",
-    categoria: "Tornillería",
-    precioNormal: 89999,
-    precioEspecial: 69999,
-    stock: true,
-    material: "PVC",
-    estrellas: 4,
-    resenas: 3,
-  },
-  {
-    id: 8,
-    nombre: "Ducha Filtro Carbón",
-    categoria: "Duchas",
-    precioNormal: 249999,
-    precioEspecial: 189999,
-    stock: false,
-    material: "Acero inoxidable",
-    estrellas: 5,
-    resenas: 18,
-  },
-  {
-    id: 9,
-    nombre: "Grifería Sensor",
-    categoria: "Grifería",
-    precioNormal: 599999,
-    precioEspecial: 479999,
-    stock: true,
-    material: "Acero inoxidable",
-    estrellas: 5,
-    resenas: 7,
-  },
-  {
-    id: 10,
-    nombre: "Lavaplatos Simple",
-    categoria: "Lavaplatos",
-    precioNormal: 399999,
-    precioEspecial: 329999,
-    stock: true,
-    material: "Acero inoxidable",
-    estrellas: 4,
-    resenas: 6,
-  },
-  {
-    id: 11,
-    nombre: "Ducha Premium",
-    categoria: "Duchas",
-    precioNormal: 459999,
-    precioEspecial: 379999,
-    stock: true,
-    material: "Latón",
-    estrellas: 5,
-    resenas: 10,
-  },
-  {
-    id: 12,
-    nombre: "Grifería Clásica",
-    categoria: "Grifería",
-    precioNormal: 279999,
-    precioEspecial: 219999,
-    stock: true,
-    material: "Bronce",
-    estrellas: 4,
-    resenas: 4,
-  },
-];
+interface ProductoAlegra {
+  id: string;
+  name: string;
+  price: { price: number }[];
+  inventory: { availableQuantity: number };
+  description: string | null;
+  status: string;
+  category?: { name: string };
+}
 
 const recomendados = [
   {
@@ -175,15 +50,6 @@ const recomendados = [
     estrellas: 4,
     resenas: 6,
   },
-];
-
-const categorias = [
-  { nombre: "Todos los productos", cantidad: 144 },
-  { nombre: "Grifería", cantidad: 32 },
-  { nombre: "Lavaplatos", cantidad: 18 },
-  { nombre: "Duchas", cantidad: 34 },
-  { nombre: "Válvulas", cantidad: 40 },
-  { nombre: "Tornillería", cantidad: 20 },
 ];
 
 const materiales = ["Acero inoxidable", "Latón", "Bronce", "PVC"];
@@ -238,6 +104,7 @@ interface SidebarFiltrosProps {
   setSoloEnStock: (valor: boolean) => void;
   materialesActivos: string[];
   toggleMaterial: (material: string) => void;
+  categorias: { nombre: string; cantidad: number }[];
 }
 
 function SidebarFiltros({
@@ -251,10 +118,11 @@ function SidebarFiltros({
   setSoloEnStock,
   materialesActivos,
   toggleMaterial,
+  categorias,
 }: SidebarFiltrosProps) {
   return (
     <div className="space-y-4">
-      <div className="bg-gray-100  rounded-xl p-4 border border-gray-400">
+      <div className="bg-gray-100 rounded-xl p-4 border border-gray-400">
         <h3 className="text-sm font-medium text-verde mb-3">Categorías</h3>
         <div className="hidden lg:block w-44 h-px bg-gray-400 mb-2" />
         <div className="space-y-2">
@@ -271,11 +139,7 @@ function SidebarFiltros({
                   className="accent-verde w-3.5 h-3.5 cursor-pointer"
                 />
                 <span
-                  className={`text-xs transition-colors ${
-                    categoriaActiva === cat.nombre
-                      ? "text-verde font-medium"
-                      : "text-gray-500 group-hover:text-verde"
-                  }`}
+                  className={`text-xs transition-colors ${categoriaActiva === cat.nombre ? "text-verde font-medium" : "text-gray-500 group-hover:text-verde"}`}
                 >
                   {cat.nombre}
                 </span>
@@ -354,7 +218,6 @@ function SidebarFiltros({
       <div className="bg-gray-100 rounded-xl p-4 border border-gray-400">
         <h3 className="text-sm font-medium text-verde mb-3">Material</h3>
         <div className="hidden lg:block w-44 h-px bg-gray-400 mb-2" />
-
         <div className="space-y-2">
           {materiales.map((mat) => (
             <label
@@ -368,11 +231,7 @@ function SidebarFiltros({
                 className="accent-verde w-3.5 h-3.5 cursor-pointer"
               />
               <span
-                className={`text-xs transition-colors ${
-                  materialesActivos.includes(mat)
-                    ? "text-verde font-medium"
-                    : "text-gray-500 group-hover:text-verde"
-                }`}
+                className={`text-xs transition-colors ${materialesActivos.includes(mat) ? "text-verde font-medium" : "text-gray-500 group-hover:text-verde"}`}
               >
                 {mat}
               </span>
@@ -391,6 +250,8 @@ export default function CatalogoPage() {
   const esEspecial =
     session?.user?.role === "ESPECIAL" && session?.user?.estado === "APROBADO";
 
+  const [productosAlegra, setProductosAlegra] = useState<ProductoAlegra[]>([]);
+  const [cargando, setCargando] = useState(true);
   const [categoriaActiva, setCategoriaActiva] = useState("Todos los productos");
   const [materialesActivos, setMaterialesActivos] = useState<string[]>([]);
   const [soloEnStock, setSoloEnStock] = useState(false);
@@ -400,19 +261,46 @@ export default function CatalogoPage() {
   const [filtrosAbiertos, setFiltrosAbiertos] = useState(false);
   const [paginaActual, setPaginaActual] = useState(1);
 
-  const productosFiltrados = productos.filter((p) => {
+  useEffect(() => {
+    fetch("/api/productos")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.productos) {
+          setProductosAlegra(
+            data.productos.filter((p: ProductoAlegra) => p.status === "active"),
+          );
+        }
+        setCargando(false);
+      })
+      .catch(() => setCargando(false));
+  }, []);
+
+  // Generar categorías dinámicas desde Alegra
+  const categoriasUnicas = [
+    "Todos los productos",
+    ...new Set(productosAlegra.map((p) => p.category?.name || "General")),
+  ];
+  const categorias = categoriasUnicas.map((nombre) => ({
+    nombre,
+    cantidad:
+      nombre === "Todos los productos"
+        ? productosAlegra.length
+        : productosAlegra.filter(
+            (p) => (p.category?.name || "General") === nombre,
+          ).length,
+  }));
+
+  const productosFiltrados = productosAlegra.filter((p) => {
     if (
       categoriaActiva !== "Todos los productos" &&
-      p.categoria !== categoriaActiva
+      (p.category?.name || "General") !== categoriaActiva
     )
       return false;
-    if (soloEnStock && !p.stock) return false;
-    if (materialesActivos.length > 0 && !materialesActivos.includes(p.material))
-      return false;
-    const precio = esEspecial ? p.precioEspecial : p.precioNormal;
+    if (soloEnStock && p.inventory?.availableQuantity <= 0) return false;
+    if (!soloEnStock && p.inventory?.availableQuantity > 0) return false;
+    const precio = p.price[0]?.price || 0;
     if (precio > precioMax) return false;
     if (precioMin > 0 && precio < precioMin) return false;
-    if (precioMax < 1000000 && precio > precioMax) return false;
     return true;
   });
 
@@ -449,10 +337,11 @@ export default function CatalogoPage() {
     setSoloEnStock,
     materialesActivos,
     toggleMaterial,
+    categorias,
   };
 
   return (
-    <div className="min-h-screen bg-white ">
+    <div className="min-h-screen bg-white">
       <Navbar
         breadcrumb={[{ label: "Inicio", href: "/" }, { label: "Catalogo" }]}
       />
@@ -557,7 +446,6 @@ export default function CatalogoPage() {
                   ))}
                 </motion.div>
               </div>
-
               <button
                 onClick={() =>
                   setSliderActual(
@@ -575,7 +463,6 @@ export default function CatalogoPage() {
                   />
                 </svg>
               </button>
-
               <button
                 onClick={() =>
                   setSliderActual(
@@ -602,7 +489,11 @@ export default function CatalogoPage() {
               {categoriaActiva}
             </h2>
 
-            {productosFiltrados.length === 0 ? (
+            {cargando ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="w-8 h-8 rounded-full border-2 border-verde border-t-transparent animate-spin" />
+              </div>
+            ) : productosFiltrados.length === 0 ? (
               <div className="text-center py-12">
                 <p className="text-gray-400 text-sm">
                   No hay productos con estos filtros
@@ -611,78 +502,77 @@ export default function CatalogoPage() {
             ) : (
               <>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
-                  {productosPaginados.map((producto) => (
-                    <motion.div
-                      key={producto.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3 }}
-                      className="bg-white rounded-xl overflow-hidden border-1 border-amarillo"
-                    >
-                      {/* Imagen con badge encima */}
-                      <div className="relative h-36 md:h-44 bg-gray-50 flex items-center justify-center">
-                        <svg
-                          width="40"
-                          height="40"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="0.8"
-                          className="text-verde/20"
-                        >
-                          <rect x="3" y="3" width="18" height="18" rx="2" />
-                          <path d="M3 9h18M9 21V9" />
-                        </svg>
+                  {productosPaginados.map((producto) => {
+                    const precio = producto.price[0]?.price || 0;
+                    const precioEspecial = Math.round(precio * 0.85);
+                    const enStock =
+                      (producto.inventory?.availableQuantity || 0) > 0;
 
-                        {esEspecial && (
-                          <div className="absolute top-0 left-0">
-                            <BadgePrecioEspecial />
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="p-3">
-                        <div className="flex items-center gap-1">
-                          <Estrellas cantidad={producto.estrellas} />
-                          <p className="text-xs text-gray-400">
-                            ({producto.resenas})
-                          </p>
+                    return (
+                      <motion.div
+                        key={producto.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="bg-white rounded-xl overflow-hidden border-1 border-amarillo"
+                      >
+                        <div className="relative h-36 md:h-44 bg-gray-50 flex items-center justify-center">
+                          <svg
+                            width="40"
+                            height="40"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="0.8"
+                            className="text-verde/20"
+                          >
+                            <rect x="3" y="3" width="18" height="18" rx="2" />
+                            <path d="M3 9h18M9 21V9" />
+                          </svg>
+                          {esEspecial && (
+                            <div className="absolute top-0 left-0">
+                              <BadgePrecioEspecial />
+                            </div>
+                          )}
+                          {!enStock && (
+                            <div className="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
+                              Agotado
+                            </div>
+                          )}
                         </div>
-                        <p className="text-sm font-medium text-verde mt-1 leading-tight">
-                          {producto.nombre}
-                        </p>
 
-                        {esEspecial ? (
-                          <div className="mt-2">
-                            <p className="text-xs text-gray-400 line-through">
-                              $ {producto.precioNormal.toLocaleString("es-CO")}{" "}
-                              und
-                            </p>
-                            <p className="text-sm font-semibold text-verde">
-                              ${" "}
-                              {producto.precioEspecial.toLocaleString("es-CO")}{" "}
-                              und
-                            </p>
-                            <p className="text-xs text-gray-400 mt-1">
-                              Este precio se mantiene ya que eres mayorista
-                            </p>
-                          </div>
-                        ) : (
-                          <p className="text-sm font-medium text-verde mt-2">
-                            $ {producto.precioNormal.toLocaleString("es-CO")}{" "}
-                            und
+                        <div className="p-3">
+                          <p className="text-sm font-medium text-verde mt-1 leading-tight">
+                            {producto.name}
                           </p>
-                        )}
-
-                        <Link
-                          href={`/catalogo/${producto.id}`}
-                          className="block w-full mt-3 py-2.5 bg-verde text-hueso text-xs font-bold text-center rounded-lg hover:opacity-90 transition-opacity uppercase tracking-wider"
-                        >
-                          Detalles
-                        </Link>
-                      </div>
-                    </motion.div>
-                  ))}
+                          {esEspecial ? (
+                            <div className="mt-2">
+                              <p className="text-xs text-gray-400 line-through">
+                                $ {Math.round(precio).toLocaleString("es-CO")}{" "}
+                                und
+                              </p>
+                              <p className="text-sm font-semibold text-verde">
+                                $ {precioEspecial.toLocaleString("es-CO")} und
+                              </p>
+                              <p className="text-xs text-gray-400 mt-1">
+                                Este precio se mantiene ya que eres mayorista
+                              </p>
+                            </div>
+                          ) : (
+                            <p className="text-sm font-medium text-verde mt-2">
+                              $ {Math.round(precio).toLocaleString("es-CO")} und
+                            </p>
+                          )}
+                          <Link
+                            href={`/catalogo/${producto.id}`}
+                            className="block w-full mt-3 py-2.5 bg-verde text-hueso text-xs font-bold text-center rounded-lg hover:opacity-90 transition-opacity uppercase tracking-wider"
+                          >
+                            Detalles
+                          </Link>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
                 </div>
 
                 {/* Paginación */}
@@ -695,14 +585,12 @@ export default function CatalogoPage() {
                     >
                       ‹
                     </button>
-
                     {Array.from({ length: totalPaginas }, (_, i) => i + 1).map(
                       (pagina) => {
                         const mostrar =
                           pagina === 1 ||
                           pagina === totalPaginas ||
                           Math.abs(pagina - paginaActual) <= 1;
-
                         if (!mostrar) {
                           const anteriorMostrada =
                             pagina - 1 === 1 ||
@@ -718,7 +606,6 @@ export default function CatalogoPage() {
                             </span>
                           );
                         }
-
                         return (
                           <button
                             key={pagina}
@@ -734,7 +621,6 @@ export default function CatalogoPage() {
                         );
                       },
                     )}
-
                     <button
                       onClick={() =>
                         setPaginaActual((p) => Math.min(totalPaginas, p + 1))
@@ -751,7 +637,6 @@ export default function CatalogoPage() {
           </div>
         </div>
       </div>
-      {/* ── FOOTER ── */}
       <Footer />
     </div>
   );
