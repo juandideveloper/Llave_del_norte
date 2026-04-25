@@ -10,10 +10,11 @@ const headers = {
 
 // Obtener todos los productos
 export async function getProductosAlegra() {
-  const res = await fetch(`${BASE_URL}/items?limit=30`, { headers })
+  const res = await fetch(
+    `${BASE_URL}/items?limit=30&fields=id,name,description,reference,status,price,inventory,category,images`,
+    { headers }
+  )
   const data = await res.json()
-  console.log("Alegra response:", res.status, JSON.stringify(data))
-  if (!res.ok) throw new Error(`Error Alegra: ${JSON.stringify(data)}`)
   return data
 }
 

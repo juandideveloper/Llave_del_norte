@@ -5,6 +5,7 @@ import {
   useContext,
   useState,
   useEffect,
+  useCallback,
   ReactNode,
 } from "react";
 
@@ -46,7 +47,6 @@ export function CarritoProvider({ children }: { children: ReactNode }) {
   const [hidratado, setHidratado] = useState(false);
   const [metodoEnvio, setMetodoEnvio] = useState<"envio" | "tienda">("envio");
 
-  // Cargar localStorage una sola vez al montar
   useEffect(() => {
     try {
       const guardado = localStorage.getItem("carrito");
@@ -59,13 +59,12 @@ export function CarritoProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // Guardar en localStorage solo cuando ya hidratado
   useEffect(() => {
     if (!hidratado) return;
     localStorage.setItem("carrito", JSON.stringify(items));
   }, [items, hidratado]);
 
-  function agregarItem(nuevoItem: ItemCarrito) {
+  const agregarItem = useCallback((nuevoItem: ItemCarrito) => {
     setItems((prev) => {
       const existe = prev.find((i) => i.id === nuevoItem.id);
       if (existe) {
@@ -77,28 +76,29 @@ export function CarritoProvider({ children }: { children: ReactNode }) {
       }
       return [...prev, nuevoItem];
     });
-  }
+  }, []);
 
-  function eliminarItem(id: number) {
+  const eliminarItem = useCallback((id: number) => {
     setItems((prev) => prev.filter((i) => i.id !== id));
-  }
+  }, []);
 
-  function actualizarCantidad(id: number, cantidad: number) {
+  const actualizarCantidad = useCallback((id: number, cantidad: number) => {
     if (cantidad <= 0) {
-      eliminarItem(id);
+      setItems((prev) => prev.filter((i) => i.id !== id));
       return;
     }
     setItems((prev) => prev.map((i) => (i.id === id ? { ...i, cantidad } : i)));
-  }
+  }, []);
 
-  function vaciarCarrito() {
+  const vaciarCarrito = useCallback(() => {
     setItems([]);
-  }
+  }, []);
 
   const totalItems: number = items.reduce(
     (acc: number, i: ItemCarrito) => acc + i.cantidad,
     0,
   );
+
   const totalPrecio: number = items.reduce(
     (acc: number, i: ItemCarrito) => acc + i.precio * i.cantidad,
     0,
@@ -116,7 +116,7 @@ export function CarritoProvider({ children }: { children: ReactNode }) {
         totalPrecio,
         hidratado,
         metodoEnvio,
-        setMetodoEnvio, // ← agrega estas
+        setMetodoEnvio,
       }}
     >
       {children}

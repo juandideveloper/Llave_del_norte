@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useParams } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/ui/Navbar";
 import { useSession } from "next-auth/react";
@@ -10,55 +11,17 @@ import Footer from "@/components/ui/Footer";
 import ModalCarrito from "@/components/ui/ModalCarrito";
 import { useCarrito } from "@/context/CarritoContext";
 
-const producto = {
-  id: 1,
-  nombre: "Lavaplatos Inteligente 60x45 Cm Acero Inoxidable",
-  marca: "MARCA",
-  modelo: "Modelo / Código",
-  precioNormal: 599999,
-  precioEspecial: 399999,
-  estrellas: 5,
-  resenas: 20,
-  stock: 3,
-  imagenes: [
-    "/placeholder.jpg",
-    "/placeholder.jpg",
-    "/placeholder.jpg",
-    "/placeholder.jpg",
-  ],
-  descripcion: "El admin puede escribir aquí",
-  caracteristicas: "El admin puede escribir aquí",
-  especificaciones: [
-    { label: "Tipo", valor: "" },
-    { label: "Ancho", valor: "" },
-    { label: "Alto", valor: "" },
-    { label: "Profundidad", valor: "" },
-    { label: "Material del bowplate", valor: "" },
-    { label: "Capacidad volumétrica", valor: "" },
-    { label: "Color", valor: "" },
-    { label: "Incluye accesorios para armado", valor: "" },
-    { label: "Cuenta con anti rebotes", valor: "" },
-    { label: "Cuenta con desagüe", valor: "" },
-    { label: "Número de cubetas", valor: "" },
-    { label: "Acabado", valor: "" },
-    { label: "Forma de la cubeta", valor: "" },
-    { label: "Garantía detalle", valor: "" },
-    { label: "País de Origen", valor: "" },
-  ],
-  fichaTecnica: [
-    { label: "Fabricante", valor: "" },
-    { label: "Modelo", valor: "" },
-    { label: "Garantía", valor: "" },
-    { label: "Armado/Instalación", valor: "" },
-    { label: "Tipo de instalación", valor: "" },
-  ],
-  productosRelacionados: [
-    { id: 2, nombre: "Grifería Milano Negra", precio: 399999 },
-    { id: 3, nombre: "Ducha Corona Pro", precio: 299999 },
-    { id: 4, nombre: "Válvula Premium", precio: 199999 },
-    { id: 5, nombre: "Lavaplatos Doble", precio: 799999 },
-  ],
-};
+interface ProductoAlegra {
+  id: string;
+  name: string;
+  description: string | null;
+  reference: string | null;
+  price: { price: number }[];
+  inventory: { availableQuantity: number };
+  status: string;
+  category?: { name: string };
+  images?: { id: number; url: string; favorite: boolean }[];
+}
 
 function Estrellas({
   cantidad,
@@ -82,10 +45,13 @@ function Estrellas({
 }
 
 export default function DetalleProductoPage() {
+  const { id } = useParams();
   const { data: session } = useSession();
   const esEspecial =
     session?.user?.role === "ESPECIAL" && session?.user?.estado === "APROBADO";
 
+  const [producto, setProducto] = useState<ProductoAlegra | null>(null);
+  const [cargando, setCargando] = useState(true);
   const [imagenActual, setImagenActual] = useState(0);
   const [cantidad, setCantidad] = useState(1);
   const [botonDesbloqueado, setBotonDesbloqueado] = useState(false);
@@ -99,23 +65,28 @@ export default function DetalleProductoPage() {
   const [mostrarModal, setMostrarModal] = useState(false);
   const { agregarItem } = useCarrito();
 
-  // Detectar cuando el usuario llega al final de las especificaciones → desbloquea comprar ahora
+useEffect(() => {
+  fetch(`/api/productos/${id}`)
+    .then(res => res.json())
+    .then(data => {
+      console.log("Producto:", data)
+      console.log("Imágenes:", data.producto?.images)
+      if (data.producto) setProducto(data.producto)
+      setCargando(false)
+    })
+    .catch(() => setCargando(false))
+}, [id])
   useEffect(() => {
     const handleScroll = () => {
       if (especificacionesRef.current) {
         const rect = especificacionesRef.current.getBoundingClientRect();
-        // Si el elemento está visible en la pantalla
-        if (rect.top <= window.innerHeight) {
-          setBotonDesbloqueado(true);
-        }
+        if (rect.top <= window.innerHeight) setBotonDesbloqueado(true);
       }
     };
-
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Detectar cuando el panel de info sale de la vista → mostrar botón flotante
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -123,11 +94,59 @@ export default function DetalleProductoPage() {
       },
       { threshold: 0.1 },
     );
-    if (infoPanelRef.current) {
-      observer.observe(infoPanelRef.current);
-    }
+    if (infoPanelRef.current) observer.observe(infoPanelRef.current);
     return () => observer.disconnect();
   }, []);
+
+  if (cargando) {
+    return (
+      <div className="min-h-screen bg-white">
+        <Navbar
+          breadcrumb={[
+            { label: "Inicio", href: "/" },
+            { label: "Catálogo", href: "/catalogo" },
+          ]}
+        />
+        <div className="flex items-center justify-center py-20">
+          <div className="w-8 h-8 rounded-full border-2 border-verde border-t-transparent animate-spin" />
+        </div>
+      </div>
+    );
+  }
+
+  if (!producto) {
+    return (
+      <div className="min-h-screen bg-white">
+        <Navbar
+          breadcrumb={[
+            { label: "Inicio", href: "/" },
+            { label: "Catálogo", href: "/catalogo" },
+          ]}
+        />
+        <div className="flex flex-col items-center justify-center py-20">
+          <p className="text-gray-400 text-sm mb-4">Producto no encontrado</p>
+          <Link
+            href="/catalogo"
+            className="px-4 py-2 bg-verde text-amarillo rounded-lg text-sm"
+          >
+            Volver al catálogo
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const precio = producto.price[0]?.price || 0;
+  const precioEspecial = Math.round(precio * 0.85);
+  const stock = producto.inventory?.availableQuantity || 0;
+  const enStock = stock > 0;
+  // Antes del return, calcula las imágenes ordenadas
+  const imagenes = producto.images
+    ? [...producto.images].sort(
+        (a, b) => (b.favorite ? 1 : 0) - (a.favorite ? 1 : 0),
+      )
+    : [];
+  const imagenPrincipal = imagenes[imagenActual]?.url || null;
 
   return (
     <div className="min-h-screen bg-white">
@@ -135,57 +154,68 @@ export default function DetalleProductoPage() {
         breadcrumb={[
           { label: "Inicio", href: "/" },
           { label: "Catálogo", href: "/catalogo" },
-          { label: "Lavaplatos", href: "/catalogo?categoria=lavaplatos" },
-          { label: producto.nombre },
+          { label: producto.category?.name || "General", href: "/catalogo" },
+          { label: producto.name },
         ]}
       />
 
       <div className="max-w-8xl mx-auto px-4 md:px-6 py-6 bg-white">
-        {/* Grid principal */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-5">
-          {/* Columna izquierda — Galería */}
+          {/* Galería */}
+          {/* Galería */}
           <div className="rounded-t-lg bg-gray-100 border-gray-400 border-2">
-            <div className="rounded-t-lg overflow-hidden h-72 md:h-96 flex items-center justify-center mb-3">
-              <Image
-                src="/images/EjemploProducto1.png"
-                alt="Imagen del producto respectivo"
-                width={640}
-                height={500}
-                className="object-contain h-full w-full"
-              />
-            </div>
-            <div className="flex gap-2 items-center justify-center mb-6 flex-wrap px-2">
-              {producto.imagenes.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setImagenActual(i)}
-                  className={`w-20 h-20 md:w-28 md:h-28 border-2 bg-white flex items-center justify-center transition-colors cursor-pointer ${imagenActual === i ? "miniatura" : "border-gray-400"}`}
+            <div className="rounded-t-lg overflow-hidden h-72 md:h-96 flex items-center justify-center mb-3 bg-white">
+              {imagenPrincipal ? (
+                <img
+                  src={imagenPrincipal}
+                  alt={producto.name}
+                  className="object-contain h-full w-full"
+                />
+              ) : (
+                <svg
+                  width="80"
+                  height="80"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="0.8"
+                  className="text-verde/20"
                 >
-                  <svg
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="0.8"
-                    className="text-verde/20"
-                  >
-                    <rect x="3" y="3" width="18" height="18" rx="2" />
-                    <path d="M3 9h18M9 21V9" />
-                  </svg>
-                </button>
-              ))}
+                  <rect x="3" y="3" width="18" height="18" rx="2" />
+                  <path d="M3 9h18M9 21V9" />
+                </svg>
+              )}
             </div>
+
+            {imagenes.length > 0 && (
+              <div className="flex gap-2 items-center justify-center mb-6 flex-wrap px-2">
+                {imagenes.slice(0, 5).map((img, i) => (
+                  <button
+                    key={img.id}
+                    onClick={() => setImagenActual(i)}
+                    className={`w-20 h-20 md:w-28 md:h-28 border-2 bg-white flex items-center justify-center transition-colors cursor-pointer overflow-hidden ${
+                      imagenActual === i ? "border-amarillo" : "border-gray-400"
+                    }`}
+                  >
+                    <img
+                      src={img.url}
+                      alt={`${producto.name} ${i + 1}`}
+                      className="object-contain w-full h-full"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* Columna derecha — Info */}
+          {/* Info */}
           <div
             ref={infoPanelRef}
             className="bg-gray-100 border-gray-400 border-2 rounded-t-lg pt-4 px-4 md:pl-7 md:pr-7"
           >
             <div className="flex justify-between items-start mb-1">
               <p className="text-sm text-gray-500 uppercase tracking-widest">
-                {producto.marca}
+                {producto.reference || producto.category?.name || "—"}
               </p>
               <button
                 onClick={() => setGuardado(!guardado)}
@@ -206,29 +236,27 @@ export default function DetalleProductoPage() {
             </div>
 
             <h1 className="text-lg md:text-2xl font-semibold text-verde mb-1 mt-3 pr-3">
-              {producto.nombre}
+              {producto.name}
             </h1>
-            <p className="text-sm text-gray-500 mb-2">{producto.modelo}</p>
+            <p className="text-sm text-gray-500 mb-2">Ref: {producto.id}</p>
 
             <div className="flex items-center gap-2 mb-4">
-              <Estrellas cantidad={producto.estrellas} />
-              <span className="text-sm text-gray-400">
-                {producto.estrellas}.0 ({producto.resenas})
-              </span>
+              <Estrellas cantidad={5} />
+              <span className="text-sm text-gray-400">5.0 (0)</span>
             </div>
 
             {esEspecial ? (
               <div className="mb-4">
                 <p className="text-sm text-gray-400 line-through">
-                  ${producto.precioNormal.toLocaleString("es-CO")} und
+                  $ {Math.round(precio).toLocaleString("es-CO")} und
                 </p>
                 <p className="text-2xl font-medium text-amarillo">
-                  ${producto.precioEspecial.toLocaleString("es-CO")} und
+                  $ {precioEspecial.toLocaleString("es-CO")} und
                 </p>
               </div>
             ) : (
               <p className="text-xl md:text-2xl font-semibold text-verde/88 mb-4">
-                ${producto.precioNormal.toLocaleString("es-CO")} und
+                $ {Math.round(precio).toLocaleString("es-CO")} und
               </p>
             )}
 
@@ -253,9 +281,7 @@ export default function DetalleProductoPage() {
                   {cantidad}
                 </span>
                 <button
-                  onClick={() =>
-                    setCantidad(Math.min(producto.stock, cantidad + 1))
-                  }
+                  onClick={() => setCantidad(Math.min(stock, cantidad + 1))}
                   className="w-9 h-9 flex items-center justify-center text-verde hover:bg-gray-50 transition-colors cursor-pointer"
                 >
                   <svg
@@ -272,16 +298,13 @@ export default function DetalleProductoPage() {
               </div>
 
               <div className="flex gap-2 flex-wrap">
-                {/* Agregar al carro — siempre desbloqueado */}
                 <button
                   onClick={() => {
                     agregarItem({
-                      id: producto.id,
-                      nombre: producto.nombre,
-                      precio: esEspecial
-                        ? producto.precioEspecial
-                        : producto.precioNormal,
-                      cantidad: cantidad,
+                      id: Number(producto.id),
+                      nombre: producto.name,
+                      precio: esEspecial ? precioEspecial : Math.round(precio),
+                      cantidad,
                     });
                     setMostrarModal(true);
                   }}
@@ -289,7 +312,6 @@ export default function DetalleProductoPage() {
                 >
                   Agregar al carro
                 </button>
-                {/* Comprar ahora — bloqueado hasta leer ficha técnica */}
                 <button
                   disabled={!botonDesbloqueado}
                   className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
@@ -329,7 +351,7 @@ export default function DetalleProductoPage() {
 
         {/* Grid inferior */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-          {/* Descripción acordeón */}
+          {/* Descripción */}
           <div className="bg-gray-100 border-gray-400 border-2 overflow-hidden">
             <button
               onClick={() => setDescripcionAbierta(!descripcionAbierta)}
@@ -348,7 +370,6 @@ export default function DetalleProductoPage() {
                 <path d="M6 9l6 6 6-6" />
               </svg>
             </button>
-
             <div className="hidden lg:block w-xl ml-4 h-px bg-gray-400 mb-5" />
             <AnimatePresence>
               {descripcionAbierta && (
@@ -361,18 +382,10 @@ export default function DetalleProductoPage() {
                   <div className="px-4 pb-4 space-y-4">
                     <div>
                       <p className="text-base font-semibold text-verde mb-1">
-                        {producto.nombre}
+                        {producto.name}
                       </p>
                       <p className="text-sm text-gray-400">
-                        {producto.descripcion}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-base font-semibold text-verde mb-1">
-                        Características
-                      </p>
-                      <p className="text-sm text-gray-400">
-                        {producto.caracteristicas}
+                        {producto.description || "Sin descripción disponible"}
                       </p>
                     </div>
                     <div ref={especificacionesRef} className="h-1" />
@@ -382,23 +395,39 @@ export default function DetalleProductoPage() {
             </AnimatePresence>
           </div>
 
-          {/* Especificaciones principales + Garantía + Entrega */}
+          {/* Especificaciones + Garantía + Entrega */}
           <div className="space-y-7">
             <div className="bg-gray-100 border-2 border-gray-100 p-4">
               <p className="text-sm font-semibold text-verde mb-3">
                 Especificaciones principales
               </p>
               <div className="space-y-1">
-                {producto.especificaciones.slice(0, 5).map((esp, i) => (
-                  <div
-                    key={i}
-                    className="flex items-center gap-2 text-sm font-semibold text-verde"
-                  >
-                    <span className="text-amarillo">+</span>
-                    <span>{esp.label}:</span>
-                    <span className="text-gray-600">{esp.valor || "—"}</span>
-                  </div>
-                ))}
+                <div className="flex items-center gap-2 text-sm font-semibold text-verde">
+                  <span className="text-amarillo">+</span>
+                  <span>Categoría:</span>
+                  <span className="text-gray-600">
+                    {producto.category?.name || "—"}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 text-sm font-semibold text-verde">
+                  <span className="text-amarillo">+</span>
+                  <span>Referencia:</span>
+                  <span className="text-gray-600">
+                    {producto.reference || "—"}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 text-sm font-semibold text-verde">
+                  <span className="text-amarillo">+</span>
+                  <span>Stock disponible:</span>
+                  <span className="text-gray-600">{stock} unidades</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm font-semibold text-verde">
+                  <span className="text-amarillo">+</span>
+                  <span>Estado:</span>
+                  <span className={enStock ? "text-green-600" : "text-red-500"}>
+                    {enStock ? "En stock" : "Agotado"}
+                  </span>
+                </div>
               </div>
             </div>
 
@@ -415,7 +444,8 @@ export default function DetalleProductoPage() {
                 </p>
                 <p className="text-sm text-gray-400 mt-0.5">Garantía</p>
                 <p className="text-sm text-gray-400">
-                  Colocar una seleccionador de categoría para la garantía
+                  Contáctanos para más información sobre la garantía de este
+                  producto
                 </p>
               </div>
             </div>
@@ -434,12 +464,10 @@ export default function DetalleProductoPage() {
                       fill="none"
                       xmlns="http://www.w3.org/2000/svg"
                     >
-                      <g>
-                        <path
-                          d="M12.3903 48.6095C10.9077 47.1268 10.1663 45.3265 10.1663 43.2084H3.81217L4.95592 38.1251H12.1361C12.8563 37.3202 13.7035 36.6954 14.6778 36.2506C15.6521 35.8058 16.69 35.5834 17.7913 35.5834C18.8927 35.5834 19.9306 35.8058 20.9049 36.2506C21.8792 36.6954 22.7264 37.3202 23.4466 38.1251H34.058L39.3955 15.2501H11.5643L11.8184 14.1699C12.0726 12.9838 12.6551 12.02 13.5658 11.2787C14.4766 10.5374 15.5462 10.1667 16.7747 10.1667H45.7497L43.3986 20.3334H50.833L58.458 30.5001L55.9163 43.2084H50.833C50.833 45.3265 50.0917 47.1268 48.6091 48.6095C47.1264 50.0921 45.3261 50.8334 43.208 50.8334C41.09 50.8334 39.2896 50.0921 37.807 48.6095C36.3243 47.1268 35.583 45.3265 35.583 43.2084H25.4163C25.4163 45.3265 24.675 47.1268 23.1924 48.6095C21.7097 50.0921 19.9094 50.8334 17.7913 50.8334C15.6733 50.8334 13.8729 50.0921 12.3903 48.6095ZM40.4757 33.0417H52.7393L52.9934 31.7074L48.2913 25.4167H42.2549L40.4757 33.0417ZM39.2684 15.6949L39.3955 15.2501L34.058 38.1251L34.1851 37.6803L36.3455 28.4032L39.2684 15.6949ZM1.27051 33.8678L2.54134 28.7845H16.5205L15.2497 33.8678H1.27051ZM6.35384 24.5907L7.62467 19.5074H24.1455L22.8747 24.5907H6.35384ZM17.7913 45.7501C18.5115 45.7501 19.1151 45.5065 19.6023 45.0194C20.0894 44.5322 20.333 43.9286 20.333 43.2084C20.333 42.4883 20.0894 41.8846 19.6023 41.3975C19.1151 40.9103 18.5115 40.6667 17.7913 40.6667C17.0712 40.6667 16.4676 40.9103 15.9804 41.3975C15.4933 41.8846 15.2497 42.4883 15.2497 43.2084C15.2497 43.9286 15.4933 44.5322 15.9804 45.0194C16.4676 45.5065 17.0712 45.7501 17.7913 45.7501ZM43.208 45.7501C43.9281 45.7501 44.5318 45.5065 45.0189 45.0194C45.5061 44.5322 45.7497 43.9286 45.7497 43.2084C45.7497 42.4883 45.5061 41.8846 45.0189 41.3975C44.5318 40.9103 43.9281 40.6667 43.208 40.6667C42.4879 40.6667 41.8842 40.9103 41.3971 41.3975C40.9099 41.8846 40.6663 42.4883 40.6663 43.2084C40.6663 43.9286 40.9099 44.5322 41.3971 45.0194C41.8842 45.5065 42.4879 45.7501 43.208 45.7501Z"
-                          fill="#C59C4D"
-                        />
-                      </g>
+                      <path
+                        d="M12.3903 48.6095C10.9077 47.1268 10.1663 45.3265 10.1663 43.2084H3.81217L4.95592 38.1251H12.1361C12.8563 37.3202 13.7035 36.6954 14.6778 36.2506C15.6521 35.8058 16.69 35.5834 17.7913 35.5834C18.8927 35.5834 19.9306 35.8058 20.9049 36.2506C21.8792 36.6954 22.7264 37.3202 23.4466 38.1251H34.058L39.3955 15.2501H11.5643L11.8184 14.1699C12.0726 12.9838 12.6551 12.02 13.5658 11.2787C14.4766 10.5374 15.5462 10.1667 16.7747 10.1667H45.7497L43.3986 20.3334H50.833L58.458 30.5001L55.9163 43.2084H50.833C50.833 45.3265 50.0917 47.1268 48.6091 48.6095C47.1264 50.0921 45.3261 50.8334 43.208 50.8334C41.09 50.8334 39.2896 50.0921 37.807 48.6095C36.3243 47.1268 35.583 45.3265 35.583 43.2084H25.4163C25.4163 45.3265 24.675 47.1268 23.1924 48.6095C21.7097 50.0921 19.9094 50.8334 17.7913 50.8334C15.6733 50.8334 13.8729 50.0921 12.3903 48.6095Z"
+                        fill="#C59C4D"
+                      />
                     </svg>
                     <span className="text-sm text-verde">Llega el</span>
                   </div>
@@ -463,19 +491,17 @@ export default function DetalleProductoPage() {
                       fill="none"
                       xmlns="http://www.w3.org/2000/svg"
                     >
-                      <g>
-                        <path
-                          d="M45.7503 58.4584V50.8334H38.1253V45.7501H45.7503V38.1251H50.8337V45.7501H58.4587V50.8334H50.8337V58.4584H45.7503ZM5.08366 50.8334V35.5834H2.54199V30.5001L5.08366 17.7917H43.2087L45.7503 30.5001V35.5834H43.2087V43.2084H38.1253V35.5834H27.9587V50.8334H5.08366ZM10.167 45.7501H22.8753V35.5834H10.167V45.7501ZM5.08366 15.2501V10.1667H43.2087V15.2501H5.08366ZM7.75241 30.5001H40.5399L39.0149 22.8751H9.27741L7.75241 30.5001Z"
-                          fill="#C59C4D"
-                        />
-                      </g>
+                      <path
+                        d="M45.7503 58.4584V50.8334H38.1253V45.7501H45.7503V38.1251H50.8337V45.7501H58.4587V50.8334H50.8337V58.4584H45.7503ZM5.08366 50.8334V35.5834H2.54199V30.5001L5.08366 17.7917H43.2087L45.7503 30.5001V35.5834H43.2087V43.2084H38.1253V35.5834H27.9587V50.8334H5.08366ZM10.167 45.7501H22.8753V35.5834H10.167V45.7501ZM5.08366 15.2501V10.1667H43.2087V15.2501H5.08366ZM7.75241 30.5001H40.5399L39.0149 22.8751H9.27741L7.75241 30.5001Z"
+                        fill="#C59C4D"
+                      />
                     </svg>
                     <div>
                       <span className="text-sm text-verde block">
                         Disponibilidad en tienda
                       </span>
                       <span className="text-sm text-gray-400">
-                        {producto.stock} unidades disponibles
+                        {stock} unidades disponibles
                       </span>
                     </div>
                   </div>
@@ -494,7 +520,7 @@ export default function DetalleProductoPage() {
             </div>
           </div>
 
-          {/* Ficha técnica — ocupa las 2 columnas */}
+          {/* Ficha técnica */}
           <div className="col-span-1 md:col-span-2 bg-gray-100 border-2 border-gray-400 overflow-hidden mb-10">
             <button
               onClick={() => setFichaTecnicaAbierta(!fichaTecnicaAbierta)}
@@ -525,60 +551,53 @@ export default function DetalleProductoPage() {
                   <div className="pb-4">
                     <table className="w-full text-sm">
                       <tbody>
-                        {producto.especificaciones.map((esp, i) => (
-                          <tr
-                            key={i}
-                            className={i % 2 === 0 ? "bg-gray-200" : "bg-white"}
-                          >
-                            <td className="py-2 px-4 text-gray-600 w-1/2">
-                              {esp.label}
-                            </td>
-                            <td className="py-2 px-4 text-gray-400">
-                              {esp.valor || ""}
-                            </td>
-                          </tr>
-                        ))}
+                        <tr className="bg-gray-200">
+                          <td className="py-2 px-4 text-gray-600 w-1/2">
+                            Nombre
+                          </td>
+                          <td className="py-2 px-4 text-gray-400">
+                            {producto.name}
+                          </td>
+                        </tr>
                         <tr className="bg-white">
-                          <td
-                            colSpan={2}
-                            className="py-3 px-4 text-sm font-semibold text-verde border-t border-gray-200"
-                          >
-                            Fabricante
+                          <td className="py-2 px-4 text-gray-600 w-1/2">
+                            Referencia
+                          </td>
+                          <td className="py-2 px-4 text-gray-400">
+                            {producto.reference || "—"}
                           </td>
                         </tr>
                         <tr className="bg-gray-200">
                           <td className="py-2 px-4 text-gray-600 w-1/2">
-                            Modelo
+                            Categoría
                           </td>
-                          <td className="py-2 px-4 text-gray-400"></td>
+                          <td className="py-2 px-4 text-gray-400">
+                            {producto.category?.name || "—"}
+                          </td>
                         </tr>
                         <tr className="bg-white">
-                          <td
-                            colSpan={2}
-                            className="py-3 px-4 text-sm font-semibold text-verde border-t border-gray-200"
-                          >
-                            Más detalles
+                          <td className="py-2 px-4 text-gray-600 w-1/2">
+                            Stock disponible
+                          </td>
+                          <td className="py-2 px-4 text-gray-400">
+                            {stock} unidades
                           </td>
                         </tr>
                         <tr className="bg-gray-200">
                           <td className="py-2 px-4 text-gray-600 w-1/2">
-                            Garantía
+                            Precio
                           </td>
-                          <td className="py-2 px-4 text-gray-400"></td>
+                          <td className="py-2 px-4 text-gray-400">
+                            $ {Math.round(precio).toLocaleString("es-CO")}
+                          </td>
                         </tr>
                         <tr className="bg-white">
-                          <td
-                            colSpan={2}
-                            className="py-3 px-4 text-sm font-semibold text-verde border-t border-gray-200"
-                          >
-                            Armado/Instalación
-                          </td>
-                        </tr>
-                        <tr className="bg-gray-200">
                           <td className="py-2 px-4 text-gray-600 w-1/2">
-                            Tipo de instalación
+                            Estado
                           </td>
-                          <td className="py-2 px-4 text-gray-400"></td>
+                          <td className="py-2 px-4 text-gray-400">
+                            {enStock ? "En stock" : "Agotado"}
+                          </td>
                         </tr>
                       </tbody>
                     </table>
@@ -601,14 +620,10 @@ export default function DetalleProductoPage() {
                 animate={{ x: `-${sliderRelacionados * (100 / 4)}%` }}
                 transition={{ duration: 0.5, ease: "easeInOut" }}
               >
-                {[
-                  ...producto.productosRelacionados,
-                  ...producto.productosRelacionados,
-                ].map((prod, i) => (
-                  <Link
+                {[1, 2, 3, 4, 1, 2, 3, 4].map((_, i) => (
+                  <div
                     key={i}
-                    href={`/catalogo/${prod.id}`}
-                    className="min-w-[calc(50%-8px)] md:min-w-[calc(25%-12px)] bg-white rounded-xl border border-gray-100 overflow-hidden flex-shrink-0 hover:border-amarillo transition-colors"
+                    className="min-w-[calc(50%-8px)] md:min-w-[calc(25%-12px)] bg-white rounded-xl border border-gray-100 overflow-hidden flex-shrink-0"
                   >
                     <div className="h-32 md:h-40 bg-gray-50 flex items-center justify-center">
                       <svg
@@ -625,24 +640,18 @@ export default function DetalleProductoPage() {
                       </svg>
                     </div>
                     <div className="p-3">
-                      <p className="text-sm font-medium text-verde leading-tight">
-                        {prod.nombre}
-                      </p>
-                      <p className="text-sm font-medium text-verde mt-1">
-                        ${prod.precio.toLocaleString("es-CO")} und
+                      <p className="text-sm font-medium text-gray-400 leading-tight">
+                        Producto relacionado
                       </p>
                     </div>
-                  </Link>
+                  </div>
                 ))}
               </motion.div>
             </div>
             <button
-              onClick={() => {
-                const total = producto.productosRelacionados.length;
-                setSliderRelacionados((prev) =>
-                  prev === 0 ? total - 1 : prev - 1,
-                );
-              }}
+              onClick={() =>
+                setSliderRelacionados((prev) => Math.max(0, prev - 1))
+              }
               className="absolute left-0 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center shadow-sm hover:border-amarillo transition-colors z-10 cursor-pointer"
             >
               <svg width="14" height="14" viewBox="0 0 69 69" fill="none">
@@ -653,12 +662,9 @@ export default function DetalleProductoPage() {
               </svg>
             </button>
             <button
-              onClick={() => {
-                const total = producto.productosRelacionados.length;
-                setSliderRelacionados((prev) =>
-                  prev === total - 1 ? 0 : prev + 1,
-                );
-              }}
+              onClick={() =>
+                setSliderRelacionados((prev) => Math.min(3, prev + 1))
+              }
               className="absolute right-0 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center shadow-sm hover:border-amarillo transition-colors z-10 cursor-pointer"
             >
               <svg width="14" height="14" viewBox="0 0 69 69" fill="none">
@@ -723,7 +729,7 @@ export default function DetalleProductoPage() {
 
       <Footer />
 
-      {/* Botón flotante — aparece cuando el panel de info sale de la vista */}
+      {/* Botón flotante */}
       <AnimatePresence>
         {mostrarFlotante && (
           <motion.div
@@ -752,9 +758,7 @@ export default function DetalleProductoPage() {
                 {cantidad}
               </span>
               <button
-                onClick={() =>
-                  setCantidad(Math.min(producto.stock, cantidad + 1))
-                }
+                onClick={() => setCantidad(Math.min(stock, cantidad + 1))}
                 className="w-7 h-7 rounded-full border border-gray-200 flex items-center justify-center text-verde hover:border-amarillo transition-colors cursor-pointer"
               >
                 <svg
@@ -769,11 +773,20 @@ export default function DetalleProductoPage() {
                 </svg>
               </button>
             </div>
-            {/* Agregar al carro — siempre activo */}
-            <button className="px-4 py-2 bg-verde text-amarillo text-sm font-medium rounded-xl hover:opacity-90 transition-opacity cursor-pointer">
+            <button
+              onClick={() => {
+                agregarItem({
+                  id: Number(producto.id),
+                  nombre: producto.name,
+                  precio: esEspecial ? precioEspecial : Math.round(precio),
+                  cantidad,
+                });
+                setMostrarModal(true);
+              }}
+              className="px-4 py-2 bg-verde text-amarillo text-sm font-medium rounded-xl hover:opacity-90 transition-opacity cursor-pointer"
+            >
               Agregar al carro
             </button>
-            {/* Comprar ahora — bloqueado hasta leer ficha técnica */}
             <button
               disabled={!botonDesbloqueado}
               className={`px-4 py-2 text-sm font-medium rounded-xl transition-opacity ${
@@ -787,6 +800,7 @@ export default function DetalleProductoPage() {
           </motion.div>
         )}
       </AnimatePresence>
+
       <ModalCarrito
         visible={mostrarModal}
         onCerrar={() => setMostrarModal(false)}
