@@ -20,15 +20,16 @@ export default function InputPassword({
 
   return (
     <div className="relative">
-      <input
-        type={mostrar ? "text" : "password"}
-        value={value}
-        onChange={onChange}
-        placeholder={placeholder}
-        name={name}
-        required={required}
-        className="w-full px-3 py-2 pr-10 rounded-md text-sm outline-none border border-white focus:border-amarillo  text-white"
-      />
+<input
+  type={mostrar ? "text" : "password"}
+  value={value}
+  onChange={onChange}
+  placeholder={placeholder}
+  name={name}
+  required={required}
+  autoComplete="current-password"
+  className="w-full px-3 py-2 pr-10 rounded-md text-sm outline-none border border-white focus:border-amarillo text-white [&::-ms-reveal]:hidden [&::-ms-clear]:hidden"
+/>
       <button
         type="button"
         onClick={() => setMostrar(!mostrar)}

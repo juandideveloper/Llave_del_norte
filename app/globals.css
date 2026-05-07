@@ -21,6 +21,10 @@ html {
   --color-hueso: #fffaec;
   --color-hueso-oscuro: #f4deb3;
 }
+input::-ms-reveal,
+input::-ms-clear {
+  display: none;
+}
 .font {
   font-family: "Cormorant Garamond", serif;
 }

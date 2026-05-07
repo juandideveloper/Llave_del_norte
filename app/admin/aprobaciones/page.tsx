@@ -8,6 +8,8 @@ export default async function AprobacionesPage() {
     orderBy: { id: "desc" }
   })
 
+  const aprobacionesPendientes = pendientes.length
+
   async function aprobarCliente(formData: FormData) {
     "use server"
     const id = Number(formData.get("id"))
@@ -24,7 +26,7 @@ export default async function AprobacionesPage() {
 
   return (
     <div className="flex min-h-screen bg-hueso">
-      <Sidebar/>
+      <Sidebar aprobacionesPendientes={aprobacionesPendientes}/>
       <main className="flex-1 p-8">
         <h1 className="text-2xl font-semibold text-verde mb-1">Aprobaciones de clientes especiales</h1>
         <p className="text-sm text-gray-400 mb-8">
@@ -45,6 +47,7 @@ export default async function AprobacionesPage() {
                     <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full">Pendiente</span>
                   </div>
                   <p className="text-xs text-gray-400">{cliente.email}</p>
+                  <p className="text-xs text-gray-400">Registrado: {new Date(cliente.fechaRegistro).toLocaleDateString("es-CO")}</p>
                 </div>
               </div>
 
@@ -60,6 +63,26 @@ export default async function AprobacionesPage() {
                 <div>
                   <p className="text-xs text-gray-400 mb-0.5">Teléfono</p>
                   <p className="text-sm font-medium text-verde">{cliente.telefono || "—"}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-400 mb-0.5">Tipo de cliente</p>
+                  <p className="text-sm font-medium text-verde">{cliente.tipoCliente || "—"}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-400 mb-0.5">Volumen estimado</p>
+                  <p className="text-sm font-medium text-verde">{cliente.volumenEstimado || "—"}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-400 mb-0.5">Ciudad</p>
+                  <p className="text-sm font-medium text-verde">{cliente.ciudad || "—"}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-400 mb-0.5">Barrio</p>
+                  <p className="text-sm font-medium text-verde">{cliente.barrio || "—"}</p>
+                </div>
+                <div className="md:col-span-2">
+                  <p className="text-xs text-gray-400 mb-0.5">Dirección</p>
+                  <p className="text-sm font-medium text-verde">{cliente.direccion || "—"}</p>
                 </div>
               </div>
 

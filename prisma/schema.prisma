@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 enum Rol {
@@ -94,6 +95,7 @@ model Pedido {
   importacion         Importacion?     @relation(fields: [importacionId], references: [id])
   productos           PedidoProducto[]
   notificaciones      Notificacion[]
+  melonnOrderId       String?
 }
 
 model PedidoProducto {

@@ -86,7 +86,7 @@ export default function HomePage() {
       .then(data => {
         if (data.productos) {
           const filtrados = data.productos.filter(
-            (p: ProductoAlegra) => p.category?.name === "Ventas"
+            (p: ProductoAlegra) => p.category?.name === "Destacados"
           )
           setDestacados(filtrados)
         }

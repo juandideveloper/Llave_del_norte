@@ -1,0 +1,33 @@
+import { NextResponse } from "next/server"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/app/api/auth/[...nextauth]/route"
+import { prisma } from "@/lib/prisma"
+
+export async function GET() {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "No autenticado" }, { status: 401 })
+    }
+
+    const pedidos = await prisma.pedido.findMany({
+      where: { clienteId: Number(session.user.id) },
+      orderBy: { id: "desc" },
+      select: {
+        id: true,
+        total: true,
+        estadoPago: true,
+        metodoPago: true,
+        direccionEntrega: true,
+        ciudadEntrega: true,
+        fechaPedido: true,
+        melonnOrderId: true,
+      }
+    })
+
+    return NextResponse.json({ pedidos })
+  } catch (error) {
+    console.error(error)
+    return NextResponse.json({ error: "Error al obtener pedidos" }, { status: 500 })
+  }
+} 

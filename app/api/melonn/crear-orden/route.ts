@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { crearOrdenMelonn } from "@/lib/melonn"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/app/api/auth/[...nextauth]/route"
+import { prisma } from "@/lib/prisma"
 
 export async function POST(req: Request) {
   try {
@@ -19,6 +20,16 @@ export async function POST(req: Request) {
       cliente,
       direccion,
     })
+
+     if (orden?.sell_order?.external_order_number) {
+      await prisma.pedido.updateMany({
+        where: { 
+          cliente: { email: session.user?.email || "" },
+          melonnOrderId: null,
+        },
+        data: { melonnOrderId: orderId }
+      })
+    }
 
     return NextResponse.json({ ok: true, orden })
   } catch (error) {

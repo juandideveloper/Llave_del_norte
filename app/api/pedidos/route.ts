@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/app/api/auth/[...nextauth]/route"
 import { prisma } from "@/lib/prisma"
+import { EstadoPago } from "@prisma/client"
 
 export async function POST(req: NextRequest) {
   try {
@@ -29,5 +30,29 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error(error)
     return NextResponse.json({ error: "Error al crear pedido" }, { status: 500 })
+  }
+}
+
+export async function GET(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url)
+    const estadoPago = searchParams.get("estadoPago")
+
+    const pedidos = await prisma.pedido.findMany({
+      where: {
+        ...(estadoPago ? { estadoPago: estadoPago as EstadoPago } : {})
+      },
+      orderBy: { id: "desc" },
+      include: {
+        cliente: {
+          select: { nombre: true, email: true }
+        }
+      }
+    })
+
+    return NextResponse.json({ pedidos })
+  } catch (error) {
+    console.error(error)
+    return NextResponse.json({ error: "Error al obtener pedidos" }, { status: 500 })
   }
 }

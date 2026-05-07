@@ -29,7 +29,7 @@ export default async function AdminDashboard() {
 
   return (
     <div className="flex min-h-screen bg-hueso">
-      <Sidebar/>
+      <Sidebar aprobacionesPendientes={aprobacionesPendientes}/>
       <main className="flex-1 p-8">
         <h1 className="text-2xl font-semibold text-verde mb-1">Dashboard</h1>
         <p className="text-sm text-gray-400 mb-8">
@@ -85,13 +85,14 @@ export default async function AdminDashboard() {
                   <th className="text-left pb-2">Pedido</th>
                   <th className="text-left pb-2">Cliente</th>
                   <th className="text-left pb-2">Total</th>
-                  <th className="text-left pb-2">Estado</th>
+                  <th className="text-left pb-2">Pago</th>
+                  <th className="text-left pb-2">Envío</th>
                 </tr>
               </thead>
               <tbody>
                 {ultimosPedidos.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className="text-gray-400 py-4 text-center">Sin pedidos aún</td>
+                    <td colSpan={5} className="text-gray-400 py-4 text-center">Sin pedidos aún</td>
                   </tr>
                 ) : ultimosPedidos.map((pedido) => (
                   <tr key={pedido.id} className="border-b border-gray-50">
@@ -106,6 +107,17 @@ export default async function AdminDashboard() {
                       }`}>
                         {pedido.estadoPago}
                       </span>
+                    </td>
+                    <td className="py-2">
+                      {pedido.melonnOrderId ? (
+                        <span className="px-2 py-0.5 rounded-full text-xs bg-blue-100 text-blue-700">
+                          Con envío
+                        </span>
+                      ) : (
+                        <span className="px-2 py-0.5 rounded-full text-xs bg-gray-100 text-gray-400">
+                          Sin envío
+                        </span>
+                      )}
                     </td>
                   </tr>
                 ))}

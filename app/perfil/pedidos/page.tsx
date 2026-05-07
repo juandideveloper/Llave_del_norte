@@ -1,0 +1,175 @@
+"use client"
+
+import { useEffect, useState } from "react"
+import { useSession } from "next-auth/react"
+import { useRouter } from "next/navigation"
+import Navbar from "@/components/ui/Navbar"
+import Link from "next/link"
+
+interface Pedido {
+  id: number
+  total: number
+  estadoPago: string
+  metodoPago: string | null
+  direccionEntrega: string | null
+  ciudadEntrega: string | null
+  fechaPedido: string | null
+  melonnOrderId: string | null
+}
+
+function EstadoBadge({ estado }: { estado: string }) {
+  return (
+    <span className={`px-2 py-0.5 rounded-full text-xs ${
+      estado === "PAGADO" ? "bg-green-100 text-green-700" :
+      estado === "PENDIENTE" ? "bg-yellow-100 text-yellow-700" :
+      "bg-red-100 text-red-500"
+    }`}>
+      {estado}
+    </span>
+  )
+}
+
+function EnvioBadge({ melonnOrderId }: { melonnOrderId: string | null }) {
+  if (!melonnOrderId) return (
+    <span className="px-2 py-0.5 rounded-full text-xs bg-gray-100 text-gray-400">
+      Preparando envío
+    </span>
+  )
+  return (
+    <span className="px-2 py-0.5 rounded-full text-xs bg-blue-100 text-blue-700">
+      En camino
+    </span>
+  )
+}
+
+export default function MisPedidosPage() {
+  const { data: session, status } = useSession()
+  const router = useRouter()
+  const [pedidos, setPedidos] = useState<Pedido[]>([])
+  const [cargando, setCargando] = useState(true)
+
+  useEffect(() => {
+    if (status === "unauthenticated") router.push("/login?redirect=/perfil/pedidos")
+  }, [status, router])
+
+  useEffect(() => {
+    if (status !== "authenticated") return
+    fetch("/api/perfil/pedidos")
+      .then(res => res.json())
+      .then(data => {
+        if (data.pedidos) setPedidos(data.pedidos)
+      })
+      .catch(() => {})
+      .finally(() => setCargando(false))
+  }, [status])
+
+  if (status === "loading" || status === "unauthenticated") {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="w-8 h-8 rounded-full border-2 border-verde border-t-transparent animate-spin"/>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-white">
+      <Navbar breadcrumb={[{ label: "Inicio", href: "/" }, { label: "Mis pedidos" }]}/>
+      <div className="max-w-3xl mx-auto px-4 py-8">
+
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-2xl font-semibold text-verde">Mis pedidos</h1>
+            <p className="text-sm text-gray-400">Hola, {session?.user?.name?.split(" ")[0]}</p>
+          </div>
+          <Link href="/perfil"
+            className="text-xs text-verde border border-verde px-3 py-1.5 rounded-lg hover:bg-verde hover:text-amarillo transition-colors">
+            Mi perfil
+          </Link>
+        </div>
+
+        {cargando ? (
+          <div className="space-y-3">
+            {[1,2,3].map(i => (
+              <div key={i} className="bg-white rounded-xl border border-gray-100 p-5 animate-pulse">
+                <div className="flex justify-between mb-3">
+                  <div className="h-4 bg-gray-200 rounded w-24"/>
+                  <div className="h-4 bg-gray-200 rounded w-16"/>
+                </div>
+                <div className="h-3 bg-gray-200 rounded w-48 mb-2"/>
+                <div className="h-3 bg-gray-200 rounded w-32"/>
+              </div>
+            ))}
+          </div>
+        ) : pedidos.length === 0 ? (
+          <div className="bg-white rounded-xl border border-gray-100 p-12 text-center">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="0.8"
+              className="text-verde/20 mx-auto mb-4">
+              <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0"/>
+            </svg>
+            <p className="text-gray-400 text-sm mb-4">No tienes pedidos aún</p>
+            <Link href="/catalogo"
+              className="px-4 py-2 bg-verde text-amarillo text-xs font-medium rounded-lg hover:opacity-90 transition-opacity">
+              Ver catálogo
+            </Link>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {pedidos.map(pedido => {
+              const trackingUrl = "https://d31a8gq0kszthp.cloudfront.net/" + pedido.melonnOrderId
+              return (
+                <div key={pedido.id} className="bg-white rounded-xl border border-gray-100 p-5 hover:border-amarillo/30 transition-colors">
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <p className="text-sm font-semibold text-verde">
+                        Pedido #{String(pedido.id).padStart(5, "0")}
+                      </p>
+                      <p className="text-xs text-gray-400 mt-0.5">
+                        {pedido.fechaPedido
+                          ? new Date(pedido.fechaPedido).toLocaleDateString("es-CO", {
+                              day: "numeric", month: "long", year: "numeric"
+                            })
+                          : "—"}
+                      </p>
+                    </div>
+                    <p className="text-sm font-semibold text-verde">
+                      $ {pedido.total.toLocaleString("es-CO")}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-2 mb-3">
+                    <EstadoBadge estado={pedido.estadoPago}/>
+                    <EnvioBadge melonnOrderId={pedido.melonnOrderId}/>
+                  </div>
+
+                  <div className="text-xs text-gray-400 space-y-1">
+                    {pedido.direccionEntrega && (
+                      <p>📍 {pedido.direccionEntrega}{pedido.ciudadEntrega ? `, ${pedido.ciudadEntrega}` : ""}</p>
+                    )}
+                    {pedido.metodoPago && (
+                      <p>💳 {pedido.metodoPago}</p>
+                    )}
+                  </div>
+
+                  {pedido.melonnOrderId && (
+                    <div className="mt-3 pt-3 border-t border-gray-50">
+                      <a
+                        href={trackingUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1 text-xs text-verde hover:text-amarillo transition-colors">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                          <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/>
+                        </svg>
+                        Rastrear mi pedido
+                      </a>
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}

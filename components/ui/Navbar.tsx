@@ -329,7 +329,7 @@ c61 -30 171 -89 245 -132 152 -87 272 -148 343 -175 26 -10 44 -22 40 -26 -4
                   href: "https://wa.me/573134866451",
                   label: "Atención al cliente",
                 },
-                { href: "rastrea-pedido", label: "Rastrea tu pedido" },
+                { href: "/rastrea-pedido", label: "Rastrea tu pedido" },
               ].map((link) => (
                 <a
                   key={link.href}
