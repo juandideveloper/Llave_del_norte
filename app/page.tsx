@@ -36,7 +36,6 @@ const chips = [
   { nombre: "Lavaplatos", href: "/catalogo?categoria=lavaplatos" },
   { nombre: "Duchas", href: "/catalogo?categoria=duchas" },
   { nombre: "Válvulas", href: "/catalogo?categoria=valvulas" },
-  { nombre: "Tornillerías", href: "/catalogo?categoria=tornillerias" },
   { nombre: "Accesorios", href: "/catalogo?categoria=accesorios" },
 ];
 

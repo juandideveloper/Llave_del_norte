@@ -8,24 +8,40 @@ const headers = {
   "Content-Type": "application/json",
 }
 
-// Obtener todos los productos
+function parsearCustomFields(customFields: { name: string; value: string }[]) {
+  const getField = (name: string) => customFields?.find(f => f.name === name)?.value || null
+  return {
+    precioMayorista: getField("precioMayorista") ? Number(getField("precioMayorista")) : null,
+    relacionados: getField("relacionados") ? getField("relacionados")!.split(",").map(s => s.trim()) : [],
+    garantia: getField("garantia") || null,
+  }
+}
+
 export async function getProductosAlegra() {
   const res = await fetch(
-    `${BASE_URL}/items?limit=30&fields=id,name,description,reference,status,price,inventory,category,images`,
+    `${BASE_URL}/items?limit=30&fields=id,name,description,reference,status,price,inventory,category,images,customFields,tax`,
     { headers }
   )
   const data = await res.json()
-  return data
+  return data.map((producto: { customFields?: { name: string; value: string }[]; tax?: { percentage: string }[] } & Record<string, unknown>) => ({
+    ...producto,
+    ...parsearCustomFields(producto.customFields || []),
+  }))
 }
 
-// Obtener un producto por ID
 export async function getProductoAlegra(id: number) {
-  const res = await fetch(`${BASE_URL}/items/${id}`, { headers })
+  const res = await fetch(
+    `${BASE_URL}/items/${id}?fields=id,name,description,reference,status,price,inventory,category,images,customFields,tax`,
+    { headers }
+  )
   if (!res.ok) throw new Error("Error al obtener producto de Alegra")
-  return res.json()
+  const data = await res.json()
+  return {
+    ...data,
+    ...parsearCustomFields(data.customFields || []),
+  }
 }
 
-// Crear factura en Alegra
 export async function crearFacturaAlegra(pedido: {
   clienteId: number
   clienteNombre: string
@@ -36,10 +52,8 @@ export async function crearFacturaAlegra(pedido: {
   const body = {
     date: new Date().toISOString().split("T")[0],
     dueDate: new Date().toISOString().split("T")[0],
-    client: {
-      id: pedido.clienteId,
-    },
-    items: pedido.items.map((item) => ({
+    client: { id: pedido.clienteId },
+    items: pedido.items.map(item => ({
       id: item.id,
       quantity: item.cantidad,
       price: item.precio,

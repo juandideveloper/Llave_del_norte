@@ -28,7 +28,7 @@ enum EstadoPago {
 
 enum MetodoPago {
   BOLD
-  PSE
+  CONTRAENTREGA
 }
 
 enum EstadoImportacion {

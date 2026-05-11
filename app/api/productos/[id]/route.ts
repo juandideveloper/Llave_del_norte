@@ -12,10 +12,25 @@ const headers = {
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params
-    const res = await fetch(`${BASE_URL}/items/${id}?fields=id,name,description,reference,status,price,inventory,category,images,itemCategory`, { headers })
+    const res = await fetch(
+      `${BASE_URL}/items/${id}?fields=id,name,description,reference,status,price,inventory,category,images,itemCategory,customFields`,
+      { headers }
+    )
     if (!res.ok) throw new Error("Producto no encontrado")
     const data = await res.json()
-    return NextResponse.json({ ok: true, producto: data })
+
+    // Parsear customFields
+    const customFields = data.customFields || []
+    const getField = (name: string) => customFields.find((f: { name: string; value: string }) => f.name === name)?.value || null
+
+    const producto = {
+      ...data,
+      precioMayorista: getField("precioMayorista") ? Number(getField("precioMayorista")) : null,
+      relacionados: getField("relacionados") ? getField("relacionados").split(",").map((s: string) => s.trim()) : [],
+      garantia: getField("garantia") || null,
+    }
+
+    return NextResponse.json({ ok: true, producto })
   } catch (error) {
     console.error(error)
     return NextResponse.json({ error: "Error al obtener producto" }, { status: 500 })

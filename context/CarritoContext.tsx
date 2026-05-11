@@ -14,6 +14,8 @@ interface ItemCarrito {
   nombre: string;
   precio: number;
   cantidad: number;
+  imagen?: string | null;
+  precioOriginal?: number;
 }
 
 interface CarritoContextType {
@@ -92,33 +94,18 @@ export function CarritoProvider({ children }: { children: ReactNode }) {
 
   const vaciarCarrito = useCallback(() => {
     setItems([]);
+    localStorage.removeItem("carrito");
   }, []);
 
-  const totalItems: number = items.reduce(
-    (acc: number, i: ItemCarrito) => acc + i.cantidad,
-    0,
-  );
-
-  const totalPrecio: number = items.reduce(
-    (acc: number, i: ItemCarrito) => acc + i.precio * i.cantidad,
-    0,
-  );
+  const totalItems: number = items.reduce((acc, i) => acc + i.cantidad, 0);
+  const totalPrecio: number = items.reduce((acc, i) => acc + i.precio * i.cantidad, 0);
 
   return (
-    <CarritoContext.Provider
-      value={{
-        items,
-        agregarItem,
-        eliminarItem,
-        actualizarCantidad,
-        vaciarCarrito,
-        totalItems,
-        totalPrecio,
-        hidratado,
-        metodoEnvio,
-        setMetodoEnvio,
-      }}
-    >
+    <CarritoContext.Provider value={{
+      items, agregarItem, eliminarItem, actualizarCantidad,
+      vaciarCarrito, totalItems, totalPrecio, hidratado,
+      metodoEnvio, setMetodoEnvio,
+    }}>
       {children}
     </CarritoContext.Provider>
   );

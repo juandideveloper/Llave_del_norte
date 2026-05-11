@@ -21,6 +21,9 @@ interface ProductoAlegra {
   status: string;
   category?: { name: string };
   images?: { id: number; url: string; favorite: boolean }[];
+  precioMayorista?: number | null;
+  relacionados?: string[];
+  garantia?: string | null;
 }
 
 function Estrellas({ cantidad, size = "base" }: { cantidad: number; size?: "base" | "lg" }) {
@@ -54,7 +57,7 @@ function SkeletonDetalle() {
         <div className="h-48 bg-gray-200 rounded"/>
       </div>
     </div>
-  )
+  );
 }
 
 export default function DetalleProductoPage() {
@@ -83,18 +86,30 @@ export default function DetalleProductoPage() {
     fetch(`/api/productos/${id}`)
       .then(res => res.json())
       .then(data => {
-        if (data.producto) setProducto(data.producto)
-        setCargando(false)
+        if (data.producto) setProducto(data.producto);
+        setCargando(false);
       })
-      .catch(() => setCargando(false))
-  }, [id])
+      .catch(() => setCargando(false));
+  }, [id]);
 
   useEffect(() => {
-    if (!producto) return
+    if (!producto) return;
+
     fetch("/api/productos")
       .then(res => res.json())
       .then(data => {
-        if (data.productos) {
+        if (!data.productos) return
+
+        // Si tiene relacionados definidos en Alegra, buscarlos por ID
+        if (producto.relacionados && producto.relacionados.length > 0) {
+          const productosRelacionados = data.productos.filter(
+            (p: ProductoAlegra) =>
+              p.status === "active" &&
+              producto.relacionados!.includes(String(p.id))
+          )
+          setRelacionados(productosRelacionados)
+        } else {
+          // Fallback: misma categoría
           const mismaCategoria = data.productos.filter(
             (p: ProductoAlegra) =>
               p.status === "active" &&
@@ -104,27 +119,26 @@ export default function DetalleProductoPage() {
           setRelacionados(mismaCategoria.slice(0, 8))
         }
       })
-      .catch(() => {})
-  }, [producto])
+      .catch(() => {});
+  }, [producto]);
 
   useEffect(() => {
     if (sliderRelacionadosRef.current) {
-      setCardWidthRelacionados((sliderRelacionadosRef.current.offsetWidth / 4) - 12)
+      setCardWidthRelacionados(sliderRelacionadosRef.current.offsetWidth / 4 - 12);
     }
-  }, [relacionados])
+  }, [relacionados]);
 
-  // Desbloquear botón al hacer scroll
-useEffect(() => {
-  const handleScroll = () => {
-    setMostrarFlotante(window.scrollY > 300)
-    if (especificacionesRef.current) {
-      const rect = especificacionesRef.current.getBoundingClientRect();
-      if (rect.top <= window.innerHeight) setBotonDesbloqueado(true);
-    }
-  };
-  window.addEventListener("scroll", handleScroll);
-  return () => window.removeEventListener("scroll", handleScroll);
-}, []);
+  useEffect(() => {
+    const handleScroll = () => {
+      setMostrarFlotante(window.scrollY > 300);
+      if (especificacionesRef.current) {
+        const rect = especificacionesRef.current.getBoundingClientRect();
+        if (rect.top <= window.innerHeight) setBotonDesbloqueado(true);
+      }
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   if (cargando) {
     return (
@@ -148,7 +162,9 @@ useEffect(() => {
   }
 
   const precio = producto.price[0]?.price || 0;
-  const precioEspecial = Math.round(precio * 0.85);
+  const precioEspecial = producto.precioMayorista
+    ? Math.round(producto.precioMayorista)
+    : Math.round(precio * 0.85);
   const stock = producto.inventory?.availableQuantity || 0;
   const enStock = stock > 0;
   const imagenes = producto.images
@@ -233,8 +249,17 @@ useEffect(() => {
                 </button>
               </div>
               <div className="flex gap-2 flex-wrap">
-                <button onClick={() => { agregarItem({ id: Number(producto.id), nombre: producto.name, precio: esEspecial ? precioEspecial : Math.round(precio), cantidad }); setMostrarModal(true); }}
-                  className="px-4 py-2.5 rounded-lg text-sm font-medium bg-verde text-amarillo hover:opacity-90 cursor-pointer transition-all">
+                <button onClick={() => {
+                  agregarItem({
+                    id: Number(producto.id),
+                    nombre: producto.name,
+                    precio: esEspecial ? precioEspecial : Math.round(precio),
+                    precioOriginal: Math.round(precio),
+                    cantidad,
+                    imagen: imagenPrincipal,
+                  });
+                  setMostrarModal(true);
+                }} className="px-4 py-2.5 rounded-lg text-sm font-medium bg-verde text-amarillo hover:opacity-90 cursor-pointer transition-all">
                   Agregar al carro
                 </button>
                 <button disabled={!botonDesbloqueado}
@@ -306,14 +331,19 @@ useEffect(() => {
                 </div>
               </div>
             </div>
-            <div className="mt-4 border-3 border-dotted border-amarillo rounded-xl p-4 flex items-start gap-3 h-44">
+
+            {/* Garantía desde Alegra */}
+            <div className="mt-4 border-3 border-dotted border-amarillo rounded-xl p-4 flex items-start gap-3 min-h-28">
               <Image src="/images/Insignia.png" alt="Insignia de garantia" width={50} height={50}/>
               <div>
                 <p className="text-sm font-semibold text-verde">Satisfacción Garantizada</p>
                 <p className="text-sm text-gray-400 mt-0.5">Garantía</p>
-                <p className="text-sm text-gray-400">Contáctanos para más información sobre la garantía de este producto</p>
+                <p className="text-sm text-gray-400">
+                  {producto.garantia || "Contáctanos para más información sobre la garantía de este producto"}
+                </p>
               </div>
             </div>
+
             <div className="bg-gray-100 border border-gray-100 p-4">
               <p className="text-sm font-semibold text-verde mb-3">Entrega en</p>
               <div className="space-y-2">
@@ -366,6 +396,7 @@ useEffect(() => {
                           { label: "Stock disponible", valor: `${stock} unidades`, bg: "bg-white" },
                           { label: "Precio", valor: `$ ${Math.round(precio).toLocaleString("es-CO")}`, bg: "bg-gray-200" },
                           { label: "Estado", valor: enStock ? "En stock" : "Agotado", bg: "bg-white" },
+                          ...(producto.garantia ? [{ label: "Garantía", valor: producto.garantia, bg: "bg-gray-200" }] : []),
                         ].map(({ label, valor, bg }) => (
                           <tr key={label} className={bg}>
                             <td className="py-2 px-4 text-gray-600 w-1/2">{label}</td>
@@ -387,16 +418,14 @@ useEffect(() => {
             <h2 className="text-2xl font-medium text-verde text-center mb-6">¡ Juntos es mejor !</h2>
             <div className="relative px-8">
               <div className="overflow-hidden" ref={sliderRelacionadosRef}>
-                <div
-                  className="flex gap-4"
-                  style={{
-                    transform: `translateX(-${offsetRelacionados}px)`,
-                    transition: "transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-                    willChange: "transform",
-                  }}>
+                <div className="flex gap-4" style={{
+                  transform: `translateX(-${offsetRelacionados}px)`,
+                  transition: "transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+                  willChange: "transform",
+                }}>
                   {relacionados.map((prod) => {
-                    const precioRel = prod.price[0]?.price || 0
-                    const imagenUrl = prod.images?.find(img => img.favorite)?.url || prod.images?.[0]?.url || null
+                    const precioRel = prod.price[0]?.price || 0;
+                    const imagenUrl = prod.images?.find(img => img.favorite)?.url || prod.images?.[0]?.url || null;
                     return (
                       <Link key={prod.id} href={`/catalogo/${prod.id}`}
                         className="min-w-[calc(50%-8px)] md:min-w-[calc(25%-12px)] bg-white rounded-xl border border-gray-100 overflow-hidden flex-shrink-0 hover:border-amarillo transition-colors">
@@ -417,7 +446,7 @@ useEffect(() => {
                           <p className="text-xs font-medium text-verde mt-1">$ {Math.round(precioRel).toLocaleString("es-CO")} und</p>
                         </div>
                       </Link>
-                    )
+                    );
                   })}
                 </div>
               </div>
@@ -479,7 +508,7 @@ useEffect(() => {
 
       <Footer/>
 
-      {/* Botón flotante — aparece al hacer scroll */}
+      {/* Botón flotante */}
       <AnimatePresence>
         {mostrarFlotante && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }}
@@ -495,8 +524,17 @@ useEffect(() => {
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 5v14M5 12h14"/></svg>
               </button>
             </div>
-            <button onClick={() => { agregarItem({ id: Number(producto.id), nombre: producto.name, precio: esEspecial ? precioEspecial : Math.round(precio), cantidad }); setMostrarModal(true); }}
-              className="px-4 py-2 bg-verde text-amarillo text-sm font-medium rounded-xl hover:opacity-90 transition-opacity cursor-pointer">
+            <button onClick={() => {
+              agregarItem({
+                id: Number(producto.id),
+                nombre: producto.name,
+                precio: esEspecial ? precioEspecial : Math.round(precio),
+                precioOriginal: Math.round(precio),
+                cantidad,
+                imagen: imagenPrincipal,
+              });
+              setMostrarModal(true);
+            }} className="px-4 py-2 bg-verde text-amarillo text-sm font-medium rounded-xl hover:opacity-90 transition-opacity cursor-pointer">
               Agregar al carro
             </button>
             <button disabled={!botonDesbloqueado}
