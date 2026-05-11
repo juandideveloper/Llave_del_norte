@@ -1,6 +1,10 @@
 import Sidebar from "../components/Sidebar"
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
+import { Resend } from "resend"
+import { emailAprobacionCuenta, emailRechazoCuenta } from "@/lib/emails"
+
+const resend = new Resend(process.env.RESEND_API_KEY)
 
 export default async function AprobacionesPage() {
   const pendientes = await prisma.cliente.findMany({
@@ -13,14 +17,32 @@ export default async function AprobacionesPage() {
   async function aprobarCliente(formData: FormData) {
     "use server"
     const id = Number(formData.get("id"))
-    await prisma.cliente.update({ where: { id }, data: { estado: "APROBADO" } })
+    const cliente = await prisma.cliente.update({
+      where: { id },
+      data: { estado: "APROBADO" }
+    })
+    await resend.emails.send({
+      from: "La Llave del Norte <noreply@lallavedelnorte.com>",
+      to: cliente.email,
+      subject: "¡Tu cuenta mayorista fue aprobada!",
+      html: emailAprobacionCuenta(cliente.nombre),
+    }).catch(() => {})
     revalidatePath("/admin/aprobaciones")
   }
 
   async function rechazarCliente(formData: FormData) {
     "use server"
     const id = Number(formData.get("id"))
-    await prisma.cliente.update({ where: { id }, data: { estado: "RECHAZADO" } })
+    const cliente = await prisma.cliente.update({
+      where: { id },
+      data: { estado: "RECHAZADO" }
+    })
+    await resend.emails.send({
+      from: "La Llave del Norte <noreply@lallavedelnorte.com>",
+      to: cliente.email,
+      subject: "Actualización sobre tu solicitud",
+      html: emailRechazoCuenta(cliente.nombre),
+    }).catch(() => {})
     revalidatePath("/admin/aprobaciones")
   }
 
@@ -52,34 +74,20 @@ export default async function AprobacionesPage() {
               </div>
 
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
-                <div>
-                  <p className="text-xs text-gray-400 mb-0.5">Empresa</p>
-                  <p className="text-sm font-medium text-verde">{cliente.empresa || "—"}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-400 mb-0.5">NIT</p>
-                  <p className="text-sm font-medium text-verde">{cliente.nit || "—"}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-400 mb-0.5">Teléfono</p>
-                  <p className="text-sm font-medium text-verde">{cliente.telefono || "—"}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-400 mb-0.5">Tipo de cliente</p>
-                  <p className="text-sm font-medium text-verde">{cliente.tipoCliente || "—"}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-400 mb-0.5">Volumen estimado</p>
-                  <p className="text-sm font-medium text-verde">{cliente.volumenEstimado || "—"}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-400 mb-0.5">Ciudad</p>
-                  <p className="text-sm font-medium text-verde">{cliente.ciudad || "—"}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-400 mb-0.5">Barrio</p>
-                  <p className="text-sm font-medium text-verde">{cliente.barrio || "—"}</p>
-                </div>
+                {[
+                  { label: "Empresa", valor: cliente.empresa },
+                  { label: "NIT", valor: cliente.nit },
+                  { label: "Teléfono", valor: cliente.telefono },
+                  { label: "Tipo de cliente", valor: cliente.tipoCliente },
+                  { label: "Volumen estimado", valor: cliente.volumenEstimado },
+                  { label: "Ciudad", valor: cliente.ciudad },
+                  { label: "Barrio", valor: cliente.barrio },
+                ].map(({ label, valor }) => (
+                  <div key={label}>
+                    <p className="text-xs text-gray-400 mb-0.5">{label}</p>
+                    <p className="text-sm font-medium text-verde">{valor || "—"}</p>
+                  </div>
+                ))}
                 <div className="md:col-span-2">
                   <p className="text-xs text-gray-400 mb-0.5">Dirección</p>
                   <p className="text-sm font-medium text-verde">{cliente.direccion || "—"}</p>

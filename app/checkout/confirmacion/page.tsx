@@ -22,9 +22,8 @@ function ConfirmacionContent() {
     if (rechazado) return;
     localStorage.removeItem("carrito");
 
-    // Contraentrega: pedido ya fue creado en el checkout
     if (esContraentrega) {
-      setMelonnEstado("error"); // No aplica Melonn para contraentrega
+      setMelonnEstado("error");
       return;
     }
 
@@ -54,6 +53,21 @@ function ConfirmacionContent() {
         .then((res) => res.json())
         .then((pedidoData) => {
           if (!pedidoData.ok) return;
+
+          // Email de confirmación
+          fetch("/api/email/confirmacion", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              pedidoId: pedidoData.pedidoId,
+              email: datos.correo,
+              nombre: `${datos.nombre} ${datos.apellido}`,
+              total,
+              direccion: datos.direccion,
+              items,
+            }),
+          }).catch(() => {});
+
           return fetch("/api/melonn/crear-orden", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -214,7 +228,6 @@ function ConfirmacionContent() {
         Pedido: #{orderId || "Procesado"}
       </div>
 
-      {/* Estado envío — solo para Bold */}
       {!esContraentrega && (
         <div
           className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs mb-6 ${
