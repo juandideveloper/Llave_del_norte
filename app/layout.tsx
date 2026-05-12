@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
 import Providers from "./providers";
+import WhatsAppFlotante from "@/components/ui/WhatsAppFlotante";
 
 const geist = Geist({ subsets: ["latin"] });
 
@@ -22,6 +23,7 @@ export default function RootLayout({
     <html lang="es">
       <body className={geist.className}>
         <Providers>{children}</Providers>
+        <WhatsAppFlotante/>
       </body>
     </html>
   );
