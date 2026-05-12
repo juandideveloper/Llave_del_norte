@@ -10,7 +10,14 @@ import Image from "next/image";
 import Footer from "@/components/ui/Footer";
 import ModalCarrito from "@/components/ui/ModalCarrito";
 import { useCarrito } from "@/context/CarritoContext";
+import type { Metadata } from "next"
 
+export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+  return {
+    title: "Detalle de producto",
+    description: "Producto de ferretería y grifería de alta calidad.",
+  }
+}
 interface ProductoAlegra {
   id: string;
   name: string;
@@ -35,6 +42,7 @@ function Estrellas({ cantidad, size = "base" }: { cantidad: number; size?: "base
     </div>
   );
 }
+
 
 function SkeletonDetalle() {
   return (
@@ -61,6 +69,7 @@ function SkeletonDetalle() {
 }
 
 export default function DetalleProductoPage() {
+  
   const { id } = useParams();
   const { data: session } = useSession();
   const esEspecial = session?.user?.role === "ESPECIAL" && session?.user?.estado === "APROBADO";

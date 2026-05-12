@@ -7,6 +7,12 @@ import { useSession } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 import Footer from "@/components/ui/Footer";
 import Image from "next/image";
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Catálogo",
+  description: "Explora nuestro catálogo de ferretería, grifería, lavaplatos y accesorios de alta calidad a precios mayoristas.",
+}
 
 interface ProductoAlegra {
   id: string;
