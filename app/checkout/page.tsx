@@ -7,12 +7,6 @@ import { useCarrito } from "@/context/CarritoContext";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import type { Metadata } from "next"
-
-export const metadata: Metadata = {
-  title: "Checkout",
-  description: "Explora nuestro catálogo de ferretería, grifería, lavaplatos y accesorios de alta calidad a precios mayoristas.",
-}
 
 const pasos = ["Información", "Terminos y condiciones", "Confirmar y pagar"];
 
