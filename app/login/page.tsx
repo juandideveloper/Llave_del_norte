@@ -42,14 +42,21 @@ function LoginForm() {
     } else if (session?.user?.estado === "PENDIENTE") {
       router.push("/pendiente-aprobacion");
     } else if (session?.user?.estado === "RECHAZADO") {
-      const yaVioRechazo = localStorage.getItem(`rechazo_visto_${session.user.email}`);
+      const yaVioRechazo = localStorage.getItem(
+        `rechazo_visto_${session.user.email}`,
+      );
       if (!yaVioRechazo) {
         router.push("/cuenta-rechazada");
       } else {
         router.push("/");
       }
-    } else if (session?.user?.estado === "APROBADO" && session?.user?.role === "ESPECIAL") {
-      const yaVioAprobado = localStorage.getItem(`aprobado_visto_${session.user.email}`);
+    } else if (
+      session?.user?.estado === "APROBADO" &&
+      session?.user?.role === "ESPECIAL"
+    ) {
+      const yaVioAprobado = localStorage.getItem(
+        `aprobado_visto_${session.user.email}`,
+      );
       if (!yaVioAprobado) {
         router.push("/cuenta-aprobada");
       } else {
@@ -66,15 +73,39 @@ function LoginForm() {
     <div className="login-container min-h-screen flex items-center justify-center">
       <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-8 w-full max-w-md shadow-sm">
         <div className="text-center mb-6">
+          <Link
+            href="/"
+            className="flex items-center gap-1 text-white/50 hover:text-amarillo transition-colors text-xs mb-4 justify-center"
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+            >
+              <path d="M19 12H5M12 19l-7-7 7-7" />
+            </svg>
+            Volver a la tienda
+          </Link>
           <div className="w-28 h-28 rounded-full flex items-center justify-center mx-auto mb-3 bg-hueso">
             <Link href="/">
-              <svg version="1.0" xmlns="http://www.w3.org/2000/svg"
-                width="70.00000pt" height="70.00000pt"
+              <svg
+                version="1.0"
+                xmlns="http://www.w3.org/2000/svg"
+                width="70.00000pt"
+                height="70.00000pt"
                 viewBox="0 0 325.000000 321.000000"
-                preserveAspectRatio="xMidYMid meet">
-                <g transform="translate(0.000000,321.000000) scale(0.100000,-0.100000)"
-                  fill="#112221" stroke="none">
-                  <path d="M2285 2775 c-138 -30 -257 -96 -374 -209 -176 -170 -290 -352 -424
+                preserveAspectRatio="xMidYMid meet"
+              >
+                <g
+                  transform="translate(0.000000,321.000000) scale(0.100000,-0.100000)"
+                  fill="#112221"
+                  stroke="none"
+                >
+                  <path
+                    d="M2285 2775 c-138 -30 -257 -96 -374 -209 -176 -170 -290 -352 -424
                     -676 -30 -74 -79 -193 -107 -263 -48 -116 -54 -127 -74 -121 -11 3 -29 14 -39
                     23 -17 17 -16 21 18 100 19 46 35 86 35 91 0 9 -31 22 -38 16 -2 -3 -19 -47
                     -37 -98 -30 -89 -33 -93 -63 -96 -39 -4 -62 -34 -62 -83 0 -46 23 -67 83 -75
@@ -99,13 +130,18 @@ function LoginForm() {
                     c61 -30 171 -89 245 -132 152 -87 272 -148 343 -175 26 -10 44 -22 40 -26 -4
                     -4 -52 -19 -107 -33 -187 -49 -414 -30 -590 48 -100 44 -220 132 -300 218 -42
                     45 -76 85 -76 90 0 4 26 21 58 37 31 17 75 41 97 55 l39 24 71 -25 c38 -14
-                    120 -50 180 -81z"/>
+                    120 -50 180 -81z"
+                  />
                 </g>
               </svg>
             </Link>
           </div>
-          <h1 className="text-2xl font-semibold text-hueso">Bienvenido de nuevo</h1>
-          <p className="text-base text-amarillo mt-1">Inicia sesión en tu cuenta</p>
+          <h1 className="text-2xl font-semibold text-hueso">
+            Bienvenido de nuevo
+          </h1>
+          <p className="text-base text-amarillo mt-1">
+            Inicia sesión en tu cuenta
+          </p>
 
           {redirect !== "/" && (
             <p className="text-xs text-amarillo/70 mt-2 bg-white/10 rounded-lg px-3 py-1.5">
@@ -116,15 +152,28 @@ function LoginForm() {
 
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
-            <label className="text-sm text-amarillo mb-1 block">Correo electrónico</label>
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
-              placeholder="correo@email.com" required
-              className="w-full px-3 py-2 rounded-md text-sm outline-none border border-white focus:border-amarillo text-white"/>
+            <label className="text-sm text-amarillo mb-1 block">
+              Correo electrónico
+            </label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="correo@email.com"
+              required
+              className="w-full px-3 py-2 rounded-md text-sm outline-none border border-white focus:border-amarillo text-white"
+            />
           </div>
           <div>
-            <label className="text-sm text-amarillo mb-1 block">Contraseña</label>
-            <InputPassword value={password} onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••" required/>
+            <label className="text-sm text-amarillo mb-1 block">
+              Contraseña
+            </label>
+            <InputPassword
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              required
+            />
           </div>
           <div className="text-right">
             <Link href="/recuperar-password" className="text-xs text-amarillo">
@@ -133,15 +182,22 @@ function LoginForm() {
           </div>
           <AnimatePresence>
             {error && (
-              <motion.p initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
-                className="text-red-500 text-xs">
+              <motion.p
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="text-red-500 text-xs"
+              >
                 {error}
               </motion.p>
             )}
           </AnimatePresence>
-          <button type="submit" disabled={cargando}
-            className="w-full py-2.5 rounded-b-md text-sm font-medium bg-hueso/60 text-verde hover:bg-hueso transition-opacity cursor-pointer">
+          <button
+            type="submit"
+            disabled={cargando}
+            className="w-full py-2.5 rounded-b-md text-sm font-medium bg-hueso/60 text-verde hover:bg-hueso transition-opacity cursor-pointer"
+          >
             {cargando ? "Iniciando sesión..." : "Iniciar sesión"}
           </button>
         </form>
@@ -149,11 +205,19 @@ function LoginForm() {
         <div className="text-center mt-4 space-y-2">
           <p className="text-xs text-gray-200">
             ¿No tienes una cuenta?{" "}
-            <Link href="/registro" className="text-amarillo hover:text-amarillo">Crear cuenta</Link>
+            <Link
+              href="/registro"
+              className="text-amarillo hover:text-amarillo"
+            >
+              Crear cuenta
+            </Link>
           </p>
           <p className="text-xs text-gray-200">
             ¿Quieres precios mayoritas?
-            <Link href="/registro-especial" className="text-amarillo hover:text-amarillo">
+            <Link
+              href="/registro-especial"
+              className="text-amarillo hover:text-amarillo"
+            >
               Regístrate como importador
             </Link>
           </p>
@@ -165,12 +229,14 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 rounded-full border-2 border-verde border-t-transparent animate-spin"/>
-      </div>
-    }>
-      <LoginForm/>
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="w-8 h-8 rounded-full border-2 border-verde border-t-transparent animate-spin" />
+        </div>
+      }
+    >
+      <LoginForm />
     </Suspense>
   );
 }

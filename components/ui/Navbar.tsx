@@ -5,6 +5,7 @@ import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCarrito } from "@/context/CarritoContext";
+import BuscadorProductos from "@/components/ui/BuscadorProductos"
 interface NavbarProps {
   breadcrumb?: { label: string; href?: string }[];
 }
@@ -93,24 +94,13 @@ c61 -30 171 -89 245 -132 152 -87 272 -148 343 -175 26 -10 44 -22 40 -26 -4
         {/* Lado derecho empujado con ml-auto */}
         <div className="ml-auto flex items-center gap-7">
           {/* Search */}
-          <div className="hidden lg:flex items-center gap-2 bg-white/10 rounded-full px-3 py-1.5">
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="white"
-              strokeWidth="1.5"
-            >
-              <circle cx="11" cy="11" r="7" />
-              <path d="M21 21l-4-4" />
-            </svg>
-            <input
-              type="text"
-              placeholder="Buscar productos..."
-              className="bg-transparent text-white placeholder-white/40 text-xs outline-none w-36"
-            />
-          </div>
+          <div className="hidden lg:block">
+  <BuscadorProductos
+    bgClassName="bg-white/10"
+    inputClassName="text-white placeholder-white/40"
+    iconColor="white"
+  />
+</div>
 
           {/* Redes sociales */}
           <div className="hidden lg:flex items-center gap-3">
@@ -342,24 +332,13 @@ c61 -30 171 -89 245 -132 152 -87 272 -148 343 -175 26 -10 44 -22 40 -26 -4
               ))}
 
               {/* Search móvil */}
-              <div className="flex items-center gap-2 bg-white/10 rounded-full px-3 py-2 mx-2 mt-2">
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="white"
-                  strokeWidth="1.5"
-                >
-                  <circle cx="11" cy="11" r="7" />
-                  <path d="M21 21l-4-4" />
-                </svg>
-                <input
-                  type="text"
-                  placeholder="Buscar productos..."
-                  className="bg-transparent text-white placeholder-white/40 text-xs outline-none w-full"
-                />
-              </div>
+              <div className="px-2 mt-2">
+  <BuscadorProductos
+    bgClassName="bg-white/10"
+    inputClassName="text-white placeholder-white/40"
+    iconColor="white"
+  />
+</div>
 
               {/* Redes móvil */}
               <div className="flex items-center gap-4 px-2 py-3 border-t border-white/10 mt-2">

@@ -19,10 +19,8 @@ interface ProductoAlegra {
 const resenas = [
   { id: 1, texto: "La calidad es excepcional. Instalé la serie Milano en mi baño principal y la diferencia con los grifos anteriores es abismal. Vale absolutamente cada peso.", autor: "Icónica", rol: "Arquitecta - Bogotá", inicial: "I" },
   { id: 2, texto: "Llevo 5 años especificando AQUA en mis proyectos de interiorismo. Nunca una queja, siempre el acabado perfecto. El servicio postventa es excelente.", autor: "Camilo Pardo", rol: "Bogotá", inicial: "C" },
-  { id: 3, texto: "Llevo 5 años especificando AQUA en mis proyectos de interiorismo. Nunca una queja, siempre el acabado perfecto. El servicio postventa es excelente.", autor: "Camilo Pardo", rol: "Bogotá", inicial: "C" },
-  { id: 4, texto: "La calidad es excepcional. Instalé la serie Milano en mi baño principal y la diferencia con los grifos anteriores es abismal. Vale absolutamente cada peso.", autor: "Icónica", rol: "Arquitecta - Bogotá", inicial: "I" },
-];
-
+  
+]
 const categorias = [
   { nombre: "Grifería de baño", productos: 60, image: "/images/CatalogoBaño.png" },
   { nombre: "Duchas", productos: 32, image: "images/CatalogoDuchas.png" },
