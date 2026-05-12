@@ -32,7 +32,7 @@ export const metadata: Metadata = {
       "Importadores directos de ferretería, grifería, lavaplatos, duchas y accesorios de alta calidad. Precios mayoristas para arquitectos, constructoras y empresas.",
     images: [
       {
-        url: "/og-image.png",
+        url: "/LogoPrincipal.png",
         width: 1200,
         height: 630,
         alt: "La Llave del Norte",
@@ -43,7 +43,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "La Llave del Norte | Ferretería y Grifería",
     description: "Importadores directos de ferretería y grifería de alta calidad.",
-    images: ["/og-image.png"],
+    images: ["/LogoPrincipal.png"],
   },
   robots: {
     index: true,
