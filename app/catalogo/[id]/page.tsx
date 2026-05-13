@@ -26,6 +26,14 @@ interface ProductoAlegra {
   garantia?: string | null;
 }
 
+interface Resena {
+  id: number;
+  calificacion: number;
+  comentario: string | null;
+  fecha: string;
+  cliente: { nombre: string };
+}
+
 function Estrellas({ cantidad, size = "base" }: { cantidad: number; size?: "base" | "lg" }) {
   return (
     <div className="flex items-center gap-0.5">
@@ -35,7 +43,6 @@ function Estrellas({ cantidad, size = "base" }: { cantidad: number; size?: "base
     </div>
   );
 }
-
 
 function SkeletonDetalle() {
   return (
@@ -62,7 +69,6 @@ function SkeletonDetalle() {
 }
 
 export default function DetalleProductoPage() {
-  
   const { id } = useParams();
   const { data: session } = useSession();
   const esEspecial = session?.user?.role === "ESPECIAL" && session?.user?.estado === "APROBADO";
@@ -84,6 +90,14 @@ export default function DetalleProductoPage() {
   const [cardWidthRelacionados, setCardWidthRelacionados] = useState(200);
   const { agregarItem } = useCarrito();
 
+  // Reseñas
+  const [resenas, setResenas] = useState<Resena[]>([]);
+  const [mostrarFormResena, setMostrarFormResena] = useState(false);
+  const [calificacionNueva, setCalificacionNueva] = useState(0);
+  const [comentarioNuevo, setComentarioNuevo] = useState("");
+  const [enviandoResena, setEnviandoResena] = useState(false);
+  const [errorResena, setErrorResena] = useState("");
+
   useEffect(() => {
     fetch(`/api/productos/${id}`)
       .then(res => res.json())
@@ -95,30 +109,29 @@ export default function DetalleProductoPage() {
   }, [id]);
 
   useEffect(() => {
-    if (!producto) return;
+    if (!id) return;
+    fetch(`/api/resenas?productoId=${id}`)
+      .then(res => res.json())
+      .then(data => { if (data.resenas) setResenas(data.resenas); })
+      .catch(() => {});
+  }, [id]);
 
+  useEffect(() => {
+    if (!producto) return;
     fetch("/api/productos")
       .then(res => res.json())
       .then(data => {
-        if (!data.productos) return
-
-        // Si tiene relacionados definidos en Alegra, buscarlos por ID
+        if (!data.productos) return;
         if (producto.relacionados && producto.relacionados.length > 0) {
           const productosRelacionados = data.productos.filter(
-            (p: ProductoAlegra) =>
-              p.status === "active" &&
-              producto.relacionados!.includes(String(p.id))
-          )
-          setRelacionados(productosRelacionados)
+            (p: ProductoAlegra) => p.status === "active" && producto.relacionados!.includes(String(p.id))
+          );
+          setRelacionados(productosRelacionados);
         } else {
-          // Fallback: misma categoría
           const mismaCategoria = data.productos.filter(
-            (p: ProductoAlegra) =>
-              p.status === "active" &&
-              p.id !== producto.id &&
-              p.category?.name === producto.category?.name
-          )
-          setRelacionados(mismaCategoria.slice(0, 8))
+            (p: ProductoAlegra) => p.status === "active" && p.id !== producto.id && p.category?.name === producto.category?.name
+          );
+          setRelacionados(mismaCategoria.slice(0, 8));
         }
       })
       .catch(() => {});
@@ -142,6 +155,33 @@ export default function DetalleProductoPage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  async function handleEnviarResena() {
+    if (!calificacionNueva) return;
+    setEnviandoResena(true);
+    setErrorResena("");
+    try {
+      const res = await fetch("/api/resenas", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ alegraProductoId: String(id), calificacion: calificacionNueva, comentario: comentarioNuevo }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        setMostrarFormResena(false);
+        setCalificacionNueva(0);
+        setComentarioNuevo("");
+        const res2 = await fetch(`/api/resenas?productoId=${id}`);
+        const data2 = await res2.json();
+        if (data2.resenas) setResenas(data2.resenas);
+      } else {
+        setErrorResena(data.error || "Error al enviar reseña");
+      }
+    } catch {
+      setErrorResena("Error al enviar reseña");
+    }
+    setEnviandoResena(false);
+  }
+
   if (cargando) {
     return (
       <div className="min-h-screen bg-white">
@@ -164,16 +204,13 @@ export default function DetalleProductoPage() {
   }
 
   const precio = producto.price[0]?.price || 0;
-  const precioEspecial = producto.precioMayorista
-    ? Math.round(producto.precioMayorista)
-    : Math.round(precio * 0.85);
+  const precioEspecial = producto.precioMayorista ? Math.round(producto.precioMayorista) : Math.round(precio * 0.85);
   const stock = producto.inventory?.availableQuantity || 0;
   const enStock = stock > 0;
-  const imagenes = producto.images
-    ? [...producto.images].sort((a, b) => (b.favorite ? 1 : 0) - (a.favorite ? 1 : 0))
-    : [];
+  const imagenes = producto.images ? [...producto.images].sort((a, b) => (b.favorite ? 1 : 0) - (a.favorite ? 1 : 0)) : [];
   const imagenPrincipal = imagenes[imagenActual]?.url || null;
   const offsetRelacionados = sliderRelacionados * (cardWidthRelacionados + 16);
+  const promedioResenas = resenas.length > 0 ? resenas.reduce((a, r) => a + r.calificacion, 0) / resenas.length : 0;
 
   return (
     <div className="min-h-screen bg-white">
@@ -227,8 +264,8 @@ export default function DetalleProductoPage() {
             <h1 className="text-lg md:text-2xl font-semibold text-verde mb-1 mt-3 pr-3">{producto.name}</h1>
             <p className="text-sm text-gray-500 mb-2">Ref: {producto.id}</p>
             <div className="flex items-center gap-2 mb-4">
-              <Estrellas cantidad={5}/>
-              <span className="text-sm text-gray-400">5.0 (0)</span>
+              <Estrellas cantidad={Math.round(promedioResenas)}/>
+              <span className="text-sm text-gray-400">{promedioResenas.toFixed(1)} ({resenas.length})</span>
             </div>
             {esEspecial ? (
               <div className="mb-4">
@@ -334,15 +371,12 @@ export default function DetalleProductoPage() {
               </div>
             </div>
 
-            {/* Garantía desde Alegra */}
             <div className="mt-4 border-3 border-dotted border-amarillo rounded-xl p-4 flex items-start gap-3 min-h-28">
               <Image src="/images/Insignia.png" alt="Insignia de garantia" width={50} height={50}/>
               <div>
                 <p className="text-sm font-semibold text-verde">Satisfacción Garantizada</p>
                 <p className="text-sm text-gray-400 mt-0.5">Garantía</p>
-                <p className="text-sm text-gray-400">
-                  {producto.garantia || "Contáctanos para más información sobre la garantía de este producto"}
-                </p>
+                <p className="text-sm text-gray-400">{producto.garantia || "Contáctanos para más información sobre la garantía de este producto"}</p>
               </div>
             </div>
 
@@ -473,38 +507,100 @@ export default function DetalleProductoPage() {
       <div className="w-full bg-gray-100 border-t border-b border-gray-200 p-6 md:p-8">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-base font-semibold text-verde mb-1">Reseñas</h2>
+
           <div className="flex flex-col md:flex-row gap-8 mt-4">
             <div className="min-w-[220px]">
-              <p className="text-xs text-gray-500 mb-1">Muestra de puntuacion</p>
-              <p className="text-xs text-gray-400 mb-4">Seleccionar una fila para filtrar reseñas.</p>
+              <p className="text-xs text-gray-500 mb-1">Muestra de puntuación</p>
+              <p className="text-xs text-gray-400 mb-4">Distribución de calificaciones</p>
               <div className="space-y-2">
-                {[5, 4, 3, 2, 1].map((i) => (
-                  <div key={i} className="flex items-center gap-2">
-                    <span className="text-xs text-gray-500 w-16">{i} estrellas</span>
-                    <div className="flex-1 h-1 bg-gray-300 rounded-full">
-                      <div className="h-full bg-amarillo rounded-full w-0"/>
+                {[5, 4, 3, 2, 1].map((i) => {
+                  const cant = resenas.filter(r => r.calificacion === i).length;
+                  const pct = resenas.length > 0 ? (cant / resenas.length) * 100 : 0;
+                  return (
+                    <div key={i} className="flex items-center gap-2">
+                      <span className="text-xs text-gray-500 w-16">{i} estrellas</span>
+                      <div className="flex-1 h-1 bg-gray-300 rounded-full">
+                        <div className="h-full bg-amarillo rounded-full transition-all" style={{ width: `${pct}%` }}/>
+                      </div>
+                      <span className="text-xs text-gray-400 w-3">{cant}</span>
                     </div>
-                    <span className="text-xs text-gray-400 w-3">0</span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
+
             <div className="hidden md:block w-px bg-gray-200 self-stretch"/>
+
             <div className="flex flex-col items-start">
               <p className="text-xs text-gray-500 mb-2">Clasificación general</p>
               <div className="flex items-center gap-3">
-                <p className="text-6xl font-light text-verde">0</p>
-                <Estrellas cantidad={0} size="lg"/>
+                <p className="text-6xl font-light text-verde">{promedioResenas.toFixed(1)}</p>
+                <Estrellas cantidad={Math.round(promedioResenas)} size="lg"/>
               </div>
-              <p className="text-xs text-gray-400 mt-2">0 reseñas</p>
-              <p className="text-xs text-gray-400">0 de 0 clientes recomiendan este producto</p>
+              <p className="text-xs text-gray-400 mt-2">{resenas.length} reseñas</p>
             </div>
+
             <div className="md:ml-auto flex items-start">
-              <button className="px-4 py-2.5 border border-amarillo text-verde text-sm rounded-lg hover:bg-amarillo hover:text-hueso transition-colors cursor-pointer">
-                Calificar este producto
-              </button>
+              {session ? (
+                <button onClick={() => setMostrarFormResena(!mostrarFormResena)}
+                  className="px-4 py-2.5 border border-amarillo text-verde text-sm rounded-lg hover:bg-amarillo hover:text-hueso transition-colors cursor-pointer">
+                  {mostrarFormResena ? "Cancelar" : "Calificar este producto"}
+                </button>
+              ) : (
+                <Link href="/login" className="px-4 py-2.5 border border-amarillo text-verde text-sm rounded-lg hover:bg-amarillo hover:text-hueso transition-colors">
+                  Inicia sesión para calificar
+                </Link>
+              )}
             </div>
           </div>
+
+          {/* Formulario */}
+          <AnimatePresence>
+            {mostrarFormResena && (
+              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden mt-6">
+                <div className="bg-white rounded-xl p-5 border border-gray-200">
+                  <p className="text-sm font-medium text-verde mb-3">Tu calificación</p>
+                  <div className="flex gap-1 mb-4">
+                    {[1, 2, 3, 4, 5].map(i => (
+                      <button key={i} onClick={() => setCalificacionNueva(i)} className="cursor-pointer">
+                        <span className={`text-3xl ${i <= calificacionNueva ? "text-amarillo" : "text-gray-300"}`}>★</span>
+                      </button>
+                    ))}
+                  </div>
+                  <textarea value={comentarioNuevo} onChange={e => setComentarioNuevo(e.target.value)}
+                    placeholder="Cuéntanos tu experiencia (opcional)" rows={3}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm text-verde placeholder-gray-300 outline-none focus:border-amarillo resize-none mb-3"/>
+                  {errorResena && <p className="text-xs text-red-500 mb-3">{errorResena}</p>}
+                  <button onClick={handleEnviarResena} disabled={!calificacionNueva || enviandoResena}
+                    className="px-4 py-2 bg-verde text-amarillo text-sm rounded-lg hover:opacity-90 transition-opacity disabled:opacity-40 cursor-pointer">
+                    {enviandoResena ? "Enviando..." : "Enviar reseña"}
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Lista */}
+          {resenas.length > 0 && (
+            <div className="mt-8 space-y-4">
+              <div className="hidden md:block w-full h-px bg-gray-200"/>
+              {resenas.map(resena => (
+                <div key={resena.id} className="bg-white rounded-xl p-5 border border-gray-100">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded-full bg-verde flex items-center justify-center">
+                        <span className="text-amarillo text-xs font-medium">{resena.cliente.nombre.charAt(0).toUpperCase()}</span>
+                      </div>
+                      <p className="text-sm font-medium text-verde">{resena.cliente.nombre}</p>
+                    </div>
+                    <p className="text-xs text-gray-400">{new Date(resena.fecha).toLocaleDateString("es-CO")}</p>
+                  </div>
+                  <Estrellas cantidad={resena.calificacion}/>
+                  {resena.comentario && <p className="text-sm text-gray-500 mt-2">{resena.comentario}</p>}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 

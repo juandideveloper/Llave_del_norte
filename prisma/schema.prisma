@@ -76,7 +76,6 @@ model Producto {
   activo          Boolean          @default(true)
   fechaCreacion   DateTime         @default(now())
   pedidoProductos PedidoProducto[]
-  resenas         Resena[]
 }
 
 model Pedido {
@@ -135,14 +134,15 @@ model Notificacion {
 }
 
 model Resena {
-  id           Int      @id @default(autoincrement())
-  clienteId    Int
-  productoId   Int
-  calificacion Int
-  comentario   String?
-  fecha        DateTime @default(now())
-  cliente      Cliente  @relation(fields: [clienteId], references: [id])
-  producto     Producto @relation(fields: [productoId], references: [id])
+  id              Int      @id @default(autoincrement())
+  clienteId       Int
+  alegraProductoId String
+  calificacion    Int
+  comentario      String?
+  fecha           DateTime @default(now())
+  cliente         Cliente  @relation(fields: [clienteId], references: [id])
+
+  @@unique([clienteId, alegraProductoId])
 }
 
 model Suscriptor {
