@@ -14,6 +14,7 @@ interface ProductoAlegra {
   price: { price: number }[];
   category?: { name: string };
   images?: { id: number; url: string; favorite: boolean }[];
+  customFields?: { name: string; value: string }[];
 }
 
 const resenas = [
@@ -83,7 +84,7 @@ export default function HomePage() {
       .then(data => {
         if (data.productos) {
           const filtrados = data.productos.filter(
-            (p: ProductoAlegra) => p.category?.name === "Destacados"
+            (p: ProductoAlegra) => p.customFields?.some((f: { name: string; value: string }) => f.name === "Destacados" && f.value === "Si")
           )
           setDestacados(filtrados)
         }
@@ -226,7 +227,7 @@ export default function HomePage() {
               <motion.div className="flex gap-4 md:gap-6"
                 animate={{ x: `-${sliderActual * (100 / 3)}%` }}
                 transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}>
-                {[...destacados, ...destacados].map((producto, i) => {
+                {destacados.map((producto, i) => {
                   const precio = producto.price[0]?.price || 0
                   const imagenUrl = producto.images?.find(img => img.favorite)?.url || producto.images?.[0]?.url || null
                   return (

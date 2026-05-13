@@ -21,8 +21,21 @@ interface Props {
 export default function BuscadorProductos({ inputClassName, iconColor = "white", bgClassName }: Props) {
   const [query, setQuery] = useState("")
   const [productos, setProductos] = useState<Producto[]>([])
+  const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0 })
   const ref = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
+
+  const resultados = useMemo(() => {
+    if (query.trim().length < 2) return []
+    const q = query.toLowerCase()
+    return productos.filter(p =>
+      p.name.toLowerCase().includes(q) ||
+      p.category?.name.toLowerCase().includes(q)
+    ).slice(0, 6)
+  }, [query, productos])
+
+  const abierto = query.trim().length >= 2
 
   useEffect(() => {
     fetch("/api/productos")
@@ -45,16 +58,26 @@ export default function BuscadorProductos({ inputClassName, iconColor = "white",
     return () => document.removeEventListener("mousedown", handleClick)
   }, [])
 
-  const resultados = useMemo(() => {
-    if (query.trim().length < 2) return []
-    const q = query.toLowerCase()
-    return productos.filter(p =>
-      p.name.toLowerCase().includes(q) ||
-      p.category?.name.toLowerCase().includes(q)
-    ).slice(0, 6)
-  }, [query, productos])
+  useEffect(() => {
+    if (ref.current && abierto) {
+      const rect = ref.current.getBoundingClientRect()
+      setDropdownPos({ top: rect.bottom + 8, left: rect.left })
+    }
+  }, [query, abierto])
 
-  const abierto = query.trim().length >= 2
+  useEffect(() => {
+    if (abierto) {
+      document.documentElement.style.scrollBehavior = "auto"
+      document.body.style.position = "relative"
+    } else {
+      document.documentElement.style.scrollBehavior = ""
+      document.body.style.position = ""
+    }
+    return () => {
+      document.documentElement.style.scrollBehavior = ""
+      document.body.style.position = ""
+    }
+  }, [abierto])
 
   function handleSelect(id: string) {
     setQuery("")
@@ -62,30 +85,34 @@ export default function BuscadorProductos({ inputClassName, iconColor = "white",
   }
 
   return (
-    <div ref={ref} className="relative">
-      <div className={`flex items-center gap-2 rounded-full px-3 py-1.5 ${bgClassName}`}>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={iconColor} strokeWidth="1.5">
-          <circle cx="11" cy="11" r="7"/>
-          <path d="M21 21l-4-4"/>
-        </svg>
-        <input
-          type="text"
-          value={query}
-          onChange={e => setQuery(e.target.value)}
-          placeholder="Buscar productos..."
-          className={`bg-transparent text-xs outline-none w-36 ${inputClassName}`}
-        />
-        {query && (
-          <button onClick={() => setQuery("")} className="opacity-50 hover:opacity-100 cursor-pointer">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={iconColor} strokeWidth="2">
-              <path d="M18 6L6 18M6 6l12 12"/>
-            </svg>
-          </button>
-        )}
+    <>
+      <div ref={ref} className="relative">
+        <div className={`flex items-center gap-2 rounded-full px-3 py-1.5 ${bgClassName}`}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={iconColor} strokeWidth="1.5">
+            <circle cx="11" cy="11" r="7"/>
+            <path d="M21 21l-4-4"/>
+          </svg>
+          <input
+            ref={inputRef}
+            type="text"
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+            placeholder="Buscar productos..."
+            className={`bg-transparent text-xs outline-none w-36 ${inputClassName}`}
+          />
+          {query && (
+            <button onClick={() => setQuery("")} className="opacity-50 hover:opacity-100 cursor-pointer">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={iconColor} strokeWidth="2">
+                <path d="M18 6L6 18M6 6l12 12"/>
+              </svg>
+            </button>
+          )}
+        </div>
       </div>
 
       {abierto && (
-        <div className="absolute top-full left-0 mt-2 w-72 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden z-50">
+        <div style={{ position: "fixed", top: dropdownPos.top, left: dropdownPos.left, zIndex: 9999, width: "288px" }}
+          className="bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden">
           {resultados.length === 0 ? (
             <div className="p-4 text-center text-xs text-gray-400">
               Sin resultados para {query}
@@ -117,8 +144,7 @@ export default function BuscadorProductos({ inputClassName, iconColor = "white",
                   </button>
                 )
               })}
-              <button
-                onClick={() => { router.push("/catalogo"); setQuery("") }}
+              <button onClick={() => { router.push("/catalogo"); setQuery("") }}
                 className="w-full text-center text-xs text-verde py-3 hover:bg-gray-50 transition-colors cursor-pointer border-t border-gray-100">
                 Ver todos los productos →
               </button>
@@ -126,6 +152,6 @@ export default function BuscadorProductos({ inputClassName, iconColor = "white",
           )}
         </div>
       )}
-    </div>
+    </>
   )
 }

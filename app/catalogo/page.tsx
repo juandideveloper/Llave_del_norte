@@ -22,6 +22,7 @@ interface ProductoAlegra {
   precioMayorista?: number | null;
   relacionados?: string[];
   garantia?: string | null;
+  customFields?: { name: string; value: string }[];
 }
 
 const materiales = ["Acero inoxidable", "Latón", "Bronce", "PVC"];
@@ -161,7 +162,9 @@ export default function CatalogoPage() {
           const activos = data.productos.filter((p: ProductoAlegra) => p.status === "active");
           setProductosAlegra(activos);
           const recomendadosFiltrados = data.productos.filter(
-            (p: ProductoAlegra) => p.category?.name === "Recomendados" && p.status === "active"
+            
+            (p: ProductoAlegra) => p.customFields?.some((f: { name: string; value: string }) => f.name === "Recomendados" && f.value === "Si") && p.status === "active"
+            
           );
           setRecomendados(recomendadosFiltrados);
         }

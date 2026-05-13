@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
     const emails = suscriptores.map(s => s.email)
 
     await resend.emails.send({
-      from: "La Llave del Norte <noreply@llavedelnorte.com>",
+      from: "La Llave del Norte <noreply@lallavedelnorte.com>",
       to: emails,
       subject: asunto,
       html: `

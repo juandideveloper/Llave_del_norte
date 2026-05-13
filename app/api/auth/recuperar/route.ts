@@ -38,8 +38,8 @@ export async function POST(request: Request) {
     });
 
     await resend.emails.send({
-      from: "La llave del norte <onboarding@resend.dev>",
-      to: "juandiegoriosrojasdeveloper@gmail.com",
+      from: "La Llave del Norte <noreply@lallavedelnorte.com>",
+      to: email,
       subject: "Recuperar contraseña",
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto;">
