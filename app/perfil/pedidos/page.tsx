@@ -15,6 +15,7 @@ interface Pedido {
   ciudadEntrega: string | null
   fechaPedido: string | null
   melonnOrderId: string | null
+  guiaInterrapidisimo: string | null
 }
 
 function EstadoBadge({ estado }: { estado: string }) {
@@ -29,18 +30,34 @@ function EstadoBadge({ estado }: { estado: string }) {
   )
 }
 
-function EnvioBadge({ melonnOrderId }: { melonnOrderId: string | null }) {
-  if (!melonnOrderId) return (
+function EnvioBadge({ estadoEnvio }: { estadoEnvio: string | null }) {
+  if (!estadoEnvio) return (
     <span className="px-2 py-0.5 rounded-full text-xs bg-gray-100 text-gray-400">
       Preparando envío
     </span>
   )
   return (
-    <span className="px-2 py-0.5 rounded-full text-xs bg-blue-100 text-blue-700">
-      En camino
+    <span className={`px-2 py-0.5 rounded-full text-xs ${
+      estadoEnvio === "Entregado" ? "bg-green-100 text-green-700" :
+      estadoEnvio === "Novedad" ? "bg-red-100 text-red-500" :
+      estadoEnvio === "En reparto" || estadoEnvio === "En tránsito" ? "bg-blue-100 text-blue-700" :
+      "bg-yellow-100 text-yellow-700"
+    }`}>
+      {estadoEnvio}
     </span>
   )
 }
+
+const estadosEnvio = [
+  "Pendiente de recolección",
+  "Recolectado",
+  "En bodega",
+  "En tránsito",
+  "En ciudad destino",
+  "En reparto",
+  "Entregado",
+  "Novedad",
+]
 
 export default function MisPedidosPage() {
   const { data: session, status } = useSession()
@@ -115,7 +132,7 @@ export default function MisPedidosPage() {
         ) : (
           <div className="space-y-3">
             {pedidos.map(pedido => {
-              const trackingUrl = "https://d31a8gq0kszthp.cloudfront.net/" + pedido.melonnOrderId
+              const indexActual = estadosEnvio.indexOf(pedido.melonnOrderId || "")
               return (
                 <div key={pedido.id} className="bg-white rounded-xl border border-gray-100 p-5 hover:border-amarillo/30 transition-colors">
                   <div className="flex items-start justify-between mb-3">
@@ -136,12 +153,12 @@ export default function MisPedidosPage() {
                     </p>
                   </div>
 
-                  <div className="flex items-center gap-2 mb-3">
+                  <div className="flex items-center gap-2 mb-3 flex-wrap">
                     <EstadoBadge estado={pedido.estadoPago}/>
-                    <EnvioBadge melonnOrderId={pedido.melonnOrderId}/>
+                    <EnvioBadge estadoEnvio={pedido.melonnOrderId}/>
                   </div>
 
-                  <div className="text-xs text-gray-400 space-y-1">
+                  <div className="text-xs text-gray-400 space-y-1 mb-3">
                     {pedido.direccionEntrega && (
                       <p>📍 {pedido.direccionEntrega}{pedido.ciudadEntrega ? `, ${pedido.ciudadEntrega}` : ""}</p>
                     )}
@@ -150,17 +167,47 @@ export default function MisPedidosPage() {
                     )}
                   </div>
 
-                  {pedido.melonnOrderId && (
+                  {/* Timeline de envío */}
+                  {pedido.melonnOrderId && pedido.melonnOrderId !== "Novedad" && (
                     <div className="mt-3 pt-3 border-t border-gray-50">
+                      <div className="flex gap-1 overflow-x-auto pb-1">
+                        {estadosEnvio.filter(e => e !== "Novedad").map((e, i) => {
+                          const activo = e === pedido.melonnOrderId
+                          const pasado = indexActual > i
+                          return (
+                            <div key={e} className="flex flex-col items-center gap-1 min-w-[60px]">
+                              <div className={`w-5 h-5 rounded-full flex items-center justify-center text-xs ${
+                                activo ? "bg-verde text-amarillo" :
+                                pasado ? "bg-green-500 text-white" :
+                                "bg-gray-100 text-gray-300"
+                              }`}>
+                                {pasado ? "✓" : i + 1}
+                              </div>
+                              <span className={`text-xs text-center leading-tight ${activo ? "text-verde font-medium" : "text-gray-300"}`} style={{ fontSize: "9px" }}>
+                                {e}
+                              </span>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Guía Interrapidísimo */}
+                  {pedido.guiaInterrapidisimo && (
+                    <div className="mt-3 pt-3 border-t border-gray-50 flex items-center justify-between">
+                      <div className="text-xs text-gray-400">
+                        Guía: <span className="font-medium text-verde">{pedido.guiaInterrapidisimo}</span>
+                      </div>
                       <a
-                        href={trackingUrl}
+                        href={`https://www.interrapidisimo.com/rastrea-tu-envio/?guia=${pedido.guiaInterrapidisimo}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-1 text-xs text-verde hover:text-amarillo transition-colors">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                           <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/>
                         </svg>
-                        Rastrear mi pedido
+                        Rastrear envío →
                       </a>
                     </div>
                   )}

@@ -3,7 +3,6 @@ import { prisma } from "@/lib/prisma"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { revalidatePath } from "next/cache"
-import { rastrearOrdenMelonn, crearOrdenMelonn } from "@/lib/melonn"
 
 export default async function DetallePedidoPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -18,27 +17,6 @@ export default async function DetallePedidoPage({ params }: { params: Promise<{ 
   })
 
   if (!pedido) notFound()
-
-  // Rastrear orden en Melonn si existe
-  let melonnData = null
-  if (pedido.melonnOrderId) {
-    try {
-      melonnData = await rastrearOrdenMelonn(pedido.melonnOrderId)
-    } catch {
-      melonnData = null
-    }
-  }
-
-  const estadoMelonn = melonnData?.sell_order_state?.name || null
-  const trackingLink = melonnData?.melonn_tracking_link || null
-  const estadoMelonnId = melonnData?.sell_order_state?.id || null
-
-  function colorEstadoMelonn(id: number) {
-    if ([7, 8].includes(id)) return "bg-green-100 text-green-700"
-    if ([15, 20].includes(id)) return "bg-red-100 text-red-500"
-    if ([11, 13, 21].includes(id)) return "bg-red-100 text-red-500"
-    return "bg-blue-100 text-blue-700"
-  }
 
   async function marcarPagado() {
     "use server"
@@ -58,40 +36,45 @@ export default async function DetallePedidoPage({ params }: { params: Promise<{ 
     revalidatePath(`/admin/pedidos/${id}`)
   }
 
-  async function crearOrdenMelonnManual() {
+  async function actualizarGuia(formData: FormData) {
     "use server"
-    try {
-      const pedidoActual = await prisma.pedido.findUnique({
-        where: { id: Number(id) },
-        include: { cliente: true }
-      })
-      if (!pedidoActual) return
-
-      const melonnOrderId = `LLN-MANUAL-${pedidoActual.id}-${Date.now()}`
-
-      await crearOrdenMelonn({
-        orderId: melonnOrderId,
-        totalItems: 1,
-        cliente: {
-          nombre: pedidoActual.cliente.nombre,
-          telefono: pedidoActual.cliente.telefono || "3000000000",
-          email: pedidoActual.cliente.email,
-        },
-        direccion: {
-          direccion: pedidoActual.direccionEntrega || "CALLE 65 #14-20",
-          ciudad: pedidoActual.ciudadEntrega || "Bogotá",
-          region: pedidoActual.ciudadEntrega || "Bogotá",
-        }
-      })
-
-      await prisma.pedido.update({
-        where: { id: Number(id) },
-        data: { melonnOrderId }
-      })
-    } catch (error) {
-      console.error("Error creando orden Melonn manual:", error)
-    }
+    const guia = formData.get("guia") as string
+    await prisma.pedido.update({
+      where: { id: Number(id) },
+      data: { guiaInterrapidisimo: guia || null }
+    })
     revalidatePath(`/admin/pedidos/${id}`)
+  }
+
+  async function actualizarEstadoEnvio(formData: FormData) {
+    "use server"
+    const estado = formData.get("estado") as string
+    await prisma.pedido.update({
+      where: { id: Number(id) },
+      data: { melonnOrderId: estado || null }
+    })
+    revalidatePath(`/admin/pedidos/${id}`)
+  }
+
+  const estadosEnvio = [
+    "Pendiente de recolección",
+    "Recolectado",
+    "En bodega",
+    "En tránsito",
+    "En ciudad destino",
+    "En reparto",
+    "Entregado",
+    "Novedad",
+  ]
+
+  const estadoActual = pedido.melonnOrderId || null
+
+  function colorEstado(estado: string | null) {
+    if (!estado) return "bg-gray-100 text-gray-400"
+    if (estado === "Entregado") return "bg-green-100 text-green-700"
+    if (estado === "Novedad") return "bg-red-100 text-red-500"
+    if (estado === "En reparto" || estado === "En tránsito") return "bg-blue-100 text-blue-700"
+    return "bg-yellow-100 text-yellow-700"
   }
 
   return (
@@ -124,22 +107,17 @@ export default async function DetallePedidoPage({ params }: { params: Promise<{ 
           <div className="bg-white rounded-xl border border-gray-100 p-5">
             <h2 className="text-sm font-semibold text-verde mb-4">Cliente</h2>
             <div className="space-y-2">
-              <div className="flex justify-between text-xs">
-                <span className="text-gray-400">Nombre</span>
-                <span className="text-verde font-medium">{pedido.cliente.nombre}</span>
-              </div>
-              <div className="flex justify-between text-xs">
-                <span className="text-gray-400">Email</span>
-                <span className="text-verde">{pedido.cliente.email}</span>
-              </div>
-              <div className="flex justify-between text-xs">
-                <span className="text-gray-400">Teléfono</span>
-                <span className="text-verde">{pedido.cliente.telefono || "—"}</span>
-              </div>
-              <div className="flex justify-between text-xs">
-                <span className="text-gray-400">Rol</span>
-                <span className="text-verde">{pedido.cliente.rol}</span>
-              </div>
+              {[
+                { label: "Nombre", valor: pedido.cliente.nombre },
+                { label: "Email", valor: pedido.cliente.email },
+                { label: "Teléfono", valor: pedido.cliente.telefono || "—" },
+                { label: "Rol", valor: pedido.cliente.rol },
+              ].map(({ label, valor }) => (
+                <div key={label} className="flex justify-between text-xs">
+                  <span className="text-gray-400">{label}</span>
+                  <span className="text-verde font-medium">{valor}</span>
+                </div>
+              ))}
             </div>
           </div>
 
@@ -147,107 +125,108 @@ export default async function DetallePedidoPage({ params }: { params: Promise<{ 
           <div className="bg-white rounded-xl border border-gray-100 p-5">
             <h2 className="text-sm font-semibold text-verde mb-4">Detalles del pedido</h2>
             <div className="space-y-2">
-              <div className="flex justify-between text-xs">
-                <span className="text-gray-400">Total</span>
-                <span className="text-verde font-semibold">$ {pedido.total.toLocaleString("es-CO")}</span>
-              </div>
-              <div className="flex justify-between text-xs">
-                <span className="text-gray-400">Método de pago</span>
-                <span className="text-verde">{pedido.metodoPago || "—"}</span>
-              </div>
-              <div className="flex justify-between text-xs">
-                <span className="text-gray-400">Dirección entrega</span>
-                <span className="text-verde text-right max-w-48">{pedido.direccionEntrega || "—"}</span>
-              </div>
-              <div className="flex justify-between text-xs">
-                <span className="text-gray-400">Ciudad</span>
-                <span className="text-verde">{pedido.ciudadEntrega || "—"}</span>
-              </div>
-              <div className="flex justify-between text-xs">
-                <span className="text-gray-400">Fecha</span>
-                <span className="text-verde">
-                  {pedido.fechaPedido ? new Date(pedido.fechaPedido).toLocaleDateString("es-CO") : "—"}
-                </span>
-              </div>
+              {[
+                { label: "Total", valor: `$ ${pedido.total.toLocaleString("es-CO")}` },
+                { label: "Método de pago", valor: pedido.metodoPago || "—" },
+                { label: "Dirección entrega", valor: pedido.direccionEntrega || "—" },
+                { label: "Ciudad", valor: pedido.ciudadEntrega || "—" },
+                { label: "Fecha", valor: pedido.fechaPedido ? new Date(pedido.fechaPedido).toLocaleDateString("es-CO") : "—" },
+              ].map(({ label, valor }) => (
+                <div key={label} className="flex justify-between text-xs">
+                  <span className="text-gray-400">{label}</span>
+                  <span className="text-verde text-right max-w-48">{valor}</span>
+                </div>
+              ))}
             </div>
           </div>
 
-          {/* Estado Melonn */}
+          {/* Gestión de envío */}
           <div className="bg-white rounded-xl border border-gray-100 p-5 md:col-span-2">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-sm font-semibold text-verde">Envío Melonn</h2>
-              {pedido.melonnOrderId && (
-                <span className="text-xs text-gray-400">ID: {pedido.melonnOrderId}</span>
-              )}
-            </div>
+            <h2 className="text-sm font-semibold text-verde mb-4">Gestión de envío — Interrapidísimo</h2>
 
-            {!pedido.melonnOrderId ? (
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-gray-400 mb-1">No hay orden de envío creada</p>
-                  <p className="text-xs text-gray-300">Puedes crearla manualmente desde aquí</p>
-                </div>
-                <form action={crearOrdenMelonnManual}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+              {/* Número de guía */}
+              <div>
+                <p className="text-xs text-gray-400 mb-2">Número de guía</p>
+                <form action={actualizarGuia} className="flex gap-2">
+                  <input
+                    name="guia"
+                    type="text"
+                    defaultValue={pedido.guiaInterrapidisimo || ""}
+                    placeholder="Ej: 1234567890"
+                    className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-xs text-verde outline-none focus:border-amarillo"
+                  />
                   <button type="submit"
-                    className="px-4 py-2 bg-verde text-amarillo text-xs font-medium rounded-lg hover:opacity-90 cursor-pointer">
-                    Crear orden Melonn
+                    className="px-3 py-2 bg-verde text-amarillo text-xs rounded-lg hover:opacity-90 cursor-pointer">
+                    Guardar
                   </button>
                 </form>
-              </div>
-            ) : !melonnData ? (
-              <div className="flex items-center gap-2 text-xs text-gray-400">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
-                </svg>
-                No se pudo obtener el estado de Melonn
-              </div>
-            ) : (
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className={`px-2 py-0.5 rounded-full text-xs ${colorEstadoMelonn(estadoMelonnId || 0)}`}>
-                    {estadoMelonn || "Sin estado"}
-                  </span>
-                  {trackingLink && (
-                    <a href={trackingLink} target="_blank" rel="noopener noreferrer"
-                      className="flex items-center gap-1 text-xs text-verde hover:text-amarillo transition-colors underline">
-                      Ver tracking
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                        <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/>
-                      </svg>
+                {pedido.guiaInterrapidisimo && (
+                  <div className="mt-2 flex items-center gap-2">
+                    <span className="text-xs text-gray-400">Guía:</span>
+                    <span className="text-xs font-medium text-verde">{pedido.guiaInterrapidisimo}</span>
+                    <a
+                      href={`https://www.interrapidisimo.com/rastrea-tu-envio/?guia=${pedido.guiaInterrapidisimo}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-amarillo hover:underline">
+                      Rastrear →
                     </a>
-                  )}
-                </div>
-
-                {/* Timeline */}
-                <div className="grid grid-cols-4 gap-2 mt-3">
-                  {[
-                    { label: "Recibido", ids: [1, 2, 9, 10, 12] },
-                    { label: "Preparando", ids: [3, 4, 5, 22, 25, 28] },
-                    { label: "En tránsito", ids: [6, 7, 24] },
-                    { label: "Entregado", ids: [8] },
-                  ].map((etapa, i) => {
-                    const activo = etapa.ids.includes(estadoMelonnId || 0)
-                    const pasado = i < [
-                      [1,2,9,10,12], [3,4,5,22,25,28], [6,7,24], [8]
-                    ].findIndex(ids => ids.includes(estadoMelonnId || 0))
-                    return (
-                      <div key={etapa.label} className="flex flex-col items-center gap-1">
-                        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${
-                          activo ? "bg-verde text-amarillo" :
-                          pasado ? "bg-green-500 text-white" :
-                          "bg-gray-100 text-gray-300"
-                        }`}>
-                          {pasado ? "✓" : i + 1}
-                        </div>
-                        <span className={`text-xs text-center ${activo ? "text-verde font-medium" : "text-gray-400"}`}>
-                          {etapa.label}
-                        </span>
-                      </div>
-                    )
-                  })}
-                </div>
+                  </div>
+                )}
               </div>
-            )}
+
+              {/* Estado del envío */}
+              <div>
+                <p className="text-xs text-gray-400 mb-2">Estado del envío</p>
+                <form action={actualizarEstadoEnvio} className="flex gap-2">
+                  <select
+                    name="estado"
+                    defaultValue={estadoActual || ""}
+                    className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-xs text-verde outline-none focus:border-amarillo bg-white">
+                    <option value="">Sin estado</option>
+                    {estadosEnvio.map(e => (
+                      <option key={e} value={e}>{e}</option>
+                    ))}
+                  </select>
+                  <button type="submit"
+                    className="px-3 py-2 bg-verde text-amarillo text-xs rounded-lg hover:opacity-90 cursor-pointer">
+                    Guardar
+                  </button>
+                </form>
+                {estadoActual && (
+                  <div className="mt-2">
+                    <span className={`px-2 py-0.5 rounded-full text-xs ${colorEstado(estadoActual)}`}>
+                      {estadoActual}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Timeline visual */}
+            <div className="mt-6 grid grid-cols-4 md:grid-cols-8 gap-2">
+              {estadosEnvio.map((e, i) => {
+                const indexActual = estadosEnvio.indexOf(estadoActual || "")
+                const activo = e === estadoActual
+                const pasado = indexActual > i
+                return (
+                  <div key={e} className="flex flex-col items-center gap-1">
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium ${
+                      activo ? "bg-verde text-amarillo" :
+                      pasado ? "bg-green-500 text-white" :
+                      "bg-gray-100 text-gray-300"
+                    }`}>
+                      {pasado ? "✓" : i + 1}
+                    </div>
+                    <span className={`text-xs text-center leading-tight ${activo ? "text-verde font-medium" : "text-gray-400"}`}>
+                      {e}
+                    </span>
+                  </div>
+                )
+              })}
+            </div>
           </div>
 
           {/* Acciones de pago */}

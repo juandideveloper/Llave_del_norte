@@ -12,6 +12,8 @@ export default async function SuscripcionesPage() {
     where: { rol: "ESPECIAL", estado: "PENDIENTE" }
   })
 
+  const emails = suscriptores.map(s => s.email)
+
   async function eliminarSuscriptor(formData: FormData) {
     "use server"
     const id = Number(formData.get("id"))
@@ -26,7 +28,6 @@ export default async function SuscripcionesPage() {
         <h1 className="text-2xl font-semibold text-verde mb-1">Suscriptores</h1>
         <p className="text-sm text-gray-400 mb-6">Gestión del newsletter y avisos comerciales</p>
 
-        {/* Stats */}
         <div className="grid grid-cols-3 gap-4 mb-8">
           <div className="bg-white rounded-xl border border-gray-100 p-4 text-center">
             <p className="text-2xl font-semibold text-verde">{suscriptores.length}</p>
@@ -42,10 +43,8 @@ export default async function SuscripcionesPage() {
           </div>
         </div>
 
-        {/* Formulario boletín */}
-        <FormBoletin totalSuscriptores={suscriptores.length}/>
+        <FormBoletin totalSuscriptores={suscriptores.length} emails={emails}/>
 
-        {/* Lista suscriptores */}
         <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
           <div className="p-4 border-b border-gray-100">
             <h2 className="text-sm font-semibold text-verde">Lista de suscriptores</h2>

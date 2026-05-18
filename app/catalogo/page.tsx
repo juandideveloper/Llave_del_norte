@@ -8,7 +8,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import Footer from "@/components/ui/Footer";
 import Image from "next/image";
 
-
 interface ProductoAlegra {
   id: string;
   name: string;
@@ -22,10 +21,9 @@ interface ProductoAlegra {
   precioMayorista?: number | null;
   relacionados?: string[];
   garantia?: string | null;
+  material?: string | null;
   customFields?: { name: string; value: string }[];
 }
-
-const materiales = ["Acero inoxidable", "Latón", "Bronce", "PVC"];
 
 function BadgePrecioEspecial() {
   return (
@@ -50,9 +48,10 @@ interface SidebarFiltrosProps {
   materialesActivos: string[];
   toggleMaterial: (material: string) => void;
   categorias: { nombre: string; cantidad: number }[];
+  materialesDisponibles: string[];
 }
 
-function SidebarFiltros({ categoriaActiva, setCategoriaActiva, precioMax, setPrecioMax, precioMin, setPrecioMin, soloEnStock, setSoloEnStock, materialesActivos, toggleMaterial, categorias }: SidebarFiltrosProps) {
+function SidebarFiltros({ categoriaActiva, setCategoriaActiva, precioMax, setPrecioMax, precioMin, setPrecioMin, soloEnStock, setSoloEnStock, materialesActivos, toggleMaterial, categorias, materialesDisponibles }: SidebarFiltrosProps) {
   return (
     <div className="space-y-4">
       <div className="bg-gray-100 rounded-xl p-4 border border-gray-400">
@@ -102,28 +101,30 @@ function SidebarFiltros({ categoriaActiva, setCategoriaActiva, precioMax, setPre
         <div className="hidden lg:block w-44 h-px bg-gray-400 mb-2"/>
         <div className="space-y-2">
           <label className="flex items-center gap-2 cursor-pointer">
-            <input type="checkbox" checked={soloEnStock} onChange={(e) => setSoloEnStock(e.target.checked)} className="accent-verde w-3.5 h-3.5 cursor-pointer"/>
+            <input type="checkbox" checked={soloEnStock} onChange={() => setSoloEnStock(true)} className="accent-verde w-3.5 h-3.5 cursor-pointer"/>
             <span className="text-xs text-gray-500">En stock</span>
           </label>
           <label className="flex items-center gap-2 cursor-pointer">
-            <input type="checkbox" checked={!soloEnStock} onChange={(e) => setSoloEnStock(!e.target.checked)} className="accent-verde w-3.5 h-3.5 cursor-pointer"/>
-            <span className="text-xs text-gray-500">Bajo stock</span>
+            <input type="checkbox" checked={!soloEnStock} onChange={() => setSoloEnStock(false)} className="accent-verde w-3.5 h-3.5 cursor-pointer"/>
+            <span className="text-xs text-gray-500">Todos</span>
           </label>
         </div>
       </div>
 
-      <div className="bg-gray-100 rounded-xl p-4 border border-gray-400">
-        <h3 className="text-sm font-medium text-verde mb-3">Material</h3>
-        <div className="hidden lg:block w-44 h-px bg-gray-400 mb-2"/>
-        <div className="space-y-2">
-          {materiales.map((mat) => (
-            <label key={mat} className="flex items-center gap-2 cursor-pointer group">
-              <input type="checkbox" checked={materialesActivos.includes(mat)} onChange={() => toggleMaterial(mat)} className="accent-verde w-3.5 h-3.5 cursor-pointer"/>
-              <span className={`text-xs transition-colors ${materialesActivos.includes(mat) ? "text-verde font-medium" : "text-gray-500 group-hover:text-verde"}`}>{mat}</span>
-            </label>
-          ))}
+      {materialesDisponibles.length > 0 && (
+        <div className="bg-gray-100 rounded-xl p-4 border border-gray-400">
+          <h3 className="text-sm font-medium text-verde mb-3">Material</h3>
+          <div className="hidden lg:block w-44 h-px bg-gray-400 mb-2"/>
+          <div className="space-y-2">
+            {materialesDisponibles.map((mat) => (
+              <label key={mat} className="flex items-center gap-2 cursor-pointer group">
+                <input type="checkbox" checked={materialesActivos.includes(mat)} onChange={() => toggleMaterial(mat)} className="accent-verde w-3.5 h-3.5 cursor-pointer"/>
+                <span className={`text-xs transition-colors ${materialesActivos.includes(mat) ? "text-verde font-medium" : "text-gray-500 group-hover:text-verde"}`}>{mat}</span>
+              </label>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
@@ -162,9 +163,7 @@ export default function CatalogoPage() {
           const activos = data.productos.filter((p: ProductoAlegra) => p.status === "active");
           setProductosAlegra(activos);
           const recomendadosFiltrados = data.productos.filter(
-            
             (p: ProductoAlegra) => p.customFields?.some((f: { name: string; value: string }) => f.name === "Recomendados" && f.value === "Si") && p.status === "active"
-            
           );
           setRecomendados(recomendadosFiltrados);
         }
@@ -172,6 +171,10 @@ export default function CatalogoPage() {
       })
       .catch(() => setCargando(false));
   }, []);
+
+  const materialesDisponibles = [...new Set(
+    productosAlegra.map(p => p.material).filter(Boolean) as string[]
+  )];
 
   const categoriasUnicas = ["Todos los productos", ...new Set(productosAlegra.map((p) => p.category?.name || "General"))];
   const categorias = categoriasUnicas.map((nombre) => ({
@@ -183,10 +186,14 @@ export default function CatalogoPage() {
 
   const productosFiltrados = productosAlegra.filter((p) => {
     if (categoriaActiva !== "Todos los productos" && (p.category?.name || "General") !== categoriaActiva) return false;
-    if (soloEnStock && p.inventory?.availableQuantity <= 0) return false;
+    const stock = p.inventory?.availableQuantity || 0;
+    if (soloEnStock && stock <= 0) return false;
     const precio = p.price[0]?.price || 0;
     if (precio > precioMax) return false;
     if (precioMin > 0 && precio < precioMin) return false;
+    if (materialesActivos.length > 0) {
+      if (!p.material || !materialesActivos.includes(p.material)) return false;
+    }
     return true;
   });
 
@@ -209,7 +216,8 @@ export default function CatalogoPage() {
   const filtrosProps: SidebarFiltrosProps = {
     categoriaActiva, setCategoriaActiva: handleCategoria,
     precioMin, setPrecioMin, precioMax, setPrecioMax,
-    soloEnStock, setSoloEnStock, materialesActivos, toggleMaterial, categorias,
+    soloEnStock, setSoloEnStock, materialesActivos, toggleMaterial,
+    categorias, materialesDisponibles,
   };
 
   const placeholders = [1, 2, 3, 4];
@@ -346,7 +354,6 @@ export default function CatalogoPage() {
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
                   {productosPaginados.map((producto) => {
                     const precio = producto.price[0]?.price || 0;
-                    // ✅ Usa precioMayorista si existe, sino calcula 15%
                     const precioEspecial = producto.precioMayorista
                       ? Math.round(producto.precioMayorista)
                       : Math.round(precio * 0.85);
@@ -380,6 +387,9 @@ export default function CatalogoPage() {
                         </div>
                         <div className="p-3">
                           <p className="text-sm font-medium text-verde mt-1 leading-tight">{producto.name}</p>
+                          {producto.material && (
+                            <p className="text-xs text-gray-400 mt-0.5">{producto.material}</p>
+                          )}
                           {esEspecial ? (
                             <div className="mt-2">
                               <p className="text-xs text-gray-400 line-through">$ {Math.round(precio).toLocaleString("es-CO")} und</p>

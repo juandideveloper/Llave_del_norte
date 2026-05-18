@@ -14,30 +14,47 @@ function parsearCustomFields(customFields: { name: string; value: string }[]) {
     precioMayorista: getField("precioMayorista") ? Number(getField("precioMayorista")) : null,
     relacionados: getField("relacionados") ? getField("relacionados")!.split(",").map(s => s.trim()) : [],
     garantia: getField("garantia") || null,
+    material: getField("Material") || null,
   }
 }
 
 export async function getProductosAlegra() {
   const res = await fetch(
-    `${BASE_URL}/items?limit=30&fields=id,name,description,reference,status,price,inventory,category,images,customFields,tax`,
+    `${BASE_URL}/items?limit=30&fields=id,name,description,reference,status,price,inventory,category,itemCategory,images,customFields,tax`,
     { headers }
   )
   const data = await res.json()
-  return data.map((producto: { customFields?: { name: string; value: string }[]; tax?: { percentage: string }[] } & Record<string, unknown>) => ({
+
+  const productos = Array.isArray(data) ? data : (data.data || data.items || [])
+
+  return productos.map((producto: {
+    customFields?: { name: string; value: string }[]
+    itemCategory?: { id: number; name: string }
+    category?: { id: string; name: string }
+    tax?: { percentage: string }[]
+  } & Record<string, unknown>) => ({
     ...producto,
+    category: producto.itemCategory
+      ? { id: String(producto.itemCategory.id), name: producto.itemCategory.name }
+      : producto.category,
+    customFields: producto.customFields || [],
     ...parsearCustomFields(producto.customFields || []),
   }))
 }
 
 export async function getProductoAlegra(id: number) {
   const res = await fetch(
-    `${BASE_URL}/items/${id}?fields=id,name,description,reference,status,price,inventory,category,images,customFields,tax`,
+    `${BASE_URL}/items/${id}?fields=id,name,description,reference,status,price,inventory,category,itemCategory,images,customFields,tax`,
     { headers }
   )
   if (!res.ok) throw new Error("Error al obtener producto de Alegra")
   const data = await res.json()
   return {
     ...data,
+    category: data.itemCategory
+      ? { id: String(data.itemCategory.id), name: data.itemCategory.name }
+      : data.category,
+    customFields: data.customFields || [],
     ...parsearCustomFields(data.customFields || []),
   }
 }

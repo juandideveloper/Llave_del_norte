@@ -19,7 +19,6 @@ export default async function PedidosPage() {
         <h1 className="text-2xl font-semibold text-verde mb-1">Pedidos</h1>
         <p className="text-sm text-gray-400 mb-6">Gestión de todos los pedidos</p>
 
-        {/* Filtros */}
         <div className="flex flex-wrap gap-2 mb-6">
           {[
             `TODOS (${todos})`,
@@ -33,7 +32,6 @@ export default async function PedidosPage() {
           ))}
         </div>
 
-        {/* Tabla */}
         <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
           <table className="w-full text-xs">
             <thead className="border-b border-gray-100">
@@ -43,7 +41,8 @@ export default async function PedidosPage() {
                 <th className="text-left p-4">Total</th>
                 <th className="text-left p-4">Método pago</th>
                 <th className="text-left p-4">Pago</th>
-                <th className="text-left p-4">Envío Melonn</th>
+                <th className="text-left p-4">Estado envío</th>
+                <th className="text-left p-4">Guía</th>
                 <th className="text-left p-4">Fecha</th>
                 <th className="text-left p-4"></th>
               </tr>
@@ -51,14 +50,13 @@ export default async function PedidosPage() {
             <tbody>
               {pedidos.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="text-center py-8 text-gray-400">
+                  <td colSpan={9} className="text-center py-8 text-gray-400">
                     Sin pedidos aún
                   </td>
                 </tr>
               ) : (
                 pedidos.map((pedido) => (
-                  <tr key={pedido.id}
-                    className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
+                  <tr key={pedido.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
                     <td className="p-4 text-gray-500">
                       #{String(pedido.id).padStart(5, "0")}
                     </td>
@@ -83,14 +81,22 @@ export default async function PedidosPage() {
                     </td>
                     <td className="p-4">
                       {pedido.melonnOrderId ? (
-                        <span className="px-2 py-0.5 rounded-full text-xs bg-blue-100 text-blue-700">
-                          Con envío
+                        <span className={`px-2 py-0.5 rounded-full text-xs ${
+                          pedido.melonnOrderId === "Entregado" ? "bg-green-100 text-green-700" :
+                          pedido.melonnOrderId === "Novedad" ? "bg-red-100 text-red-500" :
+                          pedido.melonnOrderId === "En reparto" || pedido.melonnOrderId === "En tránsito" ? "bg-blue-100 text-blue-700" :
+                          "bg-yellow-100 text-yellow-700"
+                        }`}>
+                          {pedido.melonnOrderId}
                         </span>
                       ) : (
                         <span className="px-2 py-0.5 rounded-full text-xs bg-gray-100 text-gray-400">
-                          Sin envío
+                          Sin estado
                         </span>
                       )}
+                    </td>
+                    <td className="p-4 text-gray-500">
+                      {pedido.guiaInterrapidisimo || "—"}
                     </td>
                     <td className="p-4 text-gray-400">
                       {pedido.fechaPedido

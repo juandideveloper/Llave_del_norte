@@ -22,6 +22,7 @@ export async function GET() {
         ciudadEntrega: true,
         fechaPedido: true,
         melonnOrderId: true,
+        guiaInterrapidisimo: true,
       }
     })
 
