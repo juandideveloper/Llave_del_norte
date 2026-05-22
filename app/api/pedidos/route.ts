@@ -7,7 +7,6 @@ import { EstadoPago } from "@prisma/client"
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
-
     if (!session?.user?.id) {
       return NextResponse.json({ error: "No autenticado" }, { status: 401 })
     }
@@ -23,6 +22,7 @@ export async function POST(req: NextRequest) {
         ciudadEntrega,
         metodoPago,
         estadoPago: "PENDIENTE",
+        productosJson: items ? JSON.stringify(items) : null,
       }
     })
 
@@ -44,9 +44,7 @@ export async function GET(req: NextRequest) {
       },
       orderBy: { id: "desc" },
       include: {
-        cliente: {
-          select: { nombre: true, email: true }
-        }
+        cliente: { select: { nombre: true, email: true } }
       }
     })
 

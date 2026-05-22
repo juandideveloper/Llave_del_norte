@@ -89,6 +89,7 @@ model Pedido {
   direccionEntrega    String?
   ciudadEntrega       String?
   guiaInterrapidisimo String?
+  productosJson       String?          // ← nuevo campo
   fechaPedido         DateTime         @default(now())
   cliente             Cliente          @relation(fields: [clienteId], references: [id])
   importacion         Importacion?     @relation(fields: [importacionId], references: [id])

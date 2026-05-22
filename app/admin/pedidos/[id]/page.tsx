@@ -18,53 +18,39 @@ export default async function DetallePedidoPage({ params }: { params: Promise<{ 
 
   if (!pedido) notFound()
 
+  const productosDelPedido = pedido.productosJson
+    ? JSON.parse(pedido.productosJson) as { id: number; nombre: string; precio: number; cantidad: number }[]
+    : []
+
   async function marcarPagado() {
     "use server"
-    await prisma.pedido.update({
-      where: { id: Number(id) },
-      data: { estadoPago: "PAGADO" }
-    })
+    await prisma.pedido.update({ where: { id: Number(id) }, data: { estadoPago: "PAGADO" } })
     revalidatePath(`/admin/pedidos/${id}`)
   }
 
   async function marcarFallido() {
     "use server"
-    await prisma.pedido.update({
-      where: { id: Number(id) },
-      data: { estadoPago: "FALLIDO" }
-    })
+    await prisma.pedido.update({ where: { id: Number(id) }, data: { estadoPago: "FALLIDO" } })
     revalidatePath(`/admin/pedidos/${id}`)
   }
 
   async function actualizarGuia(formData: FormData) {
     "use server"
     const guia = formData.get("guia") as string
-    await prisma.pedido.update({
-      where: { id: Number(id) },
-      data: { guiaInterrapidisimo: guia || null }
-    })
+    await prisma.pedido.update({ where: { id: Number(id) }, data: { guiaInterrapidisimo: guia || null } })
     revalidatePath(`/admin/pedidos/${id}`)
   }
 
   async function actualizarEstadoEnvio(formData: FormData) {
     "use server"
     const estado = formData.get("estado") as string
-    await prisma.pedido.update({
-      where: { id: Number(id) },
-      data: { melonnOrderId: estado || null }
-    })
+    await prisma.pedido.update({ where: { id: Number(id) }, data: { melonnOrderId: estado || null } })
     revalidatePath(`/admin/pedidos/${id}`)
   }
 
   const estadosEnvio = [
-    "Pendiente de recolección",
-    "Recolectado",
-    "En bodega",
-    "En tránsito",
-    "En ciudad destino",
-    "En reparto",
-    "Entregado",
-    "Novedad",
+    "Pendiente de recolección", "Recolectado", "En bodega", "En tránsito",
+    "En ciudad destino", "En reparto", "Entregado", "Novedad",
   ]
 
   const estadoActual = pedido.melonnOrderId || null
@@ -82,7 +68,6 @@ export default async function DetallePedidoPage({ params }: { params: Promise<{ 
       <Sidebar aprobacionesPendientes={aprobacionesPendientes}/>
       <main className="flex-1 p-8">
 
-        {/* Header */}
         <div className="flex items-center gap-3 mb-6">
           <Link href="/admin/pedidos" className="text-gray-400 hover:text-verde transition-colors">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -140,25 +125,46 @@ export default async function DetallePedidoPage({ params }: { params: Promise<{ 
             </div>
           </div>
 
+          {/* Productos del pedido */}
+          <div className="bg-white rounded-xl border border-gray-100 p-5 md:col-span-2">
+            <h2 className="text-sm font-semibold text-verde mb-4">Productos del pedido</h2>
+            {productosDelPedido.length === 0 ? (
+              <p className="text-xs text-gray-400">Sin detalle de productos</p>
+            ) : (
+              <table className="w-full text-xs">
+                <thead className="border-b border-gray-100">
+                  <tr className="text-gray-400">
+                    <th className="text-left p-2">Producto</th>
+                    <th className="text-left p-2">Cantidad</th>
+                    <th className="text-left p-2">Precio unit.</th>
+                    <th className="text-left p-2">Subtotal</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {productosDelPedido.map((item, i) => (
+                    <tr key={i} className="border-b border-gray-50">
+                      <td className="p-2 text-verde font-medium">{item.nombre}</td>
+                      <td className="p-2 text-gray-500">{item.cantidad}</td>
+                      <td className="p-2 text-gray-500">$ {item.precio.toLocaleString("es-CO")}</td>
+                      <td className="p-2 text-verde font-medium">$ {(item.precio * item.cantidad).toLocaleString("es-CO")}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+
           {/* Gestión de envío */}
           <div className="bg-white rounded-xl border border-gray-100 p-5 md:col-span-2">
             <h2 className="text-sm font-semibold text-verde mb-4">Gestión de envío — Interrapidísimo</h2>
-
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-              {/* Número de guía */}
               <div>
                 <p className="text-xs text-gray-400 mb-2">Número de guía</p>
                 <form action={actualizarGuia} className="flex gap-2">
-                  <input
-                    name="guia"
-                    type="text"
-                    defaultValue={pedido.guiaInterrapidisimo || ""}
+                  <input name="guia" type="text" defaultValue={pedido.guiaInterrapidisimo || ""}
                     placeholder="Ej: 1234567890"
-                    className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-xs text-verde outline-none focus:border-amarillo"
-                  />
-                  <button type="submit"
-                    className="px-3 py-2 bg-verde text-amarillo text-xs rounded-lg hover:opacity-90 cursor-pointer">
+                    className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-xs text-verde outline-none focus:border-amarillo"/>
+                  <button type="submit" className="px-3 py-2 bg-verde text-amarillo text-xs rounded-lg hover:opacity-90 cursor-pointer">
                     Guardar
                   </button>
                 </form>
@@ -166,46 +172,32 @@ export default async function DetallePedidoPage({ params }: { params: Promise<{ 
                   <div className="mt-2 flex items-center gap-2">
                     <span className="text-xs text-gray-400">Guía:</span>
                     <span className="text-xs font-medium text-verde">{pedido.guiaInterrapidisimo}</span>
-                    <a
-                      href={`https://www.interrapidisimo.com/rastrea-tu-envio/?guia=${pedido.guiaInterrapidisimo}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs text-amarillo hover:underline">
+                    <a href={`https://www.interrapidisimo.com/rastrea-tu-envio/?guia=${pedido.guiaInterrapidisimo}`}
+                      target="_blank" rel="noopener noreferrer" className="text-xs text-amarillo hover:underline">
                       Rastrear →
                     </a>
                   </div>
                 )}
               </div>
-
-              {/* Estado del envío */}
               <div>
                 <p className="text-xs text-gray-400 mb-2">Estado del envío</p>
                 <form action={actualizarEstadoEnvio} className="flex gap-2">
-                  <select
-                    name="estado"
-                    defaultValue={estadoActual || ""}
+                  <select name="estado" defaultValue={estadoActual || ""}
                     className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-xs text-verde outline-none focus:border-amarillo bg-white">
                     <option value="">Sin estado</option>
-                    {estadosEnvio.map(e => (
-                      <option key={e} value={e}>{e}</option>
-                    ))}
+                    {estadosEnvio.map(e => <option key={e} value={e}>{e}</option>)}
                   </select>
-                  <button type="submit"
-                    className="px-3 py-2 bg-verde text-amarillo text-xs rounded-lg hover:opacity-90 cursor-pointer">
+                  <button type="submit" className="px-3 py-2 bg-verde text-amarillo text-xs rounded-lg hover:opacity-90 cursor-pointer">
                     Guardar
                   </button>
                 </form>
                 {estadoActual && (
                   <div className="mt-2">
-                    <span className={`px-2 py-0.5 rounded-full text-xs ${colorEstado(estadoActual)}`}>
-                      {estadoActual}
-                    </span>
+                    <span className={`px-2 py-0.5 rounded-full text-xs ${colorEstado(estadoActual)}`}>{estadoActual}</span>
                   </div>
                 )}
               </div>
             </div>
-
-            {/* Timeline visual */}
             <div className="mt-6 grid grid-cols-4 md:grid-cols-8 gap-2">
               {estadosEnvio.map((e, i) => {
                 const indexActual = estadosEnvio.indexOf(estadoActual || "")
@@ -214,9 +206,7 @@ export default async function DetallePedidoPage({ params }: { params: Promise<{ 
                 return (
                   <div key={e} className="flex flex-col items-center gap-1">
                     <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium ${
-                      activo ? "bg-verde text-amarillo" :
-                      pasado ? "bg-green-500 text-white" :
-                      "bg-gray-100 text-gray-300"
+                      activo ? "bg-verde text-amarillo" : pasado ? "bg-green-500 text-white" : "bg-gray-100 text-gray-300"
                     }`}>
                       {pasado ? "✓" : i + 1}
                     </div>
@@ -234,14 +224,12 @@ export default async function DetallePedidoPage({ params }: { params: Promise<{ 
             <h2 className="text-sm font-semibold text-verde mb-4">Acciones de pago</h2>
             <div className="flex flex-wrap gap-3">
               <form action={marcarPagado}>
-                <button type="submit"
-                  className="px-4 py-2 bg-green-500 text-white text-xs font-medium rounded-lg hover:opacity-90 cursor-pointer">
+                <button type="submit" className="px-4 py-2 bg-green-500 text-white text-xs font-medium rounded-lg hover:opacity-90 cursor-pointer">
                   Marcar como pagado
                 </button>
               </form>
               <form action={marcarFallido}>
-                <button type="submit"
-                  className="px-4 py-2 bg-red-500 text-white text-xs font-medium rounded-lg hover:opacity-90 cursor-pointer">
+                <button type="submit" className="px-4 py-2 bg-red-500 text-white text-xs font-medium rounded-lg hover:opacity-90 cursor-pointer">
                   Marcar como fallido
                 </button>
               </form>

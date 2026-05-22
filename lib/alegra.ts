@@ -15,24 +15,39 @@ function parsearCustomFields(customFields: { name: string; value: string }[]) {
     relacionados: getField("relacionados") ? getField("relacionados")!.split(",").map(s => s.trim()) : [],
     garantia: getField("garantia") || null,
     material: getField("Material") || null,
+    publicado: getField("Publicado") ?? "Si",
   }
 }
 
+type ProductoAlegraRaw = {
+  customFields?: { name: string; value: string }[]
+  itemCategory?: { id: number; name: string }
+  category?: { id: string; name: string }
+  tax?: { percentage: string }[]
+} & Record<string, unknown>
+
 export async function getProductosAlegra() {
-  const res = await fetch(
-    `${BASE_URL}/items?limit=100&fields=id,name,description,reference,status,price,inventory,category,itemCategory,images,customFields,tax`,
-    { headers }
-  )
-  const data = await res.json()
+  let todos: ProductoAlegraRaw[] = []
+  let start = 0
+  const limit = 30
 
-  const productos = Array.isArray(data) ? data : (data.data || data.items || [])
+  while (true) {
+    const res = await fetch(
+      `${BASE_URL}/items?limit=${limit}&start=${start}&fields=id,name,description,reference,status,price,inventory,category,itemCategory,images,customFields,tax`,
+      { headers }
+    )
+    const data = await res.json()
+    const pagina: ProductoAlegraRaw[] = Array.isArray(data) ? data : (data.data || data.items || [])
 
-  return productos.map((producto: {
-    customFields?: { name: string; value: string }[]
-    itemCategory?: { id: number; name: string }
-    category?: { id: string; name: string }
-    tax?: { percentage: string }[]
-  } & Record<string, unknown>) => ({
+    if (pagina.length === 0) break
+
+    todos = [...todos, ...pagina]
+
+    if (pagina.length < limit) break
+    start += limit
+  }
+
+  return todos.map((producto) => ({
     ...producto,
     category: producto.itemCategory
       ? { id: String(producto.itemCategory.id), name: producto.itemCategory.name }

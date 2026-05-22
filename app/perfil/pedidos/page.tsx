@@ -6,6 +6,13 @@ import { useRouter } from "next/navigation"
 import Navbar from "@/components/ui/Navbar"
 import Link from "next/link"
 
+interface ItemPedido {
+  id: number
+  nombre: string
+  precio: number
+  cantidad: number
+}
+
 interface Pedido {
   id: number
   total: number
@@ -16,6 +23,7 @@ interface Pedido {
   fechaPedido: string | null
   melonnOrderId: string | null
   guiaInterrapidisimo: string | null
+  productosJson: string | null
 }
 
 function EstadoBadge({ estado }: { estado: string }) {
@@ -49,14 +57,8 @@ function EnvioBadge({ estadoEnvio }: { estadoEnvio: string | null }) {
 }
 
 const estadosEnvio = [
-  "Pendiente de recolección",
-  "Recolectado",
-  "En bodega",
-  "En tránsito",
-  "En ciudad destino",
-  "En reparto",
-  "Entregado",
-  "Novedad",
+  "Pendiente de recolección", "Recolectado", "En bodega", "En tránsito",
+  "En ciudad destino", "En reparto", "Entregado", "Novedad",
 ]
 
 export default function MisPedidosPage() {
@@ -64,6 +66,7 @@ export default function MisPedidosPage() {
   const router = useRouter()
   const [pedidos, setPedidos] = useState<Pedido[]>([])
   const [cargando, setCargando] = useState(true)
+  const [expandidos, setExpandidos] = useState<number[]>([])
 
   useEffect(() => {
     if (status === "unauthenticated") router.push("/login?redirect=/perfil/pedidos")
@@ -73,12 +76,14 @@ export default function MisPedidosPage() {
     if (status !== "authenticated") return
     fetch("/api/perfil/pedidos")
       .then(res => res.json())
-      .then(data => {
-        if (data.pedidos) setPedidos(data.pedidos)
-      })
+      .then(data => { if (data.pedidos) setPedidos(data.pedidos) })
       .catch(() => {})
       .finally(() => setCargando(false))
   }, [status])
+
+  function toggleExpandido(id: number) {
+    setExpandidos(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id])
+  }
 
   if (status === "loading" || status === "unauthenticated") {
     return (
@@ -133,6 +138,9 @@ export default function MisPedidosPage() {
           <div className="space-y-3">
             {pedidos.map(pedido => {
               const indexActual = estadosEnvio.indexOf(pedido.melonnOrderId || "")
+              const productos: ItemPedido[] = pedido.productosJson ? JSON.parse(pedido.productosJson) : []
+              const estaExpandido = expandidos.includes(pedido.id)
+
               return (
                 <div key={pedido.id} className="bg-white rounded-xl border border-gray-100 p-5 hover:border-amarillo/30 transition-colors">
                   <div className="flex items-start justify-between mb-3">
@@ -162,10 +170,38 @@ export default function MisPedidosPage() {
                     {pedido.direccionEntrega && (
                       <p>📍 {pedido.direccionEntrega}{pedido.ciudadEntrega ? `, ${pedido.ciudadEntrega}` : ""}</p>
                     )}
-                    {pedido.metodoPago && (
-                      <p>💳 {pedido.metodoPago}</p>
-                    )}
+                    {pedido.metodoPago && <p>💳 {pedido.metodoPago}</p>}
                   </div>
+
+                  {/* Productos del pedido */}
+                  {productos.length > 0 && (
+                    <div className="mt-3 pt-3 border-t border-gray-50">
+                      <button
+                        onClick={() => toggleExpandido(pedido.id)}
+                        className="flex items-center gap-1 text-xs text-verde hover:text-amarillo transition-colors cursor-pointer mb-2">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"
+                          className={`transition-transform ${estaExpandido ? "rotate-180" : ""}`}>
+                          <path d="M6 9l6 6 6-6"/>
+                        </svg>
+                        {estaExpandido ? "Ocultar productos" : `Ver ${productos.length} producto${productos.length > 1 ? "s" : ""}`}
+                      </button>
+                      {estaExpandido && (
+                        <div className="space-y-1.5">
+                          {productos.map((item, i) => (
+                            <div key={i} className="flex items-center justify-between text-xs bg-gray-50 rounded-lg px-3 py-2">
+                              <div className="flex-1 min-w-0">
+                                <p className="text-verde font-medium truncate">{item.nombre}</p>
+                                <p className="text-gray-400">x{item.cantidad} · $ {item.precio.toLocaleString("es-CO")} c/u</p>
+                              </div>
+                              <p className="text-verde font-semibold ml-3">
+                                $ {(item.precio * item.cantidad).toLocaleString("es-CO")}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   {/* Timeline de envío */}
                   {pedido.melonnOrderId && pedido.melonnOrderId !== "Novedad" && (
@@ -183,7 +219,8 @@ export default function MisPedidosPage() {
                               }`}>
                                 {pasado ? "✓" : i + 1}
                               </div>
-                              <span className={`text-xs text-center leading-tight ${activo ? "text-verde font-medium" : "text-gray-300"}`} style={{ fontSize: "9px" }}>
+                              <span className={`text-center leading-tight ${activo ? "text-verde font-medium" : "text-gray-300"}`}
+                                style={{ fontSize: "9px" }}>
                                 {e}
                               </span>
                             </div>
@@ -199,10 +236,8 @@ export default function MisPedidosPage() {
                       <div className="text-xs text-gray-400">
                         Guía: <span className="font-medium text-verde">{pedido.guiaInterrapidisimo}</span>
                       </div>
-                      <a
-                        href={`https://www.interrapidisimo.com/rastrea-tu-envio/?guia=${pedido.guiaInterrapidisimo}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                      <a href={`https://www.interrapidisimo.com/rastrea-tu-envio/?guia=${pedido.guiaInterrapidisimo}`}
+                        target="_blank" rel="noopener noreferrer"
                         className="flex items-center gap-1 text-xs text-verde hover:text-amarillo transition-colors">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                           <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/>

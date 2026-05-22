@@ -23,6 +23,8 @@ export async function GET() {
         fechaPedido: true,
         melonnOrderId: true,
         guiaInterrapidisimo: true,
+        productosJson: true,  // ← agrega esto
+
       }
     })
 
