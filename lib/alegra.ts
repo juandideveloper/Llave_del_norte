@@ -20,7 +20,7 @@ function parsearCustomFields(customFields: { name: string; value: string }[]) {
 
 export async function getProductosAlegra() {
   const res = await fetch(
-    `${BASE_URL}/items?limit=30&fields=id,name,description,reference,status,price,inventory,category,itemCategory,images,customFields,tax`,
+    `${BASE_URL}/items?limit=100&fields=id,name,description,reference,status,price,inventory,category,itemCategory,images,customFields,tax`,
     { headers }
   )
   const data = await res.json()
