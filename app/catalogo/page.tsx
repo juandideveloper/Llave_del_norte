@@ -13,7 +13,7 @@ interface ProductoAlegra {
   name: string;
   description: string | null;
   reference: string | null;
-  price: { price: number }[];
+  price: { price: number; precioConIva: number }[]; // <-- ahora incluye precioConIva
   inventory: { availableQuantity: number };
   status: string;
   category?: { name: string };
@@ -188,7 +188,7 @@ export default function CatalogoPage() {
     if (categoriaActiva !== "Todos los productos" && (p.category?.name || "General") !== categoriaActiva) return false;
     const stock = p.inventory?.availableQuantity || 0;
     if (soloEnStock && stock <= 0) return false;
-    const precio = p.price[0]?.price || 0;
+    const precio = p.price[0]?.precioConIva ?? p.price[0]?.price ?? 0; // <-- filtra sobre precio con IVA
     if (precio > precioMax) return false;
     if (precioMin > 0 && precio < precioMin) return false;
     if (materialesActivos.length > 0) {
@@ -277,7 +277,7 @@ export default function CatalogoPage() {
                       </div>
                     </div>
                   )) : recomendados.length > 0 ? recomendados.map((prod) => {
-                    const precio = prod.price[0]?.price || 0;
+                    const precio = prod.price[0]?.precioConIva ?? prod.price[0]?.price ?? 0; // <-- con IVA
                     const imagenUrl = prod.images?.find((img) => img.favorite)?.url || prod.images?.[0]?.url || null;
                     return (
                       <Link key={prod.id} href={`/catalogo/${prod.id}`}
@@ -353,7 +353,7 @@ export default function CatalogoPage() {
               <>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
                   {productosPaginados.map((producto) => {
-                    const precio = producto.price[0]?.price || 0;
+                    const precio = producto.price[0]?.precioConIva ?? producto.price[0]?.price ?? 0; // <-- con IVA
                     const precioEspecial = producto.precioMayorista
                       ? Math.round(producto.precioMayorista)
                       : Math.round(precio * 0.85);

@@ -23,6 +23,7 @@ export default function BuscadorProductos({ inputClassName, iconColor = "white",
   const [productos, setProductos] = useState<Producto[]>([])
   const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0 })
   const ref = useRef<HTMLDivElement>(null)
+  const dropdownRef = useRef<HTMLDivElement>(null) // NUEVO
   const inputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
 
@@ -50,7 +51,10 @@ export default function BuscadorProductos({ inputClassName, iconColor = "white",
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
+      const target = e.target as Node
+      const dentroDelInput = ref.current && ref.current.contains(target)
+      const dentroDelDropdown = dropdownRef.current && dropdownRef.current.contains(target) // NUEVO
+      if (!dentroDelInput && !dentroDelDropdown) {
         setQuery("")
       }
     }
@@ -111,7 +115,7 @@ export default function BuscadorProductos({ inputClassName, iconColor = "white",
       </div>
 
       {abierto && (
-        <div style={{ position: "fixed", top: dropdownPos.top, left: dropdownPos.left, zIndex: 9999, width: "288px" }}
+        <div ref={dropdownRef} style={{ position: "fixed", top: dropdownPos.top, left: dropdownPos.left, zIndex: 9999, width: "288px" }}
           className="bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden">
           {resultados.length === 0 ? (
             <div className="p-4 text-center text-xs text-gray-400">

@@ -16,7 +16,7 @@ interface ProductoAlegra {
   name: string;
   description: string | null;
   reference: string | null;
-  price: { price: number }[];
+  price: { price: number; precioConIva: number }[]; // <-- ahora incluye precioConIva
   inventory: { availableQuantity: number };
   status: string;
   category?: { name: string };
@@ -203,7 +203,7 @@ export default function DetalleProductoPage() {
     );
   }
 
-  const precio = producto.price[0]?.price || 0;
+  const precio = producto.price[0]?.precioConIva ?? producto.price[0]?.price ?? 0; // <-- con IVA
   const precioEspecial = producto.precioMayorista ? Math.round(producto.precioMayorista) : Math.round(precio * 0.85);
   const stock = producto.inventory?.availableQuantity || 0;
   const enStock = stock > 0;
@@ -460,7 +460,7 @@ export default function DetalleProductoPage() {
                   willChange: "transform",
                 }}>
                   {relacionados.map((prod) => {
-                    const precioRel = prod.price[0]?.price || 0;
+                    const precioRel = prod.price[0]?.precioConIva ?? prod.price[0]?.price ?? 0; // <-- con IVA
                     const imagenUrl = prod.images?.find(img => img.favorite)?.url || prod.images?.[0]?.url || null;
                     return (
                       <Link key={prod.id} href={`/catalogo/${prod.id}`}
