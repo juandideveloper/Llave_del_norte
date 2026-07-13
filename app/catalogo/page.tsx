@@ -88,9 +88,9 @@ function SidebarFiltros({ categoriaActiva, setCategoriaActiva, precioMax, setPre
           <span className="text-gray-400 text-xs mt-4">—</span>
           <div className="flex-1">
             <p className="text-xs text-gray-400 mb-1">Máximo</p>
-            <input type="text" placeholder="$ 1.000.000"
-              value={precioMax === 1000000 ? "" : `$ ${precioMax.toLocaleString("es-CO")}`}
-              onChange={(e) => { const valor = e.target.value.replace(/[^0-9]/g, ""); setPrecioMax(Number(valor) || 1000000); }}
+            <input type="text" placeholder="$ 50.000.000"
+              value={precioMax === 50000000 ? "" : `$ ${precioMax.toLocaleString("es-CO")}`}
+              onChange={(e) => { const valor = e.target.value.replace(/[^0-9]/g, ""); setPrecioMax(Number(valor) || 50000000); }}
               className="w-full px-2 py-1.5 border border-gray-400 rounded-md text-xs text-gray-600 outline-none focus:border-verde bg-white"/>
           </div>
         </div>
@@ -143,7 +143,7 @@ export default function CatalogoPage() {
   const [soloEnStock, setSoloEnStock] = useState(true);
   const [sliderActual, setSliderActual] = useState(0);
   const [precioMin, setPrecioMin] = useState(0);
-  const [precioMax, setPrecioMax] = useState(1000000);
+  const [precioMax, setPrecioMax] = useState(50000000);
   const [filtrosAbiertos, setFiltrosAbiertos] = useState(false);
   const [paginaActual, setPaginaActual] = useState(1);
   const sliderRef = useRef<HTMLDivElement>(null);

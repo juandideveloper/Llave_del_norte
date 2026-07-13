@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation"
 interface Producto {
   id: string
   name: string
-  price: { price: number }[]
+  price: { price: number; precioConIva: number }[] // <-- ahora incluye precioConIva
   category?: { name: string }
   images?: { id: number; url: string; favorite: boolean }[]
   status: string
@@ -23,7 +23,7 @@ export default function BuscadorProductos({ inputClassName, iconColor = "white",
   const [productos, setProductos] = useState<Producto[]>([])
   const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0 })
   const ref = useRef<HTMLDivElement>(null)
-  const dropdownRef = useRef<HTMLDivElement>(null) // NUEVO
+  const dropdownRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
 
@@ -53,7 +53,7 @@ export default function BuscadorProductos({ inputClassName, iconColor = "white",
     function handleClick(e: MouseEvent) {
       const target = e.target as Node
       const dentroDelInput = ref.current && ref.current.contains(target)
-      const dentroDelDropdown = dropdownRef.current && dropdownRef.current.contains(target) // NUEVO
+      const dentroDelDropdown = dropdownRef.current && dropdownRef.current.contains(target)
       if (!dentroDelInput && !dentroDelDropdown) {
         setQuery("")
       }
@@ -124,7 +124,7 @@ export default function BuscadorProductos({ inputClassName, iconColor = "white",
           ) : (
             <div>
               {resultados.map(prod => {
-                const precio = prod.price[0]?.price || 0
+                const precio = prod.price[0]?.precioConIva ?? prod.price[0]?.price ?? 0 // <-- con IVA
                 const imagenUrl = prod.images?.find(img => img.favorite)?.url || prod.images?.[0]?.url || null
                 return (
                   <button key={prod.id} onClick={() => handleSelect(prod.id)}
