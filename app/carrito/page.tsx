@@ -21,10 +21,11 @@ const metodosPago = [
   { id: 1, nombre: "Codensa", img: "/images/TarjetaCodensa.png" },
   { id: 2, nombre: "PSE", img: "/images/Pse.png" },
   { id: 3, nombre: "Nequi", img: "/images/Nequi.png" },
-  { id: 4, nombre: "Daviplata", img: "/images/Daviplata.png" },
+  { id: 4, nombre: "Bold", img: "/images/Bold.png" },
   { id: 5, nombre: "Mastercard", img: "/images/Mastercard.png" },
   { id: 6, nombre: "Visa", img: "/images/Visa.png" },
-  { id: 7, nombre: "Bold", img: "/images/Bold.png" },
+  { id: 7, nombre: "Daviplata", img: "/images/Daviplata.png" },
+
 ];
 
 function SkeletonCarrito() {
