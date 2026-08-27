@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import Link from "next/link";
 import Navbar from "@/components/ui/Navbar";
 import { useSession } from "next-auth/react";
@@ -202,7 +202,7 @@ function SidebarFiltros({
 
 const PRODUCTOS_POR_PAGINA = 6;
 
-export default function CatalogoPage() {
+function CatalogoContenido() {
   const { data: session } = useSession();
   const esEspecial =
     session?.user?.role === "ESPECIAL" && session?.user?.estado === "APROBADO";
@@ -753,5 +753,19 @@ export default function CatalogoPage() {
       </div>
       <Footer />
     </div>
+  );
+}
+
+export default function CatalogoPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-white flex items-center justify-center">
+          <p className="text-gray-400 text-sm">Cargando catálogo...</p>
+        </div>
+      }
+    >
+      <CatalogoContenido />
+    </Suspense>
   );
 }
