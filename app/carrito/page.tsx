@@ -317,7 +317,7 @@ export default function CarritoPage() {
                     <div>
                       <span className="text-sm text-verde">Envío</span>
                       <span className="text-sm text-amarillo font-medium ml-2">
-                        Gratis en Bogotá · $15.000 otras ciudades
+                        Gratis en Bogotá · En otras ciudades se le enviara un correo confirmando el valor del envio.
                       </span>
                     </div>
                   </label>
@@ -445,6 +445,10 @@ export default function CarritoPage() {
                 >
                   Ir a pagar
                 </Link>
+                <p className="text-xs text-[#7a1f1f] font-medium text-center mr-4 mt-3">
+                  Máximo para devolución de tres días por condiciones aclaradas
+                  previamente en la descripción del producto
+                </p>
                 <p className="text-xs text-gray-500 text-center mt-3">
                   Recibimos todos los medios de pago y también efectivo.
                 </p>
