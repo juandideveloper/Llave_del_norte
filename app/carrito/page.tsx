@@ -8,6 +8,7 @@ import { useCarrito } from "@/context/CarritoContext";
 import { useSession } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
+import { trackPixelEvent } from "@/lib/metaPixel";
 
 const tienda = {
   nombre: "La llave del norte Chapinero",
@@ -24,8 +25,6 @@ const metodosPago = [
   { id: 4, nombre: "Bold", img: "/images/Bold.png" },
   { id: 5, nombre: "Mastercard", img: "/images/Mastercard.png" },
   { id: 6, nombre: "Visa", img: "/images/Visa.png" },
-  { id: 7, nombre: "Daviplata", img: "/images/Daviplata.png" },
-
 ];
 
 function SkeletonCarrito() {
@@ -318,7 +317,8 @@ export default function CarritoPage() {
                     <div>
                       <span className="text-sm text-verde">Envío</span>
                       <span className="text-sm text-amarillo font-medium ml-2">
-                        Gratis en Bogotá · En otras ciudades se le enviara un correo confirmando el valor del envio.
+                        Gratis en Bogotá · En otras ciudades se le enviara un
+                        correo confirmando el valor del envio.
                       </span>
                     </div>
                   </label>
@@ -442,6 +442,13 @@ export default function CarritoPage() {
                 </div>
                 <Link
                   href="/checkout"
+                  onClick={() =>
+                    trackPixelEvent("InitiateCheckout", {
+                      value: totalFinal,
+                      currency: "COP",
+                      num_items: totalItems,
+                    })
+                  }
                   className="block w-full py-3 bg-verde text-amarillo text-sm font-medium text-center rounded-lg hover:opacity-90 transition-opacity"
                 >
                   Ir a pagar

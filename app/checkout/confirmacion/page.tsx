@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/ui/Navbar";
 import { motion } from "framer-motion";
+import { trackPixelEvent } from "@/lib/metaPixel";
 
 function ConfirmacionContent() {
   const searchParams = useSearchParams();
@@ -14,16 +15,28 @@ function ConfirmacionContent() {
     searchParams.get("bold-order-id") || searchParams.get("order-id") || "";
   const rechazado = boldStatus === "rejected" || boldStatus === "REJECTED";
   const esContraentrega = orderId.startsWith("CE-");
-  const [melonnEstado, setMelonnEstado] = useState<
-    "pendiente" | "creado" | "error"
-  >("pendiente");
+const [melonnEstado, setMelonnEstado] = useState<"pendiente" | "creado" | "error">("pendiente");
 
   useEffect(() => {
     if (rechazado) return;
     localStorage.removeItem("carrito");
 
+    // Evita duplicar el evento Purchase si la persona recarga esta página
+    const yaRastreado = orderId
+      ? sessionStorage.getItem(`purchase_${orderId}`)
+      : null;
+
     if (esContraentrega) {
       setMelonnEstado("error");
+      const amount = Number(searchParams.get("amount")) || 0;
+      if (!yaRastreado && orderId) {
+        trackPixelEvent("Purchase", {
+          value: amount,
+          currency: "COP",
+          content_type: "product",
+        });
+        sessionStorage.setItem(`purchase_${orderId}`, "1");
+      }
       return;
     }
 
@@ -38,6 +51,20 @@ function ConfirmacionContent() {
           acc + item.precio * item.cantidad,
         0,
       );
+
+      if (!yaRastreado) {
+        trackPixelEvent("Purchase", {
+          value: total,
+          currency: "COP",
+          content_ids: items.map((i: { id: number }) => i.id),
+          content_type: "product",
+          num_items: items.reduce(
+            (acc: number, i: { cantidad: number }) => acc + i.cantidad,
+            0,
+          ),
+        });
+        sessionStorage.setItem(`purchase_${orderId}`, "1");
+      }
 
       fetch("/api/pedidos", {
         method: "POST",

@@ -8,6 +8,7 @@ import {
   useCallback,
   ReactNode,
 } from "react";
+import { trackPixelEvent } from "@/lib/metaPixel";
 
 interface ItemCarrito {
   id: number;
@@ -77,6 +78,13 @@ export function CarritoProvider({ children }: { children: ReactNode }) {
         );
       }
       return [...prev, nuevoItem];
+    });
+    trackPixelEvent("AddToCart", {
+      content_ids: [nuevoItem.id],
+      content_name: nuevoItem.nombre,
+      content_type: "product",
+      value: nuevoItem.precio * nuevoItem.cantidad,
+      currency: "COP",
     });
   }, []);
 

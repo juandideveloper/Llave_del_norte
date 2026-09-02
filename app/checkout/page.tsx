@@ -7,6 +7,7 @@ import { useCarrito } from "@/context/CarritoContext";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import { trackPixelEvent } from "@/lib/metaPixel";
 
 const pasos = ["Información", "Terminos y condiciones", "Confirmar y pagar"];
 
@@ -27,85 +28,136 @@ interface Ciudad {
 }
 
 function ResumenPedido({
-  items, totalPrecio, esEspecial, costoEnvio
+  items,
+  totalPrecio,
+  esEspecial,
+  costoEnvio,
 }: {
-  items: { id: number; nombre: string; precio: number; cantidad: number; imagen?: string | null; precioOriginal?: number }[];
+  items: {
+    id: number;
+    nombre: string;
+    precio: number;
+    cantidad: number;
+    imagen?: string | null;
+    precioOriginal?: number;
+  }[];
   totalPrecio: number;
   esEspecial: boolean;
   costoEnvio: number;
 }) {
   // totalPrecio ya viene con el descuento aplicado
   const subtotalOriginal = items.reduce((acc, item) => {
-    const original = item.precioOriginal || item.precio
-    return acc + original * item.cantidad
-  }, 0)
-  const ahorroTotal = subtotalOriginal - totalPrecio
-  const totalFinal = totalPrecio + costoEnvio
+    const original = item.precioOriginal || item.precio;
+    return acc + original * item.cantidad;
+  }, 0);
+  const ahorroTotal = subtotalOriginal - totalPrecio;
+  const totalFinal = totalPrecio + costoEnvio;
 
   return (
     <div className="bg-gray-100 rounded-xl border border-gray-400 p-5 sticky top-24">
       <p className="text-sm font-semibold text-verde mb-4">Tu pedido</p>
       <div className="space-y-3 mb-4">
         {items.map((item) => {
-          const original = item.precioOriginal || item.precio
+          const original = item.precioOriginal || item.precio;
           return (
             <div key={item.id} className="flex gap-3 items-start">
               <div className="w-16 h-16 bg-gray-50 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden">
                 {item.imagen ? (
-                  <img src={item.imagen} alt={item.nombre} className="object-contain w-full h-full p-1"/>
+                  <img
+                    src={item.imagen}
+                    alt={item.nombre}
+                    className="object-contain w-full h-full p-1"
+                  />
                 ) : (
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="0.8" className="text-verde/20">
-                    <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>
+                  <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="0.8"
+                    className="text-verde/20"
+                  >
+                    <rect x="3" y="3" width="18" height="18" rx="2" />
+                    <path d="M3 9h18M9 21V9" />
                   </svg>
                 )}
               </div>
               <div className="flex-1">
-                <p className="text-xs font-medium text-verde leading-tight">{item.nombre}</p>
-                <p className="text-xs text-gray-400 mt-1">Cantidad: {item.cantidad}</p>
+                <p className="text-xs font-medium text-verde leading-tight">
+                  {item.nombre}
+                </p>
+                <p className="text-xs text-gray-400 mt-1">
+                  Cantidad: {item.cantidad}
+                </p>
               </div>
               <div className="text-right">
-                {esEspecial && item.precioOriginal && original !== item.precio && (
-                  <p className="text-xs text-gray-400 line-through">$ {(original * item.cantidad).toLocaleString("es-CO")}</p>
-                )}
-                <p className="text-xs font-medium text-verde">$ {(item.precio * item.cantidad).toLocaleString("es-CO")}</p>
+                {esEspecial &&
+                  item.precioOriginal &&
+                  original !== item.precio && (
+                    <p className="text-xs text-gray-400 line-through">
+                      $ {(original * item.cantidad).toLocaleString("es-CO")}
+                    </p>
+                  )}
+                <p className="text-xs font-medium text-verde">
+                  $ {(item.precio * item.cantidad).toLocaleString("es-CO")}
+                </p>
               </div>
             </div>
-          )
+          );
         })}
       </div>
-      <div className="hidden lg:block h-px bg-gray-400 mb-2 mt-4"/>
+      <div className="hidden lg:block h-px bg-gray-400 mb-2 mt-4" />
       <div className="border-t border-gray-100 pt-3 space-y-2">
         {esEspecial && ahorroTotal > 0 ? (
           <>
             <div className="flex justify-between text-xs">
               <span className="text-gray-700">Precio original</span>
-              <span className="text-gray-400 line-through">$ {subtotalOriginal.toLocaleString("es-CO")}</span>
+              <span className="text-gray-400 line-through">
+                $ {subtotalOriginal.toLocaleString("es-CO")}
+              </span>
             </div>
             <div className="flex justify-between text-xs">
               <span className="text-gray-700">Subtotal con descuento</span>
-              <span className="text-verde font-medium">$ {totalPrecio.toLocaleString("es-CO")}</span>
+              <span className="text-verde font-medium">
+                $ {totalPrecio.toLocaleString("es-CO")}
+              </span>
             </div>
             <div className="flex justify-between text-xs">
               <span className="text-gray-700">Descuento mayorista</span>
-              <span className="text-green-600 font-medium">- $ {ahorroTotal.toLocaleString("es-CO")}</span>
+              <span className="text-green-600 font-medium">
+                - $ {ahorroTotal.toLocaleString("es-CO")}
+              </span>
             </div>
           </>
         ) : (
           <div className="flex justify-between text-xs">
             <span className="text-gray-700">Subtotal</span>
-            <span className="text-verde font-medium">$ {totalPrecio.toLocaleString("es-CO")}</span>
+            <span className="text-verde font-medium">
+              $ {totalPrecio.toLocaleString("es-CO")}
+            </span>
           </div>
         )}
         <div className="flex justify-between text-xs">
           <span className="text-gray-700">Envío</span>
-          <span className={costoEnvio === 0 ? "text-amarillo font-medium" : "text-verde font-medium"}>
-            {costoEnvio === 0 ? "Gratis" : `$ ${costoEnvio.toLocaleString("es-CO")}`}
+          <span
+            className={
+              costoEnvio === 0
+                ? "text-amarillo font-medium"
+                : "text-verde font-medium"
+            }
+          >
+            {costoEnvio === 0
+              ? "Gratis"
+              : `$ ${costoEnvio.toLocaleString("es-CO")}`}
           </span>
         </div>
-        <div className="hidden lg:block h-px bg-gray-400 mt-2"/>
+        <div className="hidden lg:block h-px bg-gray-400 mt-2" />
         <div className="flex justify-between text-sm font-semibold pt-2 border-t border-gray-100">
           <span className="text-verde">Total</span>
-          <span className="text-verde">$ {totalFinal.toLocaleString("es-CO")}</span>
+          <span className="text-verde">
+            $ {totalFinal.toLocaleString("es-CO")}
+          </span>
         </div>
       </div>
       <p className="text-xs text-gray-400 text-center mt-4">Pago 100% seguro</p>
@@ -129,8 +181,9 @@ export default function CheckoutPage() {
   const [procesandoContraentrega, setProcesandoContraentrega] = useState(false);
   const [costoEnvio, setCostoEnvio] = useState(0);
 
-  const esEspecial = session?.user?.role === "ESPECIAL" && session?.user?.estado === "APROBADO";
-  const totalConDescuento = (totalPrecio as number) + costoEnvio 
+  const esEspecial =
+    session?.user?.role === "ESPECIAL" && session?.user?.estado === "APROBADO";
+  const totalConDescuento = (totalPrecio as number) + costoEnvio;
 
   const [nombre, setNombre] = useState("");
   const [apellido, setApellido] = useState("");
@@ -310,7 +363,7 @@ export default function CheckoutPage() {
       if (data.ok) {
         vaciarCarrito();
         router.push(
-          `/checkout/confirmacion?status=approved&bold-order-id=CE-${data.pedidoId}`,
+          `/checkout/confirmacion?status=approved&bold-order-id=CE-${data.pedidoId}&amount=${Math.round(totalConDescuento)}`,
         );
       } else {
         alert("Error al procesar el pedido. Intenta de nuevo.");
