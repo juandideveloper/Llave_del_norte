@@ -7,7 +7,6 @@ import { useCarrito } from "@/context/CarritoContext";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { trackPixelEvent } from "@/lib/metaPixel";
 
 const pasos = ["Información", "Terminos y condiciones", "Confirmar y pagar"];
 
@@ -45,7 +44,6 @@ function ResumenPedido({
   esEspecial: boolean;
   costoEnvio: number;
 }) {
-  // totalPrecio ya viene con el descuento aplicado
   const subtotalOriginal = items.reduce((acc, item) => {
     const original = item.precioOriginal || item.precio;
     return acc + original * item.cantidad;
@@ -176,7 +174,8 @@ export default function CheckoutPage() {
     () =>
       `#LLN-${new Date().getFullYear()}-${Math.floor(Math.random() * 90000 + 10000)}`,
   );
-  const [orderId] = useState(() => `LLN-${Date.now()}`);
+  const [pedidoId, setPedidoId] = useState<number | null>(null);
+  const [creandoPedido, setCreandoPedido] = useState(false);
   const [boldIntegrity, setBoldIntegrity] = useState("");
   const [procesandoContraentrega, setProcesandoContraentrega] = useState(false);
   const [costoEnvio, setCostoEnvio] = useState(0);
@@ -255,22 +254,57 @@ export default function CheckoutPage() {
     }
   }, [departamentoId, departamento, cargarCiudades]);
 
+  // Crea el pedido real en la base de datos ANTES de pedir el hash de Bold,
+  // para que el webhook de Bold tenga un id de pedido real que actualizar.
   useEffect(() => {
-    if (pasoActual === 2) {
-      fetch("/api/bold/integrity", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orderId, amount: totalConDescuento }),
+    if (pasoActual !== 2 || pedidoId || creandoPedido) return;
+
+    setCreandoPedido(true);
+    fetch("/api/pedidos", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        items,
+        total: totalConDescuento,
+        direccionEntrega:
+          metodoEnvio === "tienda"
+            ? "Recoger en tienda - CALLE 65 #14-20 Bogotá D.C."
+            : direccion,
+        ciudadEntrega: metodoEnvio === "tienda" ? "Bogotá D.C" : ciudad,
+        metodoPago: "BOLD",
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.ok) setPedidoId(data.pedidoId);
       })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.hash) setBoldIntegrity(data.hash);
-        });
-    }
-  }, [pasoActual, orderId, totalConDescuento]);
+      .finally(() => setCreandoPedido(false));
+  }, [
+    pasoActual,
+    pedidoId,
+    creandoPedido,
+    items,
+    totalConDescuento,
+    metodoEnvio,
+    direccion,
+    ciudad,
+  ]);
 
   useEffect(() => {
-    if (boldIntegrity && pasoActual === 2) {
+    if (!pedidoId) return;
+    fetch("/api/bold/integrity", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ orderId: String(pedidoId), amount: totalConDescuento }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.hash) setBoldIntegrity(data.hash);
+      });
+  }, [pedidoId, totalConDescuento]);
+
+  useEffect(() => {
+    if (boldIntegrity && pasoActual === 2 && pedidoId) {
       const scriptExistente = document.querySelector(
         'script[src*="boldPaymentButton"]',
       );
@@ -282,7 +316,7 @@ export default function CheckoutPage() {
       script.onload = () => {
         const boldWindow = window as unknown as WindowWithBold;
         const checkout = new boldWindow.BoldCheckout({
-          orderId,
+          orderId: String(pedidoId),
           currency: "COP",
           amount: String(Math.round(totalConDescuento)),
           apiKey: process.env.NEXT_PUBLIC_BOLD_API_KEY,
@@ -311,7 +345,7 @@ export default function CheckoutPage() {
   }, [
     boldIntegrity,
     pasoActual,
-    orderId,
+    pedidoId,
     totalConDescuento,
     correo,
     nombre,
@@ -361,10 +395,38 @@ export default function CheckoutPage() {
       });
       const data = await res.json();
       if (data.ok) {
+        // Contraentrega no pasa por webhook, así que disparamos aquí mismo
+        // el correo y la creación de la guía, de forma confiable porque
+        // el pedido ya existe en la base de datos en este punto.
+        fetch("/api/email/confirmacion", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            pedidoId: data.pedidoId,
+            email: correo,
+            nombre: `${nombre} ${apellido}`,
+            total: totalConDescuento,
+            direccion:
+              metodoEnvio === "tienda"
+                ? "Recoger en tienda - CALLE 65 #14-20 Bogotá D.C."
+                : direccion,
+            items,
+          }),
+        }).catch(() => {});
+
+
         vaciarCarrito();
-        router.push(
-          `/checkout/confirmacion?status=approved&bold-order-id=CE-${data.pedidoId}&amount=${Math.round(totalConDescuento)}`,
-        );
+        const params = new URLSearchParams({
+          status: "approved",
+          "bold-order-id": `CE-${data.pedidoId}`,
+          amount: String(Math.round(totalConDescuento)),
+          email: correo,
+          phone: telefono,
+          firstName: nombre,
+          lastName: apellido,
+          city: metodoEnvio === "tienda" ? "Bogotá" : ciudad,
+        });
+        router.push(`/checkout/confirmacion?${params.toString()}`);
       } else {
         alert("Error al procesar el pedido. Intenta de nuevo.");
       }
@@ -431,8 +493,8 @@ export default function CheckoutPage() {
               no olvides de seguirnos en redes sociales
             </p>
             <div className="flex items-center justify-center gap-4">
-              <a
-                href="https://www.instagram.com/lallavedelnorte/"
+              
+                <a href="https://www.instagram.com/lallavedelnorte/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-verde hover:text-amarillo transition-colors"
@@ -450,8 +512,8 @@ export default function CheckoutPage() {
                   <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
                 </svg>
               </a>
-              <a
-                href="https://www.tiktok.com/@lallavedelnorte1"
+              
+             <a   href="https://www.tiktok.com/@lallavedelnorte1"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-verde hover:text-amarillo transition-colors"
@@ -465,8 +527,8 @@ export default function CheckoutPage() {
                   <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.75a4.85 4.85 0 01-1.01-.06z" />
                 </svg>
               </a>
-              <a
-                href="https://wa.me/573134866451"
+              
+              <a  href="https://wa.me/573134866451"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-verde hover:text-amarillo transition-colors"
@@ -968,7 +1030,7 @@ export default function CheckoutPage() {
                           Seguro
                         </span>
                       </div>
-                      {boldIntegrity ? (
+                      {boldIntegrity && pedidoId ? (
                         <button
                           onClick={abrirBold}
                           className="w-full py-3 bg-hueso text-verde text-sm font-bold rounded-4xl hover:opacity-90 transition-opacity cursor-pointer"

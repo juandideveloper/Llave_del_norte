@@ -2,7 +2,14 @@ import Sidebar from "../components/Sidebar";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 
-export default async function PedidosPage() {
+export default async function PedidosPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ filtro?: string }>;
+}) {
+  const { filtro } = await searchParams;
+  const filtroActivo = filtro || "todos";
+
   const pedidos = await prisma.pedido.findMany({
     orderBy: { id: "desc" },
     include: { cliente: true },
@@ -10,7 +17,19 @@ export default async function PedidosPage() {
 
   const todos = pedidos.length;
   const confirmados = pedidos.filter((p) => p.estadoPago === "PAGADO").length;
-  const cancelados = pedidos.filter((p) => p.estadoPago === "FALLIDO").length;
+  const fallidos = pedidos.filter((p) => p.estadoPago === "FALLIDO").length;
+
+  const pedidosFiltrados = pedidos.filter((p) => {
+    if (filtroActivo === "confirmados") return p.estadoPago === "PAGADO";
+    if (filtroActivo === "fallidos") return p.estadoPago === "FALLIDO";
+    return true; // "todos"
+  });
+
+  const filtros = [
+    { key: "todos", label: `TODOS (${todos})` },
+    { key: "confirmados", label: `Confirmados (${confirmados})` },
+    { key: "fallidos", label: `Fallidos (${fallidos})` },
+  ];
 
   return (
     <div className="flex min-h-screen bg-hueso">
@@ -20,15 +39,18 @@ export default async function PedidosPage() {
         <p className="text-sm text-gray-400 mb-6">Gestión de todos los pedidos</p>
 
         <div className="flex flex-wrap gap-2 mb-6">
-          {[
-            `TODOS (${todos})`,
-            `Confirmados (${confirmados})`,
-            `Fallidos (${cancelados})`,
-          ].map((f) => (
-            <button key={f}
-              className="px-4 py-1.5 border border-verde text-verde text-xs rounded-lg hover:bg-verde hover:text-amarillo transition-colors cursor-pointer">
-              {f}
-            </button>
+          {filtros.map((f) => (
+            <Link
+              key={f.key}
+              href={`/admin/pedidos?filtro=${f.key}`}
+              className={`px-4 py-1.5 border text-xs rounded-lg transition-colors cursor-pointer ${
+                filtroActivo === f.key
+                  ? "bg-verde text-amarillo border-verde"
+                  : "border-verde text-verde hover:bg-verde hover:text-amarillo"
+              }`}
+            >
+              {f.label}
+            </Link>
           ))}
         </div>
 
@@ -48,14 +70,14 @@ export default async function PedidosPage() {
               </tr>
             </thead>
             <tbody>
-              {pedidos.length === 0 ? (
+              {pedidosFiltrados.length === 0 ? (
                 <tr>
                   <td colSpan={9} className="text-center py-8 text-gray-400">
                     Sin pedidos aún
                   </td>
                 </tr>
               ) : (
-                pedidos.map((pedido) => (
+                pedidosFiltrados.map((pedido) => (
                   <tr key={pedido.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
                     <td className="p-4 text-gray-500">
                       #{String(pedido.id).padStart(5, "0")}

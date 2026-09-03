@@ -141,7 +141,7 @@ c61 -30 171 -89 245 -132 152 -87 272 -148 343 -175 26 -10 44 -22 40 -26 -4
               </svg>
             </a>
             <a
-              href="https://wa.me/573134866451"
+              href="https://wa.me/573204384886"
               target="_blank"
               rel="noopener noreferrer"
               className="text-white hover:text-amarillo transition-colors"
@@ -316,7 +316,7 @@ c61 -30 171 -89 245 -132 152 -87 272 -148 343 -175 26 -10 44 -22 40 -26 -4
               {[
                 { href: "/catalogo", label: "Catalogo" },
                 {
-                  href: "https://wa.me/573134866451",
+                  href: "https://wa.me/573204384886",
                   label: "Atención al cliente",
                 },
                 { href: "/rastrea-pedido", label: "Rastrea tu pedido" },
@@ -377,7 +377,7 @@ c61 -30 171 -89 245 -132 152 -87 272 -148 343 -175 26 -10 44 -22 40 -26 -4
                   </svg>
                 </a>
                 <a
-                  href="https://wa.me/573134866451"
+                  href="https://wa.me/573204384886"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-white hover:text-amarillo transition-colors"

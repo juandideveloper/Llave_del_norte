@@ -4,6 +4,7 @@ import "./globals.css";
 import Providers from "./providers";
 import WhatsAppFlotante from "@/components/ui/WhatsAppFlotante";
 import MetaPixel from "./MetalPixel";
+import TikTokPixel from "./TikTokPixel";
 
 const geist = Geist({ subsets: ["latin"] });
 
@@ -15,10 +16,20 @@ export const metadata: Metadata = {
   description:
     "Importadores directos de ferretería, grifería, lavaplatos, duchas y accesorios de alta calidad. Precios mayoristas para arquitectos, constructoras y empresas en Colombia.",
   keywords: [
-    "ferretería", "grifería", "lavaplatos", "duchas", "accesorios",
-    "importadores directos", "precios mayoristas", "arquitectos",
-    "constructoras", "acero inoxidable", "materiales construcción",
-    "ferretería Colombia", "grifería Colombia", "Bogotá"
+    "ferretería",
+    "grifería",
+    "lavaplatos",
+    "duchas",
+    "accesorios",
+    "importadores directos",
+    "precios mayoristas",
+    "arquitectos",
+    "constructoras",
+    "acero inoxidable",
+    "materiales construcción",
+    "ferretería Colombia",
+    "grifería Colombia",
+    "Bogotá",
   ],
   authors: [{ name: "La Llave del Norte" }],
   creator: "La Llave del Norte",
@@ -43,7 +54,8 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "La Llave del Norte | Ferretería y Grifería",
-    description: "Importadores directos de ferretería y grifería de alta calidad.",
+    description:
+      "Importadores directos de ferretería y grifería de alta calidad.",
     images: ["/icon.png"],
   },
   robots: {
@@ -61,9 +73,9 @@ export default function RootLayout({
     <html lang="es">
       <body className={geist.className}>
         <Providers>{children}</Providers>
-        <WhatsAppFlotante/>
+        <WhatsAppFlotante />
         <MetaPixel />
-
+        <TikTokPixel />
       </body>
     </html>
   );

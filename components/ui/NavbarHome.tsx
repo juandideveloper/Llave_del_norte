@@ -18,14 +18,21 @@ export default function Navbar() {
       <div className="flex items-center gap-6">
         {/* Logo */}
         <a href="#inicio">
-          <svg version="1.0" xmlns="http://www.w3.org/2000/svg"
-    width="70.000000pt" height="70.000000pt" viewBox="0 0 3264.000000 1884.000000"
-    preserveAspectRatio="xMidYMid meet">
-
-    <g transform="translate(0.000000,1884.000000) scale(0.100000,-0.100000)"
-        fill="#000000" stroke="none">
-        <path
-            d="M3796 17839 c-7 -21 -33 -154 -46 -234 -6 -38 -20 -117 -30 -175 -10
+          <svg
+            version="1.0"
+            xmlns="http://www.w3.org/2000/svg"
+            width="70.000000pt"
+            height="70.000000pt"
+            viewBox="0 0 3264.000000 1884.000000"
+            preserveAspectRatio="xMidYMid meet"
+          >
+            <g
+              transform="translate(0.000000,1884.000000) scale(0.100000,-0.100000)"
+              fill="#000000"
+              stroke="none"
+            >
+              <path
+                d="M3796 17839 c-7 -21 -33 -154 -46 -234 -6 -38 -20 -117 -30 -175 -10
             -58 -26 -148 -35 -200 -9 -52 -23 -124 -30 -160 -8 -36 -23 -123 -35 -195 -12
             -71 -27 -159 -35 -195 -7 -36 -18 -103 -25 -150 -6 -47 -17 -114 -25 -150 -8
             -36 -23 -123 -35 -195 -12 -71 -30 -175 -41 -230 -11 -55 -24 -125 -30 -155
@@ -60,9 +67,10 @@ export default function Navbar() {
             490 7 41 18 107 24 145 11 66 40 235 62 355 6 30 14 80 19 110 4 30 17 100 29
             155 11 55 28 147 37 205 9 58 21 125 25 150 5 25 13 72 18 105 5 33 23 134 40
             225 17 91 36 194 42 230 6 36 17 97 24 135 8 39 16 93 20 120 10 76 46 279 51
-            287 12 19 23 4 29 -39z" />
-        <path
-            d="M14140 17788 c-7 -35 -16 -76 -21 -93 -4 -16 -24 -131 -44 -255 -42
+            287 12 19 23 4 29 -39z"
+              />
+              <path
+                d="M14140 17788 c-7 -35 -16 -76 -21 -93 -4 -16 -24 -131 -44 -255 -42
             -265 -52 -323 -71 -410 -7 -36 -23 -117 -34 -180 -51 -301 -62 -364 -85 -480
             -14 -69 -29 -152 -34 -185 -32 -197 -72 -422 -89 -500 -11 -49 -25 -128 -31
             -175 -15 -104 -42 -258 -86 -490 -18 -96 -38 -211 -45 -255 -6 -44 -13 -89
@@ -91,35 +99,42 @@ export default function Navbar() {
             200 10 55 35 195 55 310 20 116 49 284 66 375 16 91 34 190 39 220 6 30 17 89
             25 131 8 41 17 102 21 135 3 32 17 115 30 184 13 69 31 166 39 215 9 50 20
             113 25 140 5 28 21 115 34 195 14 80 32 181 40 225 18 91 30 159 46 260 11 68
-            29 129 36 122 2 -2 15 -61 29 -133z" />
-        <path
-            d="M28652 17393 l-742 -3 2 -3218 3 -3217 900 0 900 0 3 34 c2 20 -2 37
+            29 129 36 122 2 -2 15 -61 29 -133z"
+              />
+              <path
+                d="M28652 17393 l-742 -3 2 -3218 3 -3217 900 0 900 0 3 34 c2 20 -2 37
             -10 42 -7 5 -310 8 -672 8 -363 0 -663 4 -668 9 -4 4 -7 912 -6 2018 l3 2009
             675 5 c371 3 676 6 678 8 8 8 0 72 -11 81 -10 8 -208 12 -678 13 l-664 3 -3
             1044 c-1 575 2 1049 6 1053 5 5 257 9 561 8 370 0 558 3 571 10 21 11 27 54
-            11 78 -11 18 -27 19 -859 15z" />
-        <path
-            d="M30100 17392 c-19 -2 -38 -9 -42 -15 -4 -7 -8 -1450 -8 -3208 0
+            11 78 -11 18 -27 19 -859 15z"
+              />
+              <path
+                d="M30100 17392 c-19 -2 -38 -9 -42 -15 -4 -7 -8 -1450 -8 -3208 0
             -2682 2 -3198 14 -3208 10 -8 254 -10 902 -9 l889 3 3 28 c7 60 40 57 -679 57
             -641 0 -659 1 -669 19 -7 14 -10 1019 -10 3175 0 2518 -3 3156 -12 3157 -58 2
-            -360 3 -388 1z" />
-        <path
-            d="M506 17371 c-8 -12 -8 -6560 0 -6572 3 -5 387 -9 930 -9 l924 0 0 45
-            0 45 -692 2 -693 3 -5 3245 -5 3245 -227 3 c-132 1 -229 -1 -232 -7z" />
-        <path
-            d="M8660 14085 l0 -3295 928 2 927 3 0 40 0 40 -686 3 c-560 2 -689 5
-            -698 16 -8 9 -12 886 -13 3247 l-3 3234 -227 3 -228 2 0 -3295z" />
-        <path
-            d="M10865 17368 c-3 -7 -4 -1489 -3 -3293 l3 -3280 920 0 920 0 0 40 0
+            -360 3 -388 1z"
+              />
+              <path
+                d="M506 17371 c-8 -12 -8 -6560 0 -6572 3 -5 387 -9 930 -9 l924 0 0 45
+            0 45 -692 2 -693 3 -5 3245 -5 3245 -227 3 c-132 1 -229 -1 -232 -7z"
+              />
+              <path
+                d="M8660 14085 l0 -3295 928 2 927 3 0 40 0 40 -686 3 c-560 2 -689 5
+            -698 16 -8 9 -12 886 -13 3247 l-3 3234 -227 3 -228 2 0 -3295z"
+              />
+              <path
+                d="M10865 17368 c-3 -7 -4 -1489 -3 -3293 l3 -3280 920 0 920 0 0 40 0
             40 -690 5 c-379 3 -691 6 -692 8 -2 1 -3 1462 -3 3247 l0 3245 -225 0 c-171 0
-            -227 -3 -230 -12z" />
-        <path
-            d="M18375 17368 c-3 -7 -4 -1489 -3 -3293 l3 -3280 905 -3 c498 -1 915
+            -227 -3 -230 -12z"
+              />
+              <path
+                d="M18375 17368 c-3 -7 -4 -1489 -3 -3293 l3 -3280 905 -3 c498 -1 915
             0 928 3 20 5 23 11 20 43 l-3 37 -695 5 -695 5 0 2065 0 2065 695 5 695 5 0
             40 0 40 -695 5 -695 5 0 1080 0 1080 590 5 590 5 3 48 3 47 -821 0 c-647 0
-            -822 -3 -825 -12z" />
-        <path
-            d="M15524 17355 c-3 -8 3 -63 15 -122 11 -60 29 -157 40 -218 11 -60 26
+            -822 -3 -825 -12z"
+              />
+              <path
+                d="M15524 17355 c-3 -8 3 -63 15 -122 11 -60 29 -157 40 -218 11 -60 26
             -148 35 -195 8 -47 23 -128 31 -180 19 -111 54 -309 89 -500 14 -74 30 -171
             36 -215 13 -91 46 -282 79 -450 6 -27 17 -97 26 -155 9 -58 27 -160 41 -227
             13 -67 28 -151 33 -185 17 -114 71 -422 80 -463 23 -97 72 -387 91 -535 6 -47
@@ -147,9 +162,10 @@ export default function Navbar() {
             107 -43 245 -52 305 -9 61 -23 144 -32 185 -8 41 -19 102 -25 135 -5 33 -13
             80 -18 105 -10 57 -22 125 -55 320 -15 85 -31 175 -35 200 -17 87 -42 227 -71
             400 -32 185 -42 244 -59 325 -6 28 -17 97 -25 155 -25 181 -96 568 -109 588
-            -5 9 -72 12 -237 12 -193 0 -231 -2 -235 -15z" />
-        <path
-            d="M22787 17352 c-16 -17 -17 -254 -17 -3199 l0 -3180 23 -12 c32 -17
+            -5 9 -72 12 -237 12 -193 0 -231 -2 -235 -15z"
+              />
+              <path
+                d="M22787 17352 c-16 -17 -17 -254 -17 -3199 l0 -3180 23 -12 c32 -17
             1645 -11 1722 6 28 7 84 17 125 24 135 21 164 27 247 48 74 18 127 34 293 87
             25 8 59 21 75 29 17 7 70 30 119 50 89 37 248 118 320 163 22 13 58 34 81 46
             52 28 220 147 322 229 70 55 168 145 304 277 149 146 351 400 481 606 69 109
@@ -167,9 +183,10 @@ export default function Navbar() {
             -693 -508 -1050 -112 -157 -340 -402 -516 -555 -87 -76 -228 -177 -336 -240
             -117 -69 -328 -175 -348 -175 -7 0 -17 -4 -23 -9 -22 -20 -252 -90 -429 -129
             -194 -43 -252 -47 -830 -47 l-560 0 -3 3109 c-1 2188 1 3112 9 3116 17 11 630
-            11 849 0z" />
-        <path
-            d="M10943 7683 c4 -852 9 -2034 12 -2628 l5 -1080 -24 50 c-14 28 -25
+            11 849 0z"
+              />
+              <path
+                d="M10943 7683 c4 -852 9 -2034 12 -2628 l5 -1080 -24 50 c-14 28 -25
             56 -25 62 -1 7 -12 36 -25 65 -35 79 -106 261 -118 305 -5 21 -18 56 -28 78
             -18 41 -42 101 -145 370 -31 83 -61 155 -65 160 -4 6 -15 35 -25 65 -10 30
             -25 73 -35 95 -17 37 -90 226 -146 375 -32 88 -212 550 -223 575 -5 11 -24 58
@@ -189,9 +206,10 @@ export default function Navbar() {
             -3 11 -29 24 -58 13 -29 29 -71 36 -93 7 -22 21 -58 30 -80 10 -22 43 -107 75
             -190 31 -82 63 -163 70 -180 26 -57 94 -240 101 -270 4 -16 15 -48 25 -70 9
             -22 34 -83 54 -135 118 -308 197 -501 203 -495 9 9 1 6169 -8 6180 -4 5 -11
-            108 -15 228 l-7 217 -46 0 -45 0 6 -1547z" />
-        <path
-            d="M13965 8845 c-207 -26 -354 -60 -550 -127 -119 -40 -161 -58 -350
+            108 -15 228 l-7 217 -46 0 -45 0 6 -1547z"
+              />
+              <path
+                d="M13965 8845 c-207 -26 -354 -60 -550 -127 -119 -40 -161 -58 -350
             -154 -199 -100 -192 -95 -425 -268 -209 -156 -511 -480 -677 -726 -136 -204
             -232 -388 -317 -612 -59 -155 -102 -336 -157 -663 -10 -56 -14 -174 -14 -395
             1 -277 4 -330 23 -440 25 -144 43 -230 67 -315 10 -33 21 -78 26 -101 4 -22
@@ -218,9 +236,10 @@ export default function Navbar() {
             190 66 205 4 8 26 60 48 115 23 55 55 121 71 148 16 26 29 50 29 54 0 11 92
             166 144 242 28 40 60 88 71 105 41 66 273 342 308 367 5 4 39 35 75 71 93 90
             208 182 339 271 62 43 115 77 118 77 2 0 59 27 125 60 185 91 342 144 570 191
-            143 30 277 38 522 33 179 -4 227 -8 355 -34z" />
-        <path
-            d="M18262 8792 l-552 -2 2 -2818 3 -2817 190 0 190 0 5 965 5 965 350 3
+            143 30 277 38 522 33 179 -4 227 -8 355 -34z"
+              />
+              <path
+                d="M18262 8792 l-552 -2 2 -2818 3 -2817 190 0 190 0 5 965 5 965 350 3
             c393 4 481 -4 625 -50 221 -72 396 -205 559 -425 90 -121 204 -334 230 -430
             15 -51 141 -425 184 -543 3 -8 8 -24 10 -35 3 -11 38 -112 77 -225 39 -113 79
             -230 89 -260 44 -131 87 -228 153 -343 76 -130 176 -286 227 -352 16 -22 45
@@ -244,35 +263,62 @@ export default function Navbar() {
             -472 0 -570 -23 -130 -69 -298 -93 -342 -5 -10 -9 -22 -9 -28 0 -10 -33 -78
             -103 -213 -19 -37 -68 -111 -109 -165 -234 -311 -546 -539 -883 -645 -141 -44
             -194 -55 -335 -67 -171 -15 -843 -13 -858 2 -9 9 -12 408 -12 1734 0 947 3
-            1729 6 1738 5 14 49 16 391 16 212 0 416 -5 456 -10z" />
-        <path
-            d="M21270 8792 c-6 -2 -10 -21 -10 -43 l0 -39 388 0 c288 0 391 -3 400
+            1729 6 1738 5 14 49 16 391 16 212 0 416 -5 456 -10z"
+              />
+              <path
+                d="M21270 8792 c-6 -2 -10 -21 -10 -43 l0 -39 388 0 c288 0 391 -3 400
             -12 9 -9 12 -639 12 -2775 l0 -2763 23 -5 c12 -3 99 -4 192 -3 l170 3 5 2767
             c3 1893 8 2770 15 2777 7 7 148 12 400 13 l390 3 3 33 c2 20 -2 34 -10 37 -14
-            6 -1962 12 -1978 7z" />
-        <path
-            d="M23558 8790 l-23 -6 -3 -2794 c-1 -1537 0 -2805 3 -2818 l5 -22 788
+            6 -1962 12 -1978 7z"
+              />
+              <path
+                d="M23558 8790 l-23 -6 -3 -2794 c-1 -1537 0 -2805 3 -2818 l5 -22 788
             2 787 3 3 31 c3 27 -1 33 -22 38 -14 3 -281 6 -593 6 -450 -1 -568 2 -575 12
             -4 7 -8 798 -8 1759 0 1344 3 1748 12 1757 9 9 152 12 584 12 315 0 579 3 588
             6 10 4 16 18 16 40 l0 34 -588 0 c-444 0 -591 3 -600 12 -17 17 -17 1819 0
             1836 9 9 136 12 510 12 l498 0 0 40 c0 25 -5 40 -12 40 -7 0 -313 1 -680 2
-            -367 2 -677 1 -690 -2z" />
-    </g>
-</svg>
+            -367 2 -677 1 -690 -2z"
+              />
+            </g>
+          </svg>
         </a>
 
         {/* Links */}
         <div className="hidden lg:grid grid-cols-3 gap-4 gap-y-3">
-          <Link href="/catalogo" className="text-sm text-verde hover:text-amarillo-oscuro transition-colors uppercase tracking-wider">Catálogo</Link>
-          <a href="#destacados" className="text-sm text-verde hover:text-amarillo-oscuro transition-colors uppercase tracking-wider">Productos destacados</a>
-          <a href="#clientes" className="text-sm text-verde hover:text-amarillo-oscuro transition-colors uppercase tracking-wider">Nuestros clientes</a>
-          <a href="#filosofia" className="text-sm text-verde hover:text-amarillo-oscuro transition-colors uppercase tracking-wider">Nuestra filosofía</a>
-          <a href="#contacto" className="text-sm text-verde hover:text-amarillo-oscuro transition-colors uppercase tracking-wider">Contacto</a>
+          <Link
+            href="/catalogo"
+            className="text-sm text-verde hover:text-amarillo-oscuro transition-colors uppercase tracking-wider"
+          >
+            Catálogo
+          </Link>
+          <a
+            href="#destacados"
+            className="text-sm text-verde hover:text-amarillo-oscuro transition-colors uppercase tracking-wider"
+          >
+            Productos destacados
+          </a>
+          <a
+            href="#clientes"
+            className="text-sm text-verde hover:text-amarillo-oscuro transition-colors uppercase tracking-wider"
+          >
+            Nuestros clientes
+          </a>
+          <a
+            href="#filosofia"
+            className="text-sm text-verde hover:text-amarillo-oscuro transition-colors uppercase tracking-wider"
+          >
+            Nuestra filosofía
+          </a>
+          <a
+            href="#contacto"
+            className="text-sm text-verde hover:text-amarillo-oscuro transition-colors uppercase tracking-wider"
+          >
+            Contacto
+          </a>
         </div>
 
         {/* Lado derecho */}
         <div className="ml-auto flex items-center gap-6">
-
           {/* Buscador desktop */}
           <div className="hidden lg:block">
             <BuscadorProductos
@@ -284,42 +330,99 @@ export default function Navbar() {
 
           {/* Redes sociales */}
           <div className="hidden lg:flex items-center gap-3">
-            <a href="https://www.instagram.com/lallavedelnorte/" target="_blank" rel="noopener noreferrer" className="text-verde hover:text-amarillo-oscuro transition-colors">
-              <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+            <a
+              href="https://www.instagram.com/lallavedelnorte/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-verde hover:text-amarillo-oscuro transition-colors"
+            >
+              <svg
+                width="25"
+                height="25"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                <path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z" />
+                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
               </svg>
             </a>
-            <a href="https://www.tiktok.com/@lallavedelnorte1" target="_blank" rel="noopener noreferrer" className="text-verde hover:text-amarillo-oscuro transition-colors">
-              <svg width="25" height="25" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.75a4.85 4.85 0 01-1.01-.06z"/>
+            <a
+              href="https://www.tiktok.com/@lallavedelnorte1"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-verde hover:text-amarillo-oscuro transition-colors"
+            >
+              <svg
+                width="25"
+                height="25"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.75a4.85 4.85 0 01-1.01-.06z" />
               </svg>
             </a>
-            <a href="https://wa.me/573134866451" target="_blank" rel="noopener noreferrer" className="text-verde hover:text-amarillo-oscuro transition-colors">
-              <svg width="25" height="25" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+            <a
+              href="https://wa.me/573134866451"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-verde hover:text-amarillo-oscuro transition-colors"
+            >
+              <svg
+                width="25"
+                height="25"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
               </svg>
             </a>
           </div>
 
-          <div className="hidden lg:block w-px h-10 bg-verde/50"/>
+          <div className="hidden lg:block w-px h-10 bg-verde/50" />
 
           {/* Carrito */}
           <Link href="/carrito" className="relative group">
-            <svg width="35" height="35" viewBox="0 0 25 25" xmlns="http://www.w3.org/2000/svg">
+            <svg
+              width="35"
+              height="35"
+              viewBox="0 0 25 25"
+              xmlns="http://www.w3.org/2000/svg"
+            >
               <g>
-                <path className="group-hover:fill-amarillo-oscuro transition-colors duration-300" fill="#112221" d="M11.9791 8.85417V5.72917H8.85415V4.6875H11.9791V1.5625H13.0208V4.6875H16.1458V5.72917H13.0208V8.85417H11.9791ZM6.50128 21.5435C6.20024 21.2423 6.04972 20.872 6.04972 20.4328C6.04972 19.9934 6.20024 19.6231 6.50128 19.3219C6.8025 19.0208 7.17281 18.8703 7.61222 18.8703C8.05163 18.8703 8.42185 19.0208 8.7229 19.3219C9.02411 19.6231 9.17472 19.9934 9.17472 20.4328C9.17472 20.872 9.02411 21.2423 8.7229 21.5435C8.42185 21.8447 8.05163 21.9953 7.61222 21.9953C7.17281 21.9953 6.8025 21.8447 6.50128 21.5435ZM16.2771 21.5435C15.9758 21.2423 15.8252 20.872 15.8252 20.4328C15.8252 19.9934 15.9758 19.6231 16.2771 19.3219C16.5781 19.0208 16.9483 18.8703 17.3877 18.8703C17.8271 18.8703 18.1975 19.0208 18.4987 19.3219C18.7997 19.6231 18.9502 19.9934 18.9502 20.4328C18.9502 20.872 18.7997 21.2423 18.4987 21.5435C18.1975 21.8447 17.8271 21.9953 17.3877 21.9953C16.9483 21.9953 16.5781 21.8447 16.2771 21.5435ZM2.08331 3.64583V2.60417H4.63331L8.90024 11.5786H15.8112C15.9315 11.5786 16.0383 11.5485 16.1318 11.4883C16.2253 11.4282 16.3054 11.3448 16.3721 11.238L20.014 4.6875H21.2018L17.2596 11.8068C17.1087 12.0606 16.9127 12.2596 16.6716 12.4039C16.4306 12.5482 16.1659 12.6203 15.8773 12.6203H8.43748L7.17133 14.944C7.06456 15.1043 7.06126 15.2779 7.16144 15.4648C7.26161 15.6518 7.41187 15.7453 7.61222 15.7453H18.9502V16.787H7.61222C7.00458 16.787 6.55015 16.5319 6.24894 16.0216C5.9479 15.5115 5.94156 14.9961 6.22993 14.4753L7.79633 11.6828L3.96639 3.64583H2.08331Z"/>
+                <path
+                  className="group-hover:fill-amarillo-oscuro transition-colors duration-300"
+                  fill="#112221"
+                  d="M11.9791 8.85417V5.72917H8.85415V4.6875H11.9791V1.5625H13.0208V4.6875H16.1458V5.72917H13.0208V8.85417H11.9791ZM6.50128 21.5435C6.20024 21.2423 6.04972 20.872 6.04972 20.4328C6.04972 19.9934 6.20024 19.6231 6.50128 19.3219C6.8025 19.0208 7.17281 18.8703 7.61222 18.8703C8.05163 18.8703 8.42185 19.0208 8.7229 19.3219C9.02411 19.6231 9.17472 19.9934 9.17472 20.4328C9.17472 20.872 9.02411 21.2423 8.7229 21.5435C8.42185 21.8447 8.05163 21.9953 7.61222 21.9953C7.17281 21.9953 6.8025 21.8447 6.50128 21.5435ZM16.2771 21.5435C15.9758 21.2423 15.8252 20.872 15.8252 20.4328C15.8252 19.9934 15.9758 19.6231 16.2771 19.3219C16.5781 19.0208 16.9483 18.8703 17.3877 18.8703C17.8271 18.8703 18.1975 19.0208 18.4987 19.3219C18.7997 19.6231 18.9502 19.9934 18.9502 20.4328C18.9502 20.872 18.7997 21.2423 18.4987 21.5435C18.1975 21.8447 17.8271 21.9953 17.3877 21.9953C16.9483 21.9953 16.5781 21.8447 16.2771 21.5435ZM2.08331 3.64583V2.60417H4.63331L8.90024 11.5786H15.8112C15.9315 11.5786 16.0383 11.5485 16.1318 11.4883C16.2253 11.4282 16.3054 11.3448 16.3721 11.238L20.014 4.6875H21.2018L17.2596 11.8068C17.1087 12.0606 16.9127 12.2596 16.6716 12.4039C16.4306 12.5482 16.1659 12.6203 15.8773 12.6203H8.43748L7.17133 14.944C7.06456 15.1043 7.06126 15.2779 7.16144 15.4648C7.26161 15.6518 7.41187 15.7453 7.61222 15.7453H18.9502V16.787H7.61222C7.00458 16.787 6.55015 16.5319 6.24894 16.0216C5.9479 15.5115 5.94156 14.9961 6.22993 14.4753L7.79633 11.6828L3.96639 3.64583H2.08331Z"
+                />
               </g>
             </svg>
-            <span className="absolute -top-2 -right-3 bg-verde text-amarillo text-sm w-6 h-6 rounded-full flex items-center justify-center font-medium">{totalItems}</span>
+            <span className="absolute -top-2 -right-3 bg-verde text-amarillo text-sm w-6 h-6 rounded-full flex items-center justify-center font-medium">
+              {totalItems}
+            </span>
           </Link>
 
           {/* Usuario */}
-          {status === "loading" && <div className="w-8 h-8 rounded-full bg-verde animate-pulse"/>}
+          {status === "loading" && (
+            <div className="w-8 h-8 rounded-full bg-verde animate-pulse" />
+          )}
 
           {status === "unauthenticated" && (
-            <Link href="/login" className="hidden lg:flex lg:flex-col lg:items-center items-center gap-2 text-sm font-medium py-1.5 text-verde hover:text-amarillo-oscuro transition-colors">
-              <svg viewBox="0 0 640 640" width={35} height={35} fill="currentColor">
-                <path d="M320 312C386.3 312 440 258.3 440 192C440 125.7 386.3 72 320 72C253.7 72 200 125.7 200 192C200 258.3 253.7 312 320 312zM290.3 368C191.8 368 112 447.8 112 546.3C112 562.7 125.3 576 141.7 576L498.3 576C514.7 576 528 562.7 528 546.3C528 447.8 448.2 368 349.7 368L290.3 368z"/>
+            <Link
+              href="/login"
+              className="hidden lg:flex lg:flex-col lg:items-center items-center gap-2 text-sm font-medium py-1.5 text-verde hover:text-amarillo-oscuro transition-colors"
+            >
+              <svg
+                viewBox="0 0 640 640"
+                width={35}
+                height={35}
+                fill="currentColor"
+              >
+                <path d="M320 312C386.3 312 440 258.3 440 192C440 125.7 386.3 72 320 72C253.7 72 200 125.7 200 192C200 258.3 253.7 312 320 312zM290.3 368C191.8 368 112 447.8 112 546.3C112 562.7 125.3 576 141.7 576L498.3 576C514.7 576 528 562.7 528 546.3C528 447.8 448.2 368 349.7 368L290.3 368z" />
               </svg>
               Iniciar sesión
             </Link>
@@ -327,27 +430,67 @@ export default function Navbar() {
 
           {status === "authenticated" && session && (
             <div className="relative">
-              <button onClick={() => setMenuAbierto(!menuAbierto)} className="flex items-center gap-2 cursor-pointer">
+              <button
+                onClick={() => setMenuAbierto(!menuAbierto)}
+                className="flex items-center gap-2 cursor-pointer"
+              >
                 <div className="w-8 h-8 rounded-full bg-verde flex items-center justify-center">
-                  <span className="text-amarillo text-xl font-medium">{session.user?.name?.charAt(0).toUpperCase()}</span>
+                  <span className="text-amarillo text-xl font-medium">
+                    {session.user?.name?.charAt(0).toUpperCase()}
+                  </span>
                 </div>
-                <span className="hidden lg:block text-base text-verde">{session.user?.name?.split(" ")[0]}</span>
+                <span className="hidden lg:block text-base text-verde">
+                  {session.user?.name?.split(" ")[0]}
+                </span>
               </button>
               <AnimatePresence>
                 {menuAbierto && (
-                  <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}
-                    className="absolute right-0 mt-2 w-60 bg-gray-50 rounded-xl shadow-lg border border-gray-600 overflow-hidden z-50">
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute right-0 mt-2 w-60 bg-gray-50 rounded-xl shadow-lg border border-gray-600 overflow-hidden z-50"
+                  >
                     <div className="px-4 py-3 border-b border-gray-100">
-                      <p className="text-xs font-bold text-verde">{session.user?.name}</p>
-                      <p className="text-xs font-bold text-gray-400 truncate">{session.user?.email}</p>
+                      <p className="text-xs font-bold text-verde">
+                        {session.user?.name}
+                      </p>
+                      <p className="text-xs font-bold text-gray-400 truncate">
+                        {session.user?.email}
+                      </p>
                     </div>
-                    <Link href="/perfil/perfil" onClick={() => setMenuAbierto(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm text-verde hover:bg-verde hover:text-amarillo transition-colors">Mi perfil</Link>
-                    <Link href="/perfil/pedidos" onClick={() => setMenuAbierto(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm text-verde hover:bg-verde hover:text-amarillo transition-colors">Mis pedidos</Link>
-                    {session.user?.role === "ESPECIAL" && session.user?.estado === "APROBADO" && (
-                      <Link href="/perfil/importaciones" onClick={() => setMenuAbierto(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm text-verde hover:bg-verde hover:text-amarillo transition-colors">Mis importaciones</Link>
-                    )}
-                    <button onClick={() => { setMenuAbierto(false); signOut({ callbackUrl: "/" }) }}
-                      className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-500 hover:bg-verde hover:text-amarillo transition-colors border-t border-gray-100 cursor-pointer">
+                    <Link
+                      href="/perfil/perfil"
+                      onClick={() => setMenuAbierto(false)}
+                      className="flex items-center gap-2 px-4 py-2.5 text-sm text-verde hover:bg-verde hover:text-amarillo transition-colors"
+                    >
+                      Mi perfil
+                    </Link>
+                    <Link
+                      href="/perfil/pedidos"
+                      onClick={() => setMenuAbierto(false)}
+                      className="flex items-center gap-2 px-4 py-2.5 text-sm text-verde hover:bg-verde hover:text-amarillo transition-colors"
+                    >
+                      Mis pedidos
+                    </Link>
+                    {session.user?.role === "ESPECIAL" &&
+                      session.user?.estado === "APROBADO" && (
+                        <Link
+                          href="/perfil/importaciones"
+                          onClick={() => setMenuAbierto(false)}
+                          className="flex items-center gap-2 px-4 py-2.5 text-sm text-verde hover:bg-verde hover:text-amarillo transition-colors"
+                        >
+                          Mis importaciones
+                        </Link>
+                      )}
+                    <button
+                      onClick={() => {
+                        setMenuAbierto(false);
+                        signOut({ callbackUrl: "/" });
+                      }}
+                      className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-500 hover:bg-verde hover:text-amarillo transition-colors border-t border-gray-100 cursor-pointer"
+                    >
                       Cerrar sesión
                     </button>
                   </motion.div>
@@ -357,9 +500,27 @@ export default function Navbar() {
           )}
 
           {/* Hamburguesa */}
-          <button onClick={() => setMenuMovil(!menuMovil)} className="lg:hidden text-verde cursor-pointer">
-            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-              {menuMovil ? <path d="M18 6L6 18M6 6l12 12"/> : <><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></>}
+          <button
+            onClick={() => setMenuMovil(!menuMovil)}
+            className="lg:hidden text-verde cursor-pointer"
+          >
+            <svg
+              width="30"
+              height="30"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+            >
+              {menuMovil ? (
+                <path d="M18 6L6 18M6 6l12 12" />
+              ) : (
+                <>
+                  <line x1="3" y1="6" x2="21" y2="6" />
+                  <line x1="3" y1="12" x2="21" y2="12" />
+                  <line x1="3" y1="18" x2="21" y2="18" />
+                </>
+              )}
             </svg>
           </button>
         </div>
@@ -368,41 +529,107 @@ export default function Navbar() {
       {/* Menú móvil */}
       <AnimatePresence>
         {menuMovil && (
-          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.3 }} className="lg:hidden overflow-hidden">
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3 }}
+            className="lg:hidden overflow-hidden"
+          >
             <div className="pt-4 pb-2 space-y-1 border-t border-verde/20 mt-4">
-              {([
-                { href: "/catalogo", label: "Catálogo" },
-                { href: "#destacados", label: "Productos destacados" },
-                { href: "#clientes", label: "Nuestros clientes" },
-                { href: "#filosofia", label: "Nuestra filosofía" },
-                { href: "#contacto", label: "Contacto" },
-              ] as { href: string; label: string }[]).map((link) => (
-                <a key={link.href} href={link.href}
-                  onClick={(e) => { e.preventDefault(); setMenuMovil(false); setTimeout(() => { const el = document.querySelector<HTMLElement>(link.href); if (el) el.scrollIntoView({ behavior: "smooth" }) }, 300) }}
-                  className="block px-2 py-2.5 text-sm text-verde hover:text-amarillo transition-colors">
+              {(
+                [
+                  { href: "/catalogo", label: "Catálogo" },
+                  { href: "#destacados", label: "Productos destacados" },
+                  { href: "#clientes", label: "Nuestros clientes" },
+                  { href: "#filosofia", label: "Nuestra filosofía" },
+                  { href: "#contacto", label: "Contacto" },
+                ] as { href: string; label: string }[]
+              ).map((link) => (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setMenuMovil(false);
+                    setTimeout(() => {
+                      const el = document.querySelector<HTMLElement>(link.href);
+                      if (el) el.scrollIntoView({ behavior: "smooth" });
+                    }, 300);
+                  }}
+                  className="block px-2 py-2.5 text-sm text-verde hover:text-amarillo transition-colors"
+                >
                   {link.label}
                 </a>
               ))}
 
               {/* Buscador móvil */}
               <div className="px-2 mt-2">
-                <BuscadorProductos bgClassName="bg-amarillo/30" inputClassName="text-verde placeholder-verde/50" iconColor="#112221"/>
+                <BuscadorProductos
+                  bgClassName="bg-amarillo/30"
+                  inputClassName="text-verde placeholder-verde/50"
+                  iconColor="#112221"
+                />
               </div>
 
               <div className="flex items-center gap-4 px-2 py-3 border-t border-verde/20 mt-2">
-                <a href="https://www.instagram.com/lallavedelnorte/" target="_blank" rel="noopener noreferrer" className="text-verde hover:text-amarillo transition-colors">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+                <a
+                  href="https://www.instagram.com/lallavedelnorte/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-verde hover:text-amarillo transition-colors"
+                >
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                  >
+                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                    <path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z" />
+                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+                  </svg>
                 </a>
-                <a href="https://www.tiktok.com/@lallavedelnorte1" target="_blank" rel="noopener noreferrer" className="text-verde hover:text-amarillo transition-colors">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.75a4.85 4.85 0 01-1.01-.06z"/></svg>
+                <a
+                  href="https://www.tiktok.com/@lallavedelnorte1"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-verde hover:text-amarillo transition-colors"
+                >
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  >
+                    <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.75a4.85 4.85 0 01-1.01-.06z" />
+                  </svg>
                 </a>
-                <a href="https://wa.me/573134866451" target="_blank" rel="noopener noreferrer" className="text-verde hover:text-amarillo transition-colors">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                <a
+                  href="https://wa.me/573204384886"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-verde hover:text-amarillo transition-colors"
+                >
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  >
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                  </svg>
                 </a>
               </div>
 
               {status === "unauthenticated" && (
-                <Link href="/login" onClick={() => setMenuMovil(false)} className="flex items-center gap-2 mx-2 mt-2 px-2 py-2.5 text-sm font-medium text-verde hover:text-amarillo transition-colors">
+                <Link
+                  href="/login"
+                  onClick={() => setMenuMovil(false)}
+                  className="flex items-center gap-2 mx-2 mt-2 px-2 py-2.5 text-sm font-medium text-verde hover:text-amarillo transition-colors"
+                >
                   Iniciar sesión
                 </Link>
               )}

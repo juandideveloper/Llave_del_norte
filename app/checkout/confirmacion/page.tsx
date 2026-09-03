@@ -1,49 +1,62 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/ui/Navbar";
 import { motion } from "framer-motion";
-import { trackPixelEvent } from "@/lib/metaPixel";
+import { sendMetaEvent } from "@/lib/metaPixel";
+import { trackTikTokEvent } from "@/lib/tiktokPixel";
 
 function ConfirmacionContent() {
   const searchParams = useSearchParams();
   const boldStatus =
     searchParams.get("bold-status") || searchParams.get("status") || "";
-  const orderId =
+  const orderIdParam =
     searchParams.get("bold-order-id") || searchParams.get("order-id") || "";
   const rechazado = boldStatus === "rejected" || boldStatus === "REJECTED";
-  const esContraentrega = orderId.startsWith("CE-");
-const [melonnEstado, setMelonnEstado] = useState<"pendiente" | "creado" | "error">("pendiente");
+  const esContraentrega = orderIdParam.startsWith("CE-");
 
+  // Dispara los eventos de pixel una sola vez
   useEffect(() => {
     if (rechazado) return;
     localStorage.removeItem("carrito");
 
-    // Evita duplicar el evento Purchase si la persona recarga esta página
-    const yaRastreado = orderId
-      ? sessionStorage.getItem(`purchase_${orderId}`)
+    const yaRastreado = orderIdParam
+      ? sessionStorage.getItem(`purchase_${orderIdParam}`)
       : null;
 
     if (esContraentrega) {
-      setMelonnEstado("error");
       const amount = Number(searchParams.get("amount")) || 0;
-      if (!yaRastreado && orderId) {
-        trackPixelEvent("Purchase", {
+      if (!yaRastreado && orderIdParam) {
+        sendMetaEvent(
+          "Purchase",
+          { value: amount, currency: "COP", content_type: "product" },
+          {
+            email: searchParams.get("email") || undefined,
+            phone: searchParams.get("phone") || undefined,
+            firstName: searchParams.get("firstName") || undefined,
+            lastName: searchParams.get("lastName") || undefined,
+            city: searchParams.get("city") || undefined,
+            country: "CO",
+          },
+        );
+        trackTikTokEvent("CompletePayment", {
           value: amount,
           currency: "COP",
           content_type: "product",
         });
-        sessionStorage.setItem(`purchase_${orderId}`, "1");
+        sessionStorage.setItem(`purchase_${orderIdParam}`, "1");
       }
       return;
     }
 
+    // Flujo Bold: el pedido y el email ya los maneja el webhook.
+    // Aquí solo usamos los datos guardados en localStorage para el pixel.
     const datosCheckout = localStorage.getItem("checkout_datos");
     const datosCarrito = localStorage.getItem("checkout_items");
 
-    if (datosCheckout && datosCarrito && orderId) {
+    if (datosCheckout && datosCarrito && orderIdParam && !yaRastreado) {
       const datos = JSON.parse(datosCheckout);
       const items = JSON.parse(datosCarrito);
       const total = items.reduce(
@@ -52,8 +65,9 @@ const [melonnEstado, setMelonnEstado] = useState<"pendiente" | "creado" | "error
         0,
       );
 
-      if (!yaRastreado) {
-        trackPixelEvent("Purchase", {
+      sendMetaEvent(
+        "Purchase",
+        {
           value: total,
           currency: "COP",
           content_ids: items.map((i: { id: number }) => i.id),
@@ -62,72 +76,39 @@ const [melonnEstado, setMelonnEstado] = useState<"pendiente" | "creado" | "error
             (acc: number, i: { cantidad: number }) => acc + i.cantidad,
             0,
           ),
-        });
-        sessionStorage.setItem(`purchase_${orderId}`, "1");
-      }
-
-      fetch("/api/pedidos", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          items,
-          total,
-          direccionEntrega: datos.direccion,
-          ciudadEntrega: datos.ciudad,
-          metodoPago: "BOLD",
-        }),
-      })
-        .then((res) => res.json())
-        .then((pedidoData) => {
-          if (!pedidoData.ok) return;
-
-          // Email de confirmación
-          fetch("/api/email/confirmacion", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              pedidoId: pedidoData.pedidoId,
-              email: datos.correo,
-              nombre: `${datos.nombre} ${datos.apellido}`,
-              total,
-              direccion: datos.direccion,
-              items,
-            }),
-          }).catch(() => {});
-
-          return fetch("/api/melonn/crear-orden", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              orderId: pedidoData.pedidoId,
-              items,
-              cliente: {
-                nombre: `${datos.nombre} ${datos.apellido}`,
-                telefono: datos.telefono,
-                email: datos.correo,
-              },
-              direccion: {
-                direccion: datos.direccion,
-                ciudad: datos.ciudad,
-                region: datos.departamento,
-              },
-            }),
-          })
-            .then((res) => res.json())
-            .then((data) => {
-              if (data.ok) setMelonnEstado("creado");
-              else setMelonnEstado("error");
-            });
-        })
-        .catch(() => setMelonnEstado("error"))
-        .finally(() => {
-          localStorage.removeItem("checkout_datos");
-          localStorage.removeItem("checkout_items");
-        });
-    } else {
-      localStorage.removeItem("checkout_datos");
-      localStorage.removeItem("checkout_items");
+        },
+        {
+          email: datos.correo,
+          phone: datos.telefono,
+          firstName: datos.nombre,
+          lastName: datos.apellido,
+          city: datos.ciudad,
+          country: "CO",
+        },
+      );
+      trackTikTokEvent("CompletePayment", {
+        contents: items.map(
+          (i: {
+            id: number;
+            nombre: string;
+            precio: number;
+            cantidad: number;
+          }) => ({
+            content_id: String(i.id),
+            content_name: i.nombre,
+            content_type: "product",
+            quantity: i.cantidad,
+            price: i.precio,
+          }),
+        ),
+        value: total,
+        currency: "COP",
+      });
+      sessionStorage.setItem(`purchase_${orderIdParam}`, "1");
     }
+
+    localStorage.removeItem("checkout_datos");
+    localStorage.removeItem("checkout_items");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -137,8 +118,8 @@ const [melonnEstado, setMelonnEstado] = useState<"pendiente" | "creado" | "error
         no olvides de seguirnos en redes sociales
       </p>
       <div className="flex items-center justify-center gap-4">
-        <a
-          href="https://www.instagram.com/lallavedelnorte/"
+        
+         <a href="https://www.instagram.com/lallavedelnorte/"
           target="_blank"
           rel="noopener noreferrer"
           className="text-verde hover:text-amarillo transition-colors"
@@ -156,8 +137,9 @@ const [melonnEstado, setMelonnEstado] = useState<"pendiente" | "creado" | "error
             <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
           </svg>
         </a>
-        <a
-          href="https://www.tiktok.com/@lallavedelnorte1"
+
+        
+        <a  href="https://www.tiktok.com/@lallavedelnorte1"
           target="_blank"
           rel="noopener noreferrer"
           className="text-verde hover:text-amarillo transition-colors"
@@ -166,8 +148,9 @@ const [melonnEstado, setMelonnEstado] = useState<"pendiente" | "creado" | "error
             <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.75a4.85 4.85 0 01-1.01-.06z" />
           </svg>
         </a>
-        <a
-          href="https://wa.me/573134866451"
+
+        
+        <a  href="https://wa.me/573204384886"
           target="_blank"
           rel="noopener noreferrer"
           className="text-verde hover:text-amarillo transition-colors"
@@ -252,57 +235,8 @@ const [melonnEstado, setMelonnEstado] = useState<"pendiente" | "creado" | "error
       </p>
 
       <div className="text-amarillo px-8 py-3 rounded-lg text-2xl font-semibold mb-4">
-        Pedido: #{orderId || "Procesado"}
+        Pedido: #{orderIdParam || "Procesado"}
       </div>
-
-      {!esContraentrega && (
-        <div
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs mb-6 ${
-            melonnEstado === "creado"
-              ? "bg-green-50 text-green-700"
-              : melonnEstado === "error"
-                ? "bg-red-50 text-red-600"
-                : "bg-gray-50 text-gray-400"
-          }`}
-        >
-          {melonnEstado === "pendiente" && (
-            <>
-              <div className="w-3 h-3 rounded-full border border-gray-400 border-t-transparent animate-spin" />
-              Preparando tu envío...
-            </>
-          )}
-          {melonnEstado === "creado" && (
-            <>
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path d="M20 6L9 17l-5-5" />
-              </svg>
-              Orden de envío creada con Melonn
-            </>
-          )}
-          {melonnEstado === "error" && (
-            <>
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path d="M12 9v4M12 17h.01" />
-              </svg>
-              El equipo procesará tu envío manualmente
-            </>
-          )}
-        </div>
-      )}
 
       {esContraentrega && (
         <div className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs mb-6 bg-yellow-50 text-yellow-700">

@@ -8,7 +8,9 @@ import {
   useCallback,
   ReactNode,
 } from "react";
-import { trackPixelEvent } from "@/lib/metaPixel";
+import { useSession } from "next-auth/react";
+import { sendMetaEvent } from "@/lib/metaPixel";
+import { trackTikTokEvent } from "@/lib/tiktokPixel";
 
 interface ItemCarrito {
   id: number;
@@ -46,6 +48,7 @@ const CarritoContext = createContext<CarritoContextType>({
 });
 
 export function CarritoProvider({ children }: { children: ReactNode }) {
+  const { data: session } = useSession();
   const [items, setItems] = useState<ItemCarrito[]>([]);
   const [hidratado, setHidratado] = useState(false);
   const [metodoEnvio, setMetodoEnvio] = useState<"envio" | "tienda">("envio");
@@ -67,26 +70,55 @@ export function CarritoProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("carrito", JSON.stringify(items));
   }, [items, hidratado]);
 
-  const agregarItem = useCallback((nuevoItem: ItemCarrito) => {
-    setItems((prev) => {
-      const existe = prev.find((i) => i.id === nuevoItem.id);
-      if (existe) {
-        return prev.map((i) =>
-          i.id === nuevoItem.id
-            ? { ...i, cantidad: i.cantidad + nuevoItem.cantidad }
-            : i,
-        );
-      }
-      return [...prev, nuevoItem];
-    });
-    trackPixelEvent("AddToCart", {
-      content_ids: [nuevoItem.id],
-      content_name: nuevoItem.nombre,
-      content_type: "product",
-      value: nuevoItem.precio * nuevoItem.cantidad,
-      currency: "COP",
-    });
-  }, []);
+  const agregarItem = useCallback(
+    (nuevoItem: ItemCarrito) => {
+      setItems((prev) => {
+        const existe = prev.find((i) => i.id === nuevoItem.id);
+        if (existe) {
+          return prev.map((i) =>
+            i.id === nuevoItem.id
+              ? { ...i, cantidad: i.cantidad + nuevoItem.cantidad }
+              : i,
+          );
+        }
+        return [...prev, nuevoItem];
+      });
+
+      const [firstName, ...restName] = (session?.user?.name || "").split(" ");
+
+      sendMetaEvent(
+        "AddToCart",
+        {
+          content_ids: [nuevoItem.id],
+          content_name: nuevoItem.nombre,
+          content_type: "product",
+          value: nuevoItem.precio * nuevoItem.cantidad,
+          currency: "COP",
+        },
+        {
+          email: session?.user?.email || undefined,
+          firstName: firstName || undefined,
+          lastName: restName.join(" ") || undefined,
+          country: "CO",
+        },
+      );
+
+      trackTikTokEvent("AddToCart", {
+        contents: [
+          {
+            content_id: String(nuevoItem.id),
+            content_name: nuevoItem.nombre,
+            content_type: "product",
+            quantity: nuevoItem.cantidad,
+            price: nuevoItem.precio,
+          },
+        ],
+        value: nuevoItem.precio * nuevoItem.cantidad,
+        currency: "COP",
+      });
+    },
+    [session],
+  );
 
   const eliminarItem = useCallback((id: number) => {
     setItems((prev) => prev.filter((i) => i.id !== id));
