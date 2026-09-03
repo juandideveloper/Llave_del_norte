@@ -23,7 +23,7 @@ export default function WhatsAppFlotante() {
       </AnimatePresence>
 
       <motion.a
-        href="https://wa.me/573134866451"
+        href="https://wa.me/573204384886"
         target="_blank"
         rel="noopener noreferrer"
         initial={{ scale: 0 }}

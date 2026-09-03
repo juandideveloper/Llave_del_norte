@@ -332,7 +332,7 @@ export default function Footer() {
                   fill="#C5973D"
                 />
               </svg>
-              3134866451
+              3204384886
             </div>
             <div className="flex items-center gap-2 text-sm text-hueso/50">
               <svg
@@ -455,7 +455,7 @@ export default function Footer() {
         <div className="flex items-center gap-4">
           <p className="text-xs text-hueso/40">¡Síguenos!</p>
           <a
-            href="https://wa.me/573134866451"
+            href="https://wa.me/573204384886"
             target="_blank"
             rel="noopener noreferrer"
             className="text-hueso/50 hover:text-amarillo transition-colors"

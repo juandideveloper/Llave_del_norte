@@ -77,7 +77,7 @@ c61 -30 171 -89 245 -132 152 -87 272 -148 343 -175 26 -10 44 -22 40 -26 -4
           </Link>
 
           <Link
-            href="https://wa.me/573134866451"
+            href="https://wa.me/573204384886"
             className="text-sm text-white hover:text-amarillo transition-colors uppercase tracking-wider"
           >
             Atención al cliente

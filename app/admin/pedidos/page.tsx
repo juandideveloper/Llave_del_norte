@@ -17,10 +17,12 @@ export default async function PedidosPage({
 
   const todos = pedidos.length;
   const confirmados = pedidos.filter((p) => p.estadoPago === "PAGADO").length;
+  const pendientes = pedidos.filter((p) => p.estadoPago === "PENDIENTE").length;
   const fallidos = pedidos.filter((p) => p.estadoPago === "FALLIDO").length;
 
   const pedidosFiltrados = pedidos.filter((p) => {
     if (filtroActivo === "confirmados") return p.estadoPago === "PAGADO";
+    if (filtroActivo === "pendientes") return p.estadoPago === "PENDIENTE";
     if (filtroActivo === "fallidos") return p.estadoPago === "FALLIDO";
     return true; // "todos"
   });
@@ -28,6 +30,7 @@ export default async function PedidosPage({
   const filtros = [
     { key: "todos", label: `TODOS (${todos})` },
     { key: "confirmados", label: `Confirmados (${confirmados})` },
+    { key: "pendientes", label: `Pendientes (${pendientes})` },
     { key: "fallidos", label: `Fallidos (${fallidos})` },
   ];
 
