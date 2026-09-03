@@ -1,9 +1,7 @@
 import { NextAuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
-import { PrismaClient } from "@prisma/client"
 import bcrypt from "bcryptjs"
-
-const prisma = new PrismaClient()
+import { prisma } from "@/lib/prisma"
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -16,21 +14,26 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null
 
-        const cliente = await prisma.cliente.findUnique({
-          where: { email: credentials.email },
-        })
+        try {
+          const cliente = await prisma.cliente.findUnique({
+            where: { email: credentials.email },
+          })
 
-        if (!cliente) return null
+          if (!cliente) return null
 
-        const passwordCorrecta = await bcrypt.compare(credentials.password, cliente.password)
-        if (!passwordCorrecta) return null
+          const passwordCorrecta = await bcrypt.compare(credentials.password, cliente.password)
+          if (!passwordCorrecta) return null
 
-        return {
-          id: String(cliente.id),
-          email: cliente.email,
-          name: cliente.nombre,
-          role: cliente.rol,
-          estado: cliente.estado,
+          return {
+            id: String(cliente.id),
+            email: cliente.email,
+            name: cliente.nombre,
+            role: cliente.rol,
+            estado: cliente.estado,
+          }
+        } catch (error) {
+          console.error("Error en authorize:", error)
+          return null
         }
       },
     }),
