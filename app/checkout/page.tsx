@@ -176,6 +176,7 @@ export default function CheckoutPage() {
   );
   const [pedidoId, setPedidoId] = useState<number | null>(null);
   const [creandoPedido, setCreandoPedido] = useState(false);
+  const [boldAbierto, setBoldAbierto] = useState(false);
   const [boldIntegrity, setBoldIntegrity] = useState("");
   const [procesandoContraentrega, setProcesandoContraentrega] = useState(false);
   const [costoEnvio, setCostoEnvio] = useState(0);
@@ -256,6 +257,8 @@ export default function CheckoutPage() {
 
   // Crea el pedido real en la base de datos ANTES de pedir el hash de Bold,
   // para que el webhook de Bold tenga un id de pedido real que actualizar.
+  // Si el usuario termina eligiendo contraentrega en vez de Bold, este
+  // pedido se borra en handleContraentrega para no dejar duplicados.
   useEffect(() => {
     if (pasoActual !== 2 || pedidoId || creandoPedido) return;
 
@@ -356,6 +359,7 @@ export default function CheckoutPage() {
   ]);
 
   function abrirBold() {
+    setBoldAbierto(true);
     localStorage.setItem(
       "checkout_datos",
       JSON.stringify({
@@ -379,6 +383,12 @@ export default function CheckoutPage() {
   async function handleContraentrega() {
     setProcesandoContraentrega(true);
     try {
+      // Si se había preparado un pedido para Bold pero el usuario nunca lo
+      // abrió, lo borramos para no dejar un registro huérfano duplicado.
+      if (pedidoId && !boldAbierto) {
+        await fetch(`/api/pedidos/${pedidoId}`, { method: "DELETE" }).catch(() => {});
+      }
+
       const res = await fetch("/api/pedidos", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -395,9 +405,6 @@ export default function CheckoutPage() {
       });
       const data = await res.json();
       if (data.ok) {
-        // Contraentrega no pasa por webhook, así que disparamos aquí mismo
-        // el correo y la creación de la guía, de forma confiable porque
-        // el pedido ya existe en la base de datos en este punto.
         fetch("/api/email/confirmacion", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -413,7 +420,6 @@ export default function CheckoutPage() {
             items,
           }),
         }).catch(() => {});
-
 
         vaciarCarrito();
         const params = new URLSearchParams({
@@ -494,7 +500,7 @@ export default function CheckoutPage() {
             </p>
             <div className="flex items-center justify-center gap-4">
               
-                <a href="https://www.instagram.com/lallavedelnorte/"
+              <a  href="https://www.instagram.com/lallavedelnorte/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-verde hover:text-amarillo transition-colors"
@@ -528,7 +534,7 @@ export default function CheckoutPage() {
                 </svg>
               </a>
               
-              <a  href="https://wa.me/573134866451"
+             <a   href="https://wa.me/573134866451"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-verde hover:text-amarillo transition-colors"
