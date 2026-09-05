@@ -10,6 +10,8 @@ import Image from "next/image";
 import Footer from "@/components/ui/Footer";
 import ModalCarrito from "@/components/ui/ModalCarrito";
 import { useCarrito } from "@/context/CarritoContext";
+import { sendMetaEvent } from "@/lib/metaPixel";
+import { trackTikTokEvent } from "@/lib/tiktokPixel";
 
 interface ProductoAlegra {
   id: string;
@@ -33,6 +35,8 @@ interface Resena {
   fecha: string;
   cliente: { nombre: string };
 }
+
+const ZOOM_SCALE = 2.5;
 
 function Estrellas({
   cantidad,
@@ -102,6 +106,12 @@ export default function DetalleProductoPage() {
   const [cardWidthRelacionados, setCardWidthRelacionados] = useState(200);
   const { agregarItem } = useCarrito();
 
+  // Zoom de la imagen (estilo lupa)
+  const imagenContainerRef = useRef<HTMLDivElement>(null);
+  const [zoomActivo, setZoomActivo] = useState(false);
+  const [lens, setLens] = useState({ left: 0, top: 0, width: 0, height: 0 });
+  const [bgPos, setBgPos] = useState({ x: 50, y: 50 });
+
   // Reseñas
   const [resenas, setResenas] = useState<Resena[]>([]);
   const [mostrarFormResena, setMostrarFormResena] = useState(false);
@@ -156,6 +166,43 @@ export default function DetalleProductoPage() {
       .catch(() => {});
   }, [producto]);
 
+  // Evento ViewContent (Meta + TikTok) cuando el producto ya cargó
+  useEffect(() => {
+    if (!producto) return;
+
+    const precioActual =
+      producto.price[0]?.precioConIva ?? producto.price[0]?.price ?? 0;
+
+    sendMetaEvent(
+      "ViewContent",
+      {
+        content_ids: [producto.id],
+        content_name: producto.name,
+        content_type: "product",
+        value: Math.round(precioActual),
+        currency: "COP",
+      },
+      {
+        email: session?.user?.email || undefined,
+        country: "CO",
+      },
+    );
+
+    trackTikTokEvent("ViewContent", {
+      contents: [
+        {
+          content_id: String(producto.id),
+          content_name: producto.name,
+          content_type: "product",
+          price: Math.round(precioActual),
+        },
+      ],
+      value: Math.round(precioActual),
+      currency: "COP",
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [producto]);
+
   useEffect(() => {
     if (sliderRelacionadosRef.current) {
       setCardWidthRelacionados(
@@ -171,6 +218,28 @@ export default function DetalleProductoPage() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  function handleMouseMoveImagen(e: React.MouseEvent<HTMLDivElement>) {
+    const rect = imagenContainerRef.current?.getBoundingClientRect();
+    if (!rect) return;
+
+    const lensWidth = rect.width / ZOOM_SCALE;
+    const lensHeight = rect.height / ZOOM_SCALE;
+
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    const lensLeft = Math.max(0, Math.min(x - lensWidth / 2, rect.width - lensWidth));
+    const lensTop = Math.max(0, Math.min(y - lensHeight / 2, rect.height - lensHeight));
+
+    setLens({ left: lensLeft, top: lensTop, width: lensWidth, height: lensHeight });
+
+    const maxLeft = rect.width - lensWidth;
+    const maxTop = rect.height - lensHeight;
+    const bgX = maxLeft > 0 ? (lensLeft / maxLeft) * 100 : 50;
+    const bgY = maxTop > 0 ? (lensTop / maxTop) * 100 : 50;
+    setBgPos({ x: bgX, y: bgY });
+  }
 
   async function handleEnviarResena() {
     if (!calificacionNueva) return;
@@ -295,45 +364,83 @@ export default function DetalleProductoPage() {
 
       <div className="max-w-8xl mx-auto px-4 md:px-6 py-6 bg-white">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-5">
-          {/* Galería */}
-          <div className="rounded-t-lg bg-gray-100 border-gray-400 border-2">
-            <div className="rounded-t-lg overflow-hidden h-72 md:h-96 flex items-center justify-center mb-3 bg-white">
-              {imagenPrincipal ? (
-                <img
-                  src={imagenPrincipal}
-                  alt={producto.name}
-                  className="object-contain h-full w-full"
-                />
-              ) : (
-                <svg
-                  width="80"
-                  height="80"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="0.8"
-                  className="text-verde/20"
-                >
-                  <rect x="3" y="3" width="18" height="18" rx="2" />
-                  <path d="M3 9h18M9 21V9" />
-                </svg>
+          {/* Galería estilo MercadoLibre: miniaturas verticales + imagen + zoom */}
+          <div className="rounded-t-lg bg-gray-100 border-gray-400 border-2 p-4 relative">
+            <div className="flex flex-col sm:flex-row gap-3">
+              {/* Miniaturas */}
+              {imagenes.length > 0 && (
+                <div className="flex sm:flex-col gap-2 order-2 sm:order-1 overflow-x-auto sm:overflow-visible sm:max-h-[420px] pb-1 sm:pb-0">
+                  {imagenes.slice(0, 8).map((img, i) => (
+                    <button
+                      key={img.id}
+                      onClick={() => setImagenActual(i)}
+                      className={`w-16 h-16 md:w-20 md:h-20 flex-shrink-0 border-2 bg-white flex items-center justify-center transition-colors cursor-pointer overflow-hidden ${imagenActual === i ? "border-amarillo" : "border-gray-300"}`}
+                    >
+                      <img
+                        src={img.url}
+                        alt={`${producto.name} ${i + 1}`}
+                        className="object-contain w-full h-full"
+                      />
+                    </button>
+                  ))}
+                </div>
               )}
-            </div>
-            {imagenes.length > 0 && (
-              <div className="flex gap-2 items-center justify-center mb-6 flex-wrap px-2">
-                {imagenes.slice(0, 5).map((img, i) => (
-                  <button
-                    key={img.id}
-                    onClick={() => setImagenActual(i)}
-                    className={`w-20 h-20 md:w-28 md:h-28 border-2 bg-white flex items-center justify-center transition-colors cursor-pointer overflow-hidden ${imagenActual === i ? "border-amarillo" : "border-gray-400"}`}
+
+              {/* Imagen principal con zoom tipo lupa */}
+              <div
+                ref={imagenContainerRef}
+                onMouseEnter={() => setZoomActivo(true)}
+                onMouseLeave={() => setZoomActivo(false)}
+                onMouseMove={handleMouseMoveImagen}
+                className="order-1 sm:order-2 relative flex-1 h-72 md:h-96 bg-white flex items-center justify-center overflow-hidden cursor-zoom-in"
+              >
+                {imagenPrincipal ? (
+                  <img
+                    src={imagenPrincipal}
+                    alt={producto.name}
+                    className="object-contain h-full w-full pointer-events-none select-none"
+                  />
+                ) : (
+                  <svg
+                    width="80"
+                    height="80"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="0.8"
+                    className="text-verde/20"
                   >
-                    <img
-                      src={img.url}
-                      alt={`${producto.name} ${i + 1}`}
-                      className="object-contain w-full h-full"
-                    />
-                  </button>
-                ))}
+                    <rect x="3" y="3" width="18" height="18" rx="2" />
+                    <path d="M3 9h18M9 21V9" />
+                  </svg>
+                )}
+
+                {/* Recuadro de la lupa sobre la imagen (solo desktop) */}
+                {zoomActivo && imagenPrincipal && (
+                  <div
+                    className="hidden lg:block absolute border-2 border-amarillo bg-amarillo/10 pointer-events-none"
+                    style={{
+                      left: lens.left,
+                      top: lens.top,
+                      width: lens.width,
+                      height: lens.height,
+                    }}
+                  />
+                )}
+              </div>
+            </div>
+
+            {/* Panel de zoom ampliado (solo desktop, aparece al lado) */}
+            {zoomActivo && imagenPrincipal && (
+              <div className="hidden lg:block absolute top-4 left-full ml-4 w-[420px] h-72 md:h-96 border-2 border-gray-300 bg-white z-30 shadow-xl overflow-hidden">
+                <div
+                  className="w-full h-full bg-no-repeat"
+                  style={{
+                    backgroundImage: `url(${imagenPrincipal})`,
+                    backgroundSize: `${ZOOM_SCALE * 100}%`,
+                    backgroundPosition: `${bgPos.x}% ${bgPos.y}%`,
+                  }}
+                />
               </div>
             )}
           </div>
@@ -457,161 +564,186 @@ export default function DetalleProductoPage() {
         </div>
 
         {/* Grid inferior */}
-<div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-  {/* Columna izquierda: Descripción + Ficha técnica */}
-  <div className="space-y-8">
-    {/* Descripción */}
-    <div className="bg-gray-100 border-gray-400 border-2 overflow-hidden">
-      <button onClick={() => setDescripcionAbierta(!descripcionAbierta)}
-        className="w-full flex items-center justify-between p-4 text-xl font-semibold text-verde">
-        Descripción
-        <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"
-          className={`transition-transform ${descripcionAbierta ? "rotate-180" : ""} mr-6 cursor-pointer`}>
-          <path d="M6 9l6 6 6-6"/>
-        </svg>
-      </button>
-      <div className="hidden lg:block w-xl ml-4 h-px bg-gray-400 mb-5"/>
-      <AnimatePresence>
-        {descripcionAbierta && (
-          <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} className="overflow-hidden">
-            <div className="px-4 pb-4 space-y-4">
-              <div>
-                <p className="text-base font-semibold text-verde mb-1">{producto.name}</p>
-                <p className="text-sm text-gray-700">{producto.description || "Sin descripción disponible"}</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+          {/* Columna izquierda: Descripción + Ficha técnica */}
+          <div className="space-y-8">
+            {/* Descripción */}
+            <div className="bg-gray-100 border-gray-400 border-2 overflow-hidden">
+              <button
+                onClick={() => setDescripcionAbierta(!descripcionAbierta)}
+                className="w-full flex items-center justify-between p-4 text-xl font-semibold text-verde"
+              >
+                Descripción
+                <svg
+                  width="25"
+                  height="25"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  className={`transition-transform ${descripcionAbierta ? "rotate-180" : ""} mr-6 cursor-pointer`}
+                >
+                  <path d="M6 9l6 6 6-6" />
+                </svg>
+              </button>
+              <div className="hidden lg:block w-xl ml-4 h-px bg-gray-400 mb-5" />
+              <AnimatePresence>
+                {descripcionAbierta && (
+                  <motion.div
+                    initial={{ height: 0 }}
+                    animate={{ height: "auto" }}
+                    exit={{ height: 0 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="px-4 pb-4 space-y-4">
+                      <div>
+                        <p className="text-base font-semibold text-verde mb-1">
+                          {producto.name}
+                        </p>
+                        <p className="text-sm text-gray-700">
+                          {producto.description || "Sin descripción disponible"}
+                        </p>
+                      </div>
+                      <div ref={especificacionesRef} className="h-1" />
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Ficha técnica */}
+            <div className="bg-gray-100 border-2 border-gray-400 overflow-hidden">
+              <button
+                onClick={() => setFichaTecnicaAbierta(!fichaTecnicaAbierta)}
+                className="w-full flex items-center justify-between p-4 text-lg font-semibold text-verde"
+              >
+                Ficha técnica
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  className={`transition-transform ${fichaTecnicaAbierta ? "rotate-180" : ""} mr-7 cursor-pointer`}
+                >
+                  <path d="M6 9l6 6 6-6" />
+                </svg>
+              </button>
+              <div className="hidden lg:block w-xl ml-4 h-px bg-gray-400 mb-5" />
+              <AnimatePresence>
+                {fichaTecnicaAbierta && (
+                  <motion.div
+                    initial={{ height: 0 }}
+                    animate={{ height: "auto" }}
+                    exit={{ height: 0 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="pb-4">
+                      <table className="w-full text-sm">
+                        <tbody>
+                          {[
+                            { label: "Nombre", valor: producto.name, bg: "bg-gray-200" },
+                            { label: "Referencia", valor: producto.reference || "—", bg: "bg-white" },
+                            { label: "Categoría", valor: producto.category?.name || "—", bg: "bg-gray-200" },
+                            { label: "Stock disponible", valor: `${stock} unidades`, bg: "bg-white" },
+                            { label: "Precio", valor: `$ ${Math.round(precio).toLocaleString("es-CO")}`, bg: "bg-gray-200" },
+                            { label: "Estado", valor: enStock ? "En stock" : "Agotado", bg: "bg-white" },
+                            ...(producto.garantia ? [{ label: "Garantía", valor: producto.garantia, bg: "bg-gray-200" }] : []),
+                          ].map(({ label, valor, bg }) => (
+                            <tr key={label} className={bg}>
+                              <td className="py-2 px-4 text-gray-700 w-1/2">{label}</td>
+                              <td className="py-2 px-4 text-gray-700">{valor}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
+
+          {/* Especificaciones + Garantía + Entrega */}
+          <div className="space-y-7">
+            <div className="bg-gray-100 border-2 border-gray-100 p-4">
+              <p className="text-sm font-semibold text-verde mb-3">Especificaciones principales</p>
+              <div className="space-y-1">
+                {[
+                  { label: "Categoría", valor: producto.category?.name || "—" },
+                  { label: "Referencia", valor: producto.reference || "—" },
+                  { label: "Stock disponible", valor: `${stock} unidades` },
+                ].map(({ label, valor }) => (
+                  <div key={label} className="flex items-center gap-2 text-sm font-semibold text-verde">
+                    <span className="text-amarillo">+</span>
+                    <span>{label}:</span>
+                    <span className="text-gray-600">{valor}</span>
+                  </div>
+                ))}
+                <div className="flex items-center gap-2 text-sm font-semibold text-verde">
+                  <span className="text-amarillo">+</span>
+                  <span>Estado:</span>
+                  <span className={enStock ? "text-green-600" : "text-red-500"}>{enStock ? "En stock" : "Agotado"}</span>
+                </div>
               </div>
-              <div ref={especificacionesRef} className="h-1"/>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
 
-    {/* Ficha técnica */}
-    <div className="bg-gray-100 border-2 border-gray-400 overflow-hidden">
-      <button onClick={() => setFichaTecnicaAbierta(!fichaTecnicaAbierta)}
-        className="w-full flex items-center justify-between p-4 text-lg font-semibold text-verde">
-        Ficha técnica
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"
-          className={`transition-transform ${fichaTecnicaAbierta ? "rotate-180" : ""} mr-7 cursor-pointer`}>
-          <path d="M6 9l6 6 6-6"/>
-        </svg>
-      </button>
-      <div className="hidden lg:block w-xl ml-4 h-px bg-gray-400 mb-5"/>
-      <AnimatePresence>
-        {fichaTecnicaAbierta && (
-          <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} className="overflow-hidden">
-            <div className="pb-4">
-              <table className="w-full text-sm">
-                <tbody>
-                  {[
-                    { label: "Nombre", valor: producto.name, bg: "bg-gray-200" },
-                    { label: "Referencia", valor: producto.reference || "—", bg: "bg-white" },
-                    { label: "Categoría", valor: producto.category?.name || "—", bg: "bg-gray-200" },
-                    { label: "Stock disponible", valor: `${stock} unidades`, bg: "bg-white" },
-                    { label: "Precio", valor: `$ ${Math.round(precio).toLocaleString("es-CO")}`, bg: "bg-gray-200" },
-                    { label: "Estado", valor: enStock ? "En stock" : "Agotado", bg: "bg-white" },
-                    ...(producto.garantia ? [{ label: "Garantía", valor: producto.garantia, bg: "bg-gray-200" }] : []),
-                  ].map(({ label, valor, bg }) => (
-                    <tr key={label} className={bg}>
-                      <td className="py-2 px-4 text-gray-700 w-1/2">{label}</td>
-                      <td className="py-2 px-4 text-gray-700">{valor}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="mt-4 border-3 border-dotted border-amarillo rounded-xl p-4 flex items-start gap-3 min-h-28">
+              <Image src="/images/Insignia.png" alt="Insignia de garantia" width={50} height={50} />
+              <div>
+                <p className="text-sm font-semibold text-verde">Satisfacción Garantizada</p>
+                <p className="text-sm text-gray-400 mt-0.5">Garantía</p>
+                <p className="text-sm text-gray-400">{producto.garantia || "Contáctanos para más información sobre la garantía de este producto"}</p>
+              </div>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  </div>
 
-  {/* Especificaciones + Garantía + Entrega */}
-  <div className="space-y-7">
-    <div className="bg-gray-100 border-2 border-gray-100 p-4">
-      <p className="text-sm font-semibold text-verde mb-3">Especificaciones principales</p>
-      <div className="space-y-1">
-        {[
-          { label: "Categoría", valor: producto.category?.name || "—" },
-          { label: "Referencia", valor: producto.reference || "—" },
-          { label: "Stock disponible", valor: `${stock} unidades` },
-        ].map(({ label, valor }) => (
-          <div key={label} className="flex items-center gap-2 text-sm font-semibold text-verde">
-            <span className="text-amarillo">+</span>
-            <span>{label}:</span>
-            <span className="text-gray-600">{valor}</span>
-          </div>
-        ))}
-        <div className="flex items-center gap-2 text-sm font-semibold text-verde">
-          <span className="text-amarillo">+</span>
-          <span>Estado:</span>
-          <span className={enStock ? "text-green-600" : "text-red-500"}>{enStock ? "En stock" : "Agotado"}</span>
-        </div>
-      </div>
-    </div>
-
-    <div className="mt-4 border-3 border-dotted border-amarillo rounded-xl p-4 flex items-start gap-3 min-h-28">
-      <Image src="/images/Insignia.png" alt="Insignia de garantia" width={50} height={50}/>
-      <div>
-        <p className="text-sm font-semibold text-verde">Satisfacción Garantizada</p>
-        <p className="text-sm text-gray-400 mt-0.5">Garantía</p>
-        <p className="text-sm text-gray-400">{producto.garantia || "Contáctanos para más información sobre la garantía de este producto"}</p>
-      </div>
-    </div>
-
-    <div className="bg-gray-100 border border-gray-100 p-4">
-      <p className="text-sm font-semibold text-verde mb-3">Entrega en</p>
-      <div className="space-y-2">
-        <div className="flex items-center justify-between p-3 border border-gray-100 rounded-lg cursor-pointer hover:border-amarillo transition-colors bg-white">
-          <div className="flex items-center gap-2">
-            <svg width="30" height="30" viewBox="0 0 61 61" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12.3903 48.6095C10.9077 47.1268 10.1663 45.3265 10.1663 43.2084H3.81217L4.95592 38.1251H12.1361C12.8563 37.3202 13.7035 36.6954 14.6778 36.2506C15.6521 35.8058 16.69 35.5834 17.7913 35.5834C18.8927 35.5834 19.9306 35.8058 20.9049 36.2506C21.8792 36.6954 22.7264 37.3202 23.4466 38.1251H34.058L39.3955 15.2501H11.5643L11.8184 14.1699C12.0726 12.9838 12.6551 12.02 13.5658 11.2787C14.4766 10.5374 15.5462 10.1667 16.7747 10.1667H45.7497L43.3986 20.3334H50.833L58.458 30.5001L55.9163 43.2084H50.833C50.833 45.3265 50.0917 47.1268 48.6091 48.6095C47.1264 50.0921 45.3261 50.8334 43.208 50.8334C41.09 50.8334 39.2896 50.0921 37.807 48.6095C36.3243 47.1268 35.583 45.3265 35.583 43.2084H25.4163C25.4163 45.3265 24.675 47.1268 23.1924 48.6095C21.7097 50.0921 19.9094 50.8334 17.7913 50.8334C15.6733 50.8334 13.8729 50.0921 12.3903 48.6095Z" fill="#C59C4D"/>
-            </svg>
-            <span className="text-sm text-verde">Llega el</span>
-          </div>
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M9 18l6-6-6-6"/></svg>
-        </div>
-        <div className="flex items-center justify-between p-3 border border-gray-100 rounded-lg cursor-pointer hover:border-amarillo transition-colors bg-white">
-          <div className="flex items-center gap-2">
-            <svg width="30" height="30" viewBox="0 0 61 61" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M45.7503 58.4584V50.8334H38.1253V45.7501H45.7503V38.1251H50.8337V45.7501H58.4587V50.8334H50.8337V58.4584H45.7503ZM5.08366 50.8334V35.5834H2.54199V30.5001L5.08366 17.7917H43.2087L45.7503 30.5001V35.5834H43.2087V43.2084H38.1253V35.5834H27.9587V50.8334H5.08366ZM10.167 45.7501H22.8753V35.5834H10.167V45.7501ZM5.08366 15.2501V10.1667H43.2087V15.2501H5.08366ZM7.75241 30.5001H40.5399L39.0149 22.8751H9.27741L7.75241 30.5001Z" fill="#C59C4D"/>
-            </svg>
-            <div>
-              <span className="text-sm text-verde block">Disponibilidad en tienda</span>
-              <span className="text-sm text-gray-400">{stock} unidades disponibles</span>
+            <div className="bg-gray-100 border border-gray-100 p-4">
+              <p className="text-sm font-semibold text-verde mb-3">Entrega en</p>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between p-3 border border-gray-100 rounded-lg cursor-pointer hover:border-amarillo transition-colors bg-white">
+                  <div className="flex items-center gap-2">
+                    <svg width="30" height="30" viewBox="0 0 61 61" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M12.3903 48.6095C10.9077 47.1268 10.1663 45.3265 10.1663 43.2084H3.81217L4.95592 38.1251H12.1361C12.8563 37.3202 13.7035 36.6954 14.6778 36.2506C15.6521 35.8058 16.69 35.5834 17.7913 35.5834C18.8927 35.5834 19.9306 35.8058 20.9049 36.2506C21.8792 36.6954 22.7264 37.3202 23.4466 38.1251H34.058L39.3955 15.2501H11.5643L11.8184 14.1699C12.0726 12.9838 12.6551 12.02 13.5658 11.2787C14.4766 10.5374 15.5462 10.1667 16.7747 10.1667H45.7497L43.3986 20.3334H50.833L58.458 30.5001L55.9163 43.2084H50.833C50.833 45.3265 50.0917 47.1268 48.6091 48.6095C47.1264 50.0921 45.3261 50.8334 43.208 50.8334C41.09 50.8334 39.2896 50.0921 37.807 48.6095C36.3243 47.1268 35.583 45.3265 35.583 43.2084H25.4163C25.4163 45.3265 24.675 47.1268 23.1924 48.6095C21.7097 50.0921 19.9094 50.8334 17.7913 50.8334C15.6733 50.8334 13.8729 50.0921 12.3903 48.6095Z" fill="#C59C4D" />
+                    </svg>
+                    <span className="text-sm text-verde">Llega el</span>
+                  </div>
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M9 18l6-6-6-6" /></svg>
+                </div>
+                <div className="flex items-center justify-between p-3 border border-gray-100 rounded-lg cursor-pointer hover:border-amarillo transition-colors bg-white">
+                  <div className="flex items-center gap-2">
+                    <svg width="30" height="30" viewBox="0 0 61 61" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M45.7503 58.4584V50.8334H38.1253V45.7501H45.7503V38.1251H50.8337V45.7501H58.4587V50.8334H50.8337V58.4584H45.7503ZM5.08366 50.8334V35.5834H2.54199V30.5001L5.08366 17.7917H43.2087L45.7503 30.5001V35.5834H43.2087V43.2084H38.1253V35.5834H27.9587V50.8334H5.08366ZM10.167 45.7501H22.8753V35.5834H10.167V45.7501ZM5.08366 15.2501V10.1667H43.2087V15.2501H5.08366ZM7.75241 30.5001H40.5399L39.0149 22.8751H9.27741L7.75241 30.5001Z" fill="#C59C4D" />
+                    </svg>
+                    <div>
+                      <span className="text-sm text-verde block">Disponibilidad en tienda</span>
+                      <span className="text-sm text-gray-400">{stock} unidades disponibles</span>
+                    </div>
+                  </div>
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M9 18l6-6-6-6" /></svg>
+                </div>
+              </div>
             </div>
           </div>
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M9 18l6-6-6-6"/></svg>
         </div>
-      </div>
-    </div>
-  </div>
-</div>
 
         {/* Juntos es mejor */}
         {relacionados.length > 0 && (
           <div className="mb-10">
-            <h2 className="text-2xl font-medium text-verde text-center mb-6">
-              ¡ Juntos es mejor !
-            </h2>
+            <h2 className="text-2xl font-medium text-verde text-center mb-6">¡ Juntos es mejor !</h2>
             <div className="relative px-8">
               <div className="overflow-hidden" ref={sliderRelacionadosRef}>
                 <div
                   className="flex gap-4"
                   style={{
                     transform: `translateX(-${offsetRelacionados}px)`,
-                    transition:
-                      "transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+                    transition: "transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
                     willChange: "transform",
                   }}
                 >
                   {relacionados.map((prod) => {
-                    const precioRel =
-                      prod.price[0]?.precioConIva ?? prod.price[0]?.price ?? 0; // <-- con IVA
-                    const imagenUrl =
-                      prod.images?.find((img) => img.favorite)?.url ||
-                      prod.images?.[0]?.url ||
-                      null;
+                    const precioRel = prod.price[0]?.precioConIva ?? prod.price[0]?.price ?? 0;
+                    const imagenUrl = prod.images?.find((img) => img.favorite)?.url || prod.images?.[0]?.url || null;
                     return (
                       <Link
                         key={prod.id}
@@ -620,44 +752,19 @@ export default function DetalleProductoPage() {
                       >
                         <div className="relative h-32 md:h-40 bg-gray-50">
                           {imagenUrl ? (
-                            <Image
-                              src={imagenUrl}
-                              alt={prod.name}
-                              fill
-                              unoptimized
-                              className="object-contain"
-                            />
+                            <Image src={imagenUrl} alt={prod.name} fill unoptimized className="object-contain" />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center">
-                              <svg
-                                width="40"
-                                height="40"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="0.8"
-                                className="text-verde/20"
-                              >
-                                <rect
-                                  x="3"
-                                  y="3"
-                                  width="18"
-                                  height="18"
-                                  rx="2"
-                                />
+                              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="0.8" className="text-verde/20">
+                                <rect x="3" y="3" width="18" height="18" rx="2" />
                                 <path d="M3 9h18M9 21V9" />
                               </svg>
                             </div>
                           )}
                         </div>
                         <div className="p-3">
-                          <p className="text-xs font-medium text-verde leading-tight line-clamp-2">
-                            {prod.name}
-                          </p>
-                          <p className="text-xs font-medium text-verde mt-1">
-                            $ {Math.round(precioRel).toLocaleString("es-CO")}{" "}
-                            und
-                          </p>
+                          <p className="text-xs font-medium text-verde leading-tight line-clamp-2">{prod.name}</p>
+                          <p className="text-xs font-medium text-verde mt-1">$ {Math.round(precioRel).toLocaleString("es-CO")} und</p>
                         </div>
                       </Link>
                     );
@@ -665,31 +772,19 @@ export default function DetalleProductoPage() {
                 </div>
               </div>
               <button
-                onClick={() =>
-                  setSliderRelacionados((prev) => Math.max(0, prev - 1))
-                }
+                onClick={() => setSliderRelacionados((prev) => Math.max(0, prev - 1))}
                 className="absolute left-0 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center shadow-sm hover:border-amarillo transition-colors z-10 cursor-pointer"
               >
                 <svg width="14" height="14" viewBox="0 0 69 69" fill="none">
-                  <path
-                    d="M28.75 63.25L0 34.5L28.75 5.75002L33.8531 10.8531L10.2063 34.5L33.8531 58.1469L28.75 63.25Z"
-                    fill="#112221"
-                  />
+                  <path d="M28.75 63.25L0 34.5L28.75 5.75002L33.8531 10.8531L10.2063 34.5L33.8531 58.1469L28.75 63.25Z" fill="#112221" />
                 </svg>
               </button>
               <button
-                onClick={() =>
-                  setSliderRelacionados((prev) =>
-                    Math.min(Math.max(relacionados.length - 4, 0), prev + 1),
-                  )
-                }
+                onClick={() => setSliderRelacionados((prev) => Math.min(Math.max(relacionados.length - 4, 0), prev + 1))}
                 className="absolute right-0 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center shadow-sm hover:border-amarillo transition-colors z-10 cursor-pointer"
               >
                 <svg width="14" height="14" viewBox="0 0 69 69" fill="none">
-                  <path
-                    d="M40.25 5.75L69 34.5L40.25 63.25L35.1469 58.1469L58.7938 34.5L35.1469 10.8531L40.25 5.75Z"
-                    fill="#112221"
-                  />
+                  <path d="M40.25 5.75L69 34.5L40.25 63.25L35.1469 58.1469L58.7938 34.5L35.1469 10.8531L40.25 5.75Z" fill="#112221" />
                 </svg>
               </button>
             </div>
@@ -704,29 +799,17 @@ export default function DetalleProductoPage() {
 
           <div className="flex flex-col md:flex-row gap-8 mt-4">
             <div className="min-w-[220px]">
-              <p className="text-xs text-gray-500 mb-1">
-                Muestra de puntuación
-              </p>
-              <p className="text-xs text-gray-400 mb-4">
-                Distribución de calificaciones
-              </p>
+              <p className="text-xs text-gray-500 mb-1">Muestra de puntuación</p>
+              <p className="text-xs text-gray-400 mb-4">Distribución de calificaciones</p>
               <div className="space-y-2">
                 {[5, 4, 3, 2, 1].map((i) => {
-                  const cant = resenas.filter(
-                    (r) => r.calificacion === i,
-                  ).length;
-                  const pct =
-                    resenas.length > 0 ? (cant / resenas.length) * 100 : 0;
+                  const cant = resenas.filter((r) => r.calificacion === i).length;
+                  const pct = resenas.length > 0 ? (cant / resenas.length) * 100 : 0;
                   return (
                     <div key={i} className="flex items-center gap-2">
-                      <span className="text-xs text-gray-500 w-16">
-                        {i} estrellas
-                      </span>
+                      <span className="text-xs text-gray-500 w-16">{i} estrellas</span>
                       <div className="flex-1 h-1 bg-gray-300 rounded-full">
-                        <div
-                          className="h-full bg-amarillo rounded-full transition-all"
-                          style={{ width: `${pct}%` }}
-                        />
+                        <div className="h-full bg-amarillo rounded-full transition-all" style={{ width: `${pct}%` }} />
                       </div>
                       <span className="text-xs text-gray-400 w-3">{cant}</span>
                     </div>
@@ -738,18 +821,12 @@ export default function DetalleProductoPage() {
             <div className="hidden md:block w-px bg-gray-200 self-stretch" />
 
             <div className="flex flex-col items-start">
-              <p className="text-xs text-gray-500 mb-2">
-                Clasificación general
-              </p>
+              <p className="text-xs text-gray-500 mb-2">Clasificación general</p>
               <div className="flex items-center gap-3">
-                <p className="text-6xl font-light text-verde">
-                  {promedioResenas.toFixed(1)}
-                </p>
+                <p className="text-6xl font-light text-verde">{promedioResenas.toFixed(1)}</p>
                 <Estrellas cantidad={Math.round(promedioResenas)} size="lg" />
               </div>
-              <p className="text-xs text-gray-400 mt-2">
-                {resenas.length} reseñas
-              </p>
+              <p className="text-xs text-gray-400 mt-2">{resenas.length} reseñas</p>
             </div>
 
             <div className="md:ml-auto flex items-start">
@@ -761,10 +838,7 @@ export default function DetalleProductoPage() {
                   {mostrarFormResena ? "Cancelar" : "Calificar este producto"}
                 </button>
               ) : (
-                <Link
-                  href="/login"
-                  className="px-4 py-2.5 border border-amarillo text-verde text-sm rounded-lg hover:bg-amarillo hover:text-hueso transition-colors"
-                >
+                <Link href="/login" className="px-4 py-2.5 border border-amarillo text-verde text-sm rounded-lg hover:bg-amarillo hover:text-hueso transition-colors">
                   Inicia sesión para calificar
                 </Link>
               )}
@@ -774,28 +848,13 @@ export default function DetalleProductoPage() {
           {/* Formulario */}
           <AnimatePresence>
             {mostrarFormResena && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                className="overflow-hidden mt-6"
-              >
+              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden mt-6">
                 <div className="bg-white rounded-xl p-5 border border-gray-200">
-                  <p className="text-sm font-medium text-verde mb-3">
-                    Tu calificación
-                  </p>
+                  <p className="text-sm font-medium text-verde mb-3">Tu calificación</p>
                   <div className="flex gap-1 mb-4">
                     {[1, 2, 3, 4, 5].map((i) => (
-                      <button
-                        key={i}
-                        onClick={() => setCalificacionNueva(i)}
-                        className="cursor-pointer"
-                      >
-                        <span
-                          className={`text-3xl ${i <= calificacionNueva ? "text-amarillo" : "text-gray-300"}`}
-                        >
-                          ★
-                        </span>
+                      <button key={i} onClick={() => setCalificacionNueva(i)} className="cursor-pointer">
+                        <span className={`text-3xl ${i <= calificacionNueva ? "text-amarillo" : "text-gray-300"}`}>★</span>
                       </button>
                     ))}
                   </div>
@@ -806,9 +865,7 @@ export default function DetalleProductoPage() {
                     rows={3}
                     className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm text-verde placeholder-gray-300 outline-none focus:border-amarillo resize-none mb-3"
                   />
-                  {errorResena && (
-                    <p className="text-xs text-red-500 mb-3">{errorResena}</p>
-                  )}
+                  {errorResena && <p className="text-xs text-red-500 mb-3">{errorResena}</p>}
                   <button
                     onClick={handleEnviarResena}
                     disabled={!calificacionNueva || enviandoResena}
@@ -826,31 +883,18 @@ export default function DetalleProductoPage() {
             <div className="mt-8 space-y-4">
               <div className="hidden md:block w-full h-px bg-gray-200" />
               {resenas.map((resena) => (
-                <div
-                  key={resena.id}
-                  className="bg-white rounded-xl p-5 border border-gray-100"
-                >
+                <div key={resena.id} className="bg-white rounded-xl p-5 border border-gray-100">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <div className="w-7 h-7 rounded-full bg-verde flex items-center justify-center">
-                        <span className="text-amarillo text-xs font-medium">
-                          {resena.cliente.nombre.charAt(0).toUpperCase()}
-                        </span>
+                        <span className="text-amarillo text-xs font-medium">{resena.cliente.nombre.charAt(0).toUpperCase()}</span>
                       </div>
-                      <p className="text-sm font-medium text-verde">
-                        {resena.cliente.nombre}
-                      </p>
+                      <p className="text-sm font-medium text-verde">{resena.cliente.nombre}</p>
                     </div>
-                    <p className="text-xs text-gray-400">
-                      {new Date(resena.fecha).toLocaleDateString("es-CO")}
-                    </p>
+                    <p className="text-xs text-gray-400">{new Date(resena.fecha).toLocaleDateString("es-CO")}</p>
                   </div>
                   <Estrellas cantidad={resena.calificacion} />
-                  {resena.comentario && (
-                    <p className="text-sm text-gray-500 mt-2">
-                      {resena.comentario}
-                    </p>
-                  )}
+                  {resena.comentario && <p className="text-sm text-gray-500 mt-2">{resena.comentario}</p>}
                 </div>
               ))}
             </div>
@@ -874,56 +918,27 @@ export default function DetalleProductoPage() {
                 onClick={() => setCantidad(Math.max(1, cantidad - 1))}
                 className="w-7 h-7 rounded-full border border-gray-200 flex items-center justify-center text-verde hover:border-amarillo transition-colors cursor-pointer"
               >
-                <svg
-                  width="10"
-                  height="10"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <path d="M5 12h14" />
-                </svg>
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14" /></svg>
               </button>
-              <span className="text-sm font-medium text-verde w-6 text-center">
-                {cantidad}
-              </span>
+              <span className="text-sm font-medium text-verde w-6 text-center">{cantidad}</span>
               <button
                 onClick={() => setCantidad(Math.min(stock, cantidad + 1))}
                 className="w-7 h-7 rounded-full border border-gray-200 flex items-center justify-center text-verde hover:border-amarillo transition-colors cursor-pointer"
               >
-                <svg
-                  width="10"
-                  height="10"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <path d="M12 5v14M5 12h14" />
-                </svg>
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 5v14M5 12h14" /></svg>
               </button>
             </div>
-            <button
-              onClick={agregarAlCarrito}
-              className="px-4 py-2 bg-verde text-amarillo text-sm font-medium rounded-xl hover:opacity-90 transition-opacity cursor-pointer"
-            >
+            <button onClick={agregarAlCarrito} className="px-4 py-2 bg-verde text-amarillo text-sm font-medium rounded-xl hover:opacity-90 transition-opacity cursor-pointer">
               Agregar al carro
             </button>
-            <button
-              onClick={comprarAhora}
-              className="px-4 py-2 text-sm font-medium rounded-xl bg-amarillo text-verde hover:opacity-90 transition-opacity cursor-pointer"
-            >
+            <button onClick={comprarAhora} className="px-4 py-2 text-sm font-medium rounded-xl bg-amarillo text-verde hover:opacity-90 transition-opacity cursor-pointer">
               Comprar ahora
             </button>
           </motion.div>
         )}
       </AnimatePresence>
 
-      <ModalCarrito
-        visible={mostrarModal}
-        onCerrar={() => setMostrarModal(false)}
-      />
+      <ModalCarrito visible={mostrarModal} onCerrar={() => setMostrarModal(false)} />
     </div>
   );
 }
